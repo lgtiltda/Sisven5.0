@@ -1,313 +1,1447 @@
+<?php
+//INICIO DO FIXAÇÃO DE PAGINAS COMPLEMENTARES DE PHP
+session_start();
+date_default_timezone_set('America/Manaus');
+
+//INICIO MODELS E CONTROLLERS
+
+require_once("Controller/NotasController.php");
+require_once("Model/Notas.php");
+
+require_once("Controller/UsuariosController.php");
+require_once("Model/Usuarios.php");
+
+require_once("Controller/ClientesController.php");
+require_once("Model/Clientes.php");
+
+require_once("Controller/CategoriaSerFinController.php");
+require_once("Model/CategoriaSerFin.php");
+
+
+require_once("Controller/ServicoController.php");
+require_once("Model/Servicos.php");
+
+
+require_once("Controller/CategoriaFinanceiroController.php");
+require_once("Model/CategoriaFinanceiro.php");
+
+
+
+require_once("Controller/MovimentoEmpresaController.php");
+require_once("Model/MovimentoEmpresa.php");
+
+
+//FIM MODELS E CONTROLLERS
+
+
+//FUNCOES ALTERNATIVAS
+require_once("Util/UploadFile.php");
+require_once("Util/functions.php");
+include("Action/conn.php");
+require_once("Util/UploadFile.php");
+$retorno = "&nbsp;";
+$erros = [];
+
+
+
+$banco = new Banco();
+$notasController = new NotasController();
+$usuarioController = new UsuarioController();
+$clientesController = new ClientesController();
+$categoriaserfinController = new CategoriaSerFinController();
+$categoriaFinanceiroController = new CategoriaFinanceiroController();
+$servicoController = new ServicoController();
+$movimentoEmpresaController = new MovimentoEmpresaController();
+
+
+
+//FIM DO FIXAÇÃO DE PAGINAS COMPLEMENTARES DE PHP
+
+//INICIO FUNCOES PARA PEGAR MENSAGEM DO SUBMIT ANTERIOR
+$resultado = "";
+if (isset($_GET['msgget'])) {
+
+  if ($_GET['msgget'] == 1) {
+
+    $codcli = $_GET['codcli'];
+    $nomecliente = $clientesController->RetornarNomeClientes($codcli);
+
+    $cod_funcionario = $_SESSION['codF'];
+    $sqlNota = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+    $paramNota = array(
+      ":status" => 1
+    );
+
+    $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+    if ($dataTableNota == null) {
+      echo "<div class='alert alert-danger'>ABRA O CAIXA PARA INICIAR AS VENDAS!</div>";
+      ?>
+
+      <button onclick="FuncaoChamarBotao8()" style="width:100%;" class="btn btn-outline-primary" type="button"
+        data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
+          viewBox="0 0 16 16">
+          <path fill-rule="evenodd"
+            d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
+        </svg>
+        <span style="font-size:18pt;">Iniciar Novo Caixa</span></button>
+      <?php
+
+    } else {
+      foreach ($dataTableNota as $resultadonota) {
+        $codcaixa = $resultadonota['cod'];
+      }
+
+      $resultado = "
+    <div class='alert' role='alert'>
+        <div class='d-flex justify-content-end'>
+          <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>
+          <h4 class='alert-heading'>CLIENTE SELECIONADO: $nomecliente!</h4>
+          
+        <hr>
+        <div class='row' id='ocultarinfo'>
+          <div class='card' style='width:33%;'>
+          <div class='card-body'>
+            <h5 id='offcanvasTopLabel' class=''>Venda Expressa</h5>
+            <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate enctype='multipart/form-data'>
+              <input name='txtCodCliente' id='txtCodCliente' value='$codcli' type='hidden' />
+              <input name='txtCod_caixa' id='txtCod_caixa' value='$codcaixa' type='hidden' />
+              <input name='txtTipoEntrega' id='txtTipoEntrega' value='1' type='hidden' />
+
+              <input tabindex='1' autofocus style='padding:15px; font-size: 9pt; width: 100%;  font-weight: bold' class='btn btn-outline-success' type='submit' name='btnSubmitPedirVendaExpressa' id='btnSubmitPedirVendaExpressa' style='' value='Inciar Venda Expressa'>
+            </form>
+
+          </div>
+        </div>
+        <div class='card' style='width:33%;'>
+          <div class='card-body'>
+            <h5 id='offcanvasTopLabel' class=''>Venda Retirada no Balcão</h5>
+            <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate enctype='multipart/form-data'>
+              <input name='txtCodCliente' id='txtCodCliente' value='$codcli' type='hidden' />
+              <input name='txtCod_caixa' id='txtCod_caixa' value='$codcaixa' type='hidden' />
+              <input name='txtTipoEntrega' id='txtTipoEntrega' value='2' type='hidden' />
+
+              <input tabindex='2' style='padding:15px; font-size: 9pt; width: 100%;  font-weight: bold' class='btn btn-outline-danger' type='submit' name='btnSubmitPedirVendaExpressa' id='btnSubmitPedirVendaExpressa' style='' value='Inciar Venda Retirada'>
+            </form>
+          </div>
+        </div>
+        <div class='card' style='width:33%;'>
+          <div class='card-body'>
+            <h5 id='offcanvasTopLabel' class=''>Venda Online para Entrega</h5>
+            <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate enctype='multipart/form-data'>
+              <input name='txtCodCliente' id='txtCodCliente' value='$codcli' type='hidden' />
+              <input name='txtCod_caixa' id='txtCod_caixa' value='$codcaixa' type='hidden' />
+              <input name='txtTipoEntrega' id='txtTipoEntrega' value='3' type='hidden' />
+              <input tabindex='3' style='padding:15px; font-size: 9pt; width: 100%;  font-weight: bold' class='btn btn-outline-primary' type='submit' name='btnSubmitPedirVendaExpressa' id='btnSubmitPedirVendaExpressa' style='' value='Inciar Venda Entrega'>
+            </form>
+          </div>
+        </div>
+        </div>
+    </div>
+    ";
+    }
+  }
+
+  if ($_GET['msgget'] == 2) {
+    $resultado = "
+    <div class='alert alert-warning' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>Erro a carregar venda!</h4>
+        
+        <p class='mb-0'>Para continuar vendendo voce necessita iniciar uma nova venda em 'ÁREA DE VENDAS'  ou retornar a uma venda já aberta.</p>
+      <hr>
+      </div>
+  ";
+  }
+  if ($_GET['msgget'] == 3) {
+    $codcaixa = $_GET['codcaixa'];
+    $cod_caixa = $codcaixa;
+
+    $cod_funcionario = $_SESSION['codF'];
+    $sqlNota = "SELECT * FROM fechar_caixa WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramNota = array(
+      ":cod" => $cod_caixa
+    );
+
+    $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+    foreach ($dataTableNota as $resultadonota) {
+      $status_caixa = $resultadonota['status'];
+
+      $caixa_inicial = (float) $resultadonota['caixa_inicial'];
+    }
+    $PARTE1 = "
+          <table class='table table-hover table-bordered' style='font-size:10pt;'> 
+            <tr style='text-align:left; '>
+                <TD rowspan='2'></TD>
+                <td colspan=''><b>PAGAMENTO EM DINHEIRO</b></td>
+                <td colspan=''><b>PAGAMENTO CARTÃO DÉBITO </b></td>
+                <td colspan=''><b>PAGAMENTO PIX </b></td>
+                <td colspan=''><b>PAGAMENTO CARTÃO CRÉDITO </b></td>
+                <td colspan=''><b>PAGAMENTO CREDIÁRIO </b></td>
+                <td colspan=''><b>TOTAL</b></td>
+            </tr>
+            ";
+
+    //    $sqlNota2 = "SELECT * FROM usuarios ORDER BY cod ASC";
+
+    $contadorindex = 0;
+    $valorTotalFinal2 = 0;
+    $valorTotalFinalDinheiro2 = 0;
+    $valorTotalFinalCartao2 = 0;
+    $valorTotalFinalCartaoDeb2 = 0;
+    $valorTotalFinalCartaoCred2 = 0;
+    $valorTotalFinalPix2 = 0;
+    $valorTotalFinalCrediario2 = 0;
+
+    //  $dataTableNota2 = $banco->ExecuteQuery($sqlNota2);
+    // foreach ($dataTableNota2 as $resultadonota2) {
+    //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 3 AND dia = $dia AND mes = $mes AND ano = $ano ORDER BY cod ASC");
+    $sqlNota = "SELECT * FROM notas WHERE cod_caixa = :cod_caixa ORDER BY cod DESC";
+    $paramNota = array(
+      ":cod_caixa" => $cod_caixa,
+    );
+    $valorTotalFinal = 0;
+    $valorTotalFinalDinheiro = 0;
+    $valorTotalFinalCartao = 0;
+    $valorTotalFinalCartaoDeb = 0;
+    $valorTotalFinalCartaoCred = 0;
+    $valorTotalFinalPix = 0;
+    $valorTotalFinalCrediario = 0;
+
+    $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+    foreach ($dataTableNota as $resultadonota) {
+      $qtdTotalFinal = 0;
+      $nomecli = "";
+      $codnota = $resultadonota['cod'];
+
+      $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod ORDER BY cod DESC";
+      $paramNotaPag = array(
+        ":cod" => $codnota
+      );
+
+      $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
+      foreach ($dataTableNotaPag as $resultadonotaPag) {
+        if ($resultadonotaPag['tipo'] == 1 && $resultadonotaPag['tipopag'] == 1) {
+          $valorTotalFinalDinheiro = $valorTotalFinalDinheiro + $resultadonotaPag['total'];
+          $valorTotalFinalDinheiro2 = $valorTotalFinalDinheiro2 + $resultadonotaPag['total'];
+        }
+        if ($resultadonotaPag['tipo'] == 1 && $resultadonotaPag['tipopag'] == 2) {
+          $valorTotalFinalCartaoDeb = $valorTotalFinalCartaoDeb + $resultadonotaPag['total'];
+          $valorTotalFinalCartaoDeb2 = $valorTotalFinalCartaoDeb2 + $resultadonotaPag['total'];
+        }
+        if ($resultadonotaPag['tipo'] == 1 && $resultadonotaPag['tipopag'] == 3) {
+          $valorTotalFinalPix = $valorTotalFinalPix + $resultadonotaPag['total'];
+          $valorTotalFinalPix2 = $valorTotalFinalPix2 + $resultadonotaPag['total'];
+        }
+        if ($resultadonotaPag['tipo'] == 2 && $resultadonotaPag['tipopag'] == 1) {
+          $valorTotalFinalCartaoCred = $valorTotalFinalCartaoCred + $resultadonotaPag['total'];
+          $valorTotalFinalCartaoCred2 = $valorTotalFinalCartaoCred2 + $resultadonotaPag['total'];
+        }
+        if ($resultadonotaPag['tipo'] == 2 && $resultadonotaPag['tipopag'] == 2) {
+          $valorTotalFinalCrediario = $valorTotalFinalCrediario + $resultadonotaPag['total'];
+          $valorTotalFinalCrediario2 = $valorTotalFinalCrediario2 + $resultadonotaPag['total'];
+        }
+
+
+        $valorTotalFinal = $valorTotalFinal + $resultadonotaPag['total'];
+        $valorTotalFinal2 = $valorTotalFinal2 + $resultadonotaPag['total'];
+      }
+    }
+
+
+    $PARTE2 = "
+            <tr style='text-align:left;  '>
+                
+                <td>R$ " . number_format($valorTotalFinalDinheiro, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($valorTotalFinalCartaoDeb, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($valorTotalFinalPix, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($valorTotalFinalCartaoCred, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($valorTotalFinalCrediario, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($valorTotalFinal, 2, ',', '.') . "</td>
+                
+            </tr>
+        ";
+
+    $PARTE3 = "
+     <tr style='text-align:left; font-size:12pt; '>
+         <td><b>FATURAMENTO</b></td>
+         
+         <td><b>R$ " . number_format($valorTotalFinalDinheiro2, 2, ',', '.') . "</b></td>
+         <td><b>R$ " . number_format($valorTotalFinalCartaoDeb2, 2, ',', '.') . "</b></td>
+         <td><b>R$ " . number_format($valorTotalFinalPix2, 2, ',', '.') . "</td>
+         <td><b>R$ " . number_format($valorTotalFinalCartaoCred2, 2, ',', '.') . "</b></td>
+         <td><b>R$ " . number_format($valorTotalFinalCrediario2, 2, ',', '.') . "</b></td>
+         <td><b>R$ " . number_format($valorTotalFinal2, 2, ',', '.') . "</b></td>     
+     </tr>
+ ";
+
+    $sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE cod_caixa = $cod_caixa ORDER BY id ASC");
+    // Exibe todos os valores encontrados
+    $totalfinaldiacat = 0;
+    while ($dividadia = mysqli_fetch_object($sqlDividasDia)) {
+      $cod = $dividadia->id;
+      $pontos = ',';
+      $result = str_replace($pontos, "", $dividadia->valor);
+      $valor_total = (float) $result;
+      $total = $valor_total;
+
+      $totalfinaldiacat = $totalfinaldiacat + $total;
+    }
+
+
+    $PARTE4 = " <tr style='text-align:left; font-size:12pt; '>
+         <td colspan=''><b>CAIXA INICIAL</b></td>
+         <td colspan='5'><b></b></td>
+         <td colspan=''><b>R$ " . number_format($caixa_inicial, 2, ',', '.') . "</b></td>
+     </tr>";
+
+    $PARTE5 = " <tr style='text-align:left; font-size:12pt; '>
+         <td colspan=''><b>DESPESAS DO DIA</b></td>
+         <td colspan='5'><b></b></td>
+         <td colspan=''><b>R$ " . number_format($totalfinaldiacat, 2, ',', '.') . "</b></td>
+     </tr>";
+    $SALDODIA = 0;
+    $SALDODIA = $valorTotalFinal2 - $totalfinaldiacat + $caixa_inicial;
+    $PARTE6 = " <tr style='text-align:left; font-size:12pt; '>
+         <td colspan=''><b>SALDO DO DIA</b></td>
+         <td colspan='5'><b></b></td>
+         <td colspan=''><b>R$ " . number_format($SALDODIA, 2, ',', '.') . "</b></td>
+     </tr>
+     </table>";
+
+
+
+     if($status_caixa==1){
+      $resultado = "
+      <div class='alert ' role='alert' >
+        <div class='d-flex justify-content-end'>
+          <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>
+          <h4 class='alert-heading'>Caixa Cod. nº $codcaixa! 
+              
+              <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate
+                enctype='multipart/form-data'>
+                <input name='txtCod_caixa' id='txtCod_caixa' value='$codcaixa' type='hidden' />
+  
+                <input style='padding:15px; font-size: 9pt; width: 100%;  font-weight: bold' class='btn btn-outline-DANGER'
+                  type='submit' name='btnSubmitFecharCaixa' id='btnSubmitFecharCaixa' style=''
+                  value='Fechar Caixa'>
+              </form>
+             
+          </h4>
+        <hr>  
+        " . $PARTE1 . $PARTE2 . $PARTE3 . $PARTE4 . $PARTE5 . $PARTE6 . "
+    </div>
+  ";
+     }else{
+      $resultado = "
+      <div class='alert ' role='alert' >
+        <div class='d-flex justify-content-end'>
+          <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>
+          <h4 class='alert-heading'>Caixa Cod. nº $codcaixa! 
+              
+          
+             
+          </h4>
+        <hr>  
+        " . $PARTE1 . $PARTE2 . $PARTE3 . $PARTE4 . $PARTE5 . $PARTE6 . "
+    </div>
+  ";
+
+     }
+ 
+
+  }
+
+  if ($_GET['msgget'] == 4) {
+
+    $codprod = $_GET['codprod'];
+
+    $sqlServicos2 = "SELECT * FROM servicos WHERE  cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos2 = array(
+      ":cod" => $codprod
+    );
+
+    $dataTableServicos2 = $banco->ExecuteQuery($sqlServicos2, $paramServicos2);
+
+    if ($dataTableServicos2 != null) {
+      $RESULTADOPARACADPRODUTO = "
+        <div class='alert ' role='alert'>
+            <div class='d-flex justify-content-end'>
+              <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+            </div>
+       <table class='table table-striped table-sm'>    <thead>
+        <thead>
+                                    <tr style='text-align:left; font-size: 16pt;'>
+    <td style='width:30%;'><b>Informações do Produto</b></td>
+    <td><b>Cod. Barra</b></td>
+    <td><b>Cod. Busca</b></td>
+    <td><b>Informações de Estoque</b></td>
+    <td></td>
+  </tr>    </thead>";
+      foreach ($dataTableServicos2 as $resultadoservicos) {
+        $codservico = $resultadoservicos['cod'];
+        $categoriaservico = (float) $resultadoservicos['categoria'];
+        //$sqlCategorias = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod = $categoriaservico ORDER BY cod ASC LIMIT 1");
+        // Exibe todos os valores encontrados
+        $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+        $paramCat = array(
+          ":cod" => $categoriaservico
+        );
+
+        $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+        foreach ($dataTableCat as $resultadocat) {
+          $nomecategoria = $resultadocat['nome'];
+        }
+        $nomeservico = $resultadoservicos['nome'];
+        $codbusca = $resultadoservicos['codbusca'];
+        $codbarra = $resultadoservicos['codbarra'];
+
+
+        $qtdservico = $resultadoservicos['qtd'];
+        $estmax = $resultadoservicos['est_max'];
+        $estmim = $resultadoservicos['est_mim'];
+        $fornecedor = $resultadoservicos['fornecedor'];
+        $tiposerv = $resultadoservicos['tipo'];
+
+        $descricaoservico = $resultadoservicos['descricao'];
+        $valorunt = number_format($resultadoservicos['valor'], 2, ',', '.');
+
+        $sqlSerTeste = "SELECT * FROM pedidos WHERE servico = $codservico ORDER BY cod ASC LIMIT 1";
+        $contadorindex = 4;
+
+        $dataTableSerTeste = $banco->ExecuteQuery($sqlSerTeste);
+        if ($dataTableSerTeste == null) {
+          $textoteste = "<a onclick='PagPesquisarProdutos(2, txtNomeProdutoP.value, $codservico)' href='javascript: func' style='color:#fff; width:100%;  margin-top:5px;' class='btn btn-danger btn-sm'><span class='glyphicon glyphicon-trash'></span> Apagar</a>";
+        } else {
+          $textoteste = "";
+        }
+
+        $RESULTADOPARACADPRODUTO = $RESULTADOPARACADPRODUTO . "
+<tr style='text-align:left; font-size: 14pt;'>
+  <td style='width:30%;'>
+                                    <b>Nome:</b>$nomeservico</br>
+                                    <b>Descrição:</b>$descricaoservico</br>
+                                    <b>Categoria:</b>$nomecategoria</br>
+                                    <b>Valor Unt.:</b>R$ $valorunt</br>
+                                    </td>
+                                <td>$codbarra</td>
+  <td>$codbusca</td>
+  <td>
+                                ";
+        if ($tiposerv == 0) {
+          $RESULTADOPARACADPRODUTO = $RESULTADOPARACADPRODUTO . "
+                                       <small style='color:red;'> Este produto não possui controle de estoque
+                                        </small>";
+        } else {
+          $RESULTADOPARACADPRODUTO = $RESULTADOPARACADPRODUTO . "
+                                <b>Qtd:</b>$qtdservico</br>
+                                    <b>Estoque Max.:</b>$estmax</br>
+                                    <b>Estoque Mín.:</b>$estmim</br>
+                                    <b>Fornecedor:</b> $fornecedor
+                                  
+                               ";
+        }
+        $RESULTADOPARACADPRODUTO = $RESULTADOPARACADPRODUTO . "  </td> <td>
+                                <a tabindex='$contadorindex' onclick='PagPesquisarProdutos(3, 1, $codservico)' href='javascript: func' style='margin-top:5px; color:#fff; font-size: 11pt; width:100%;' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-retweet'></span>  Inf. Produto</a></br>
+  <a tabindex='$contadorindex' onclick='PagPesquisarProdutos(8, 1, $codservico)' href='javascript: func' style='color:#fff; margin-top:5px;font-size: 11pt; width:100%;' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-retweet'></span> Inf. de Busca</a></br>
+  <a tabindex='$contadorindex' onclick='PagPesquisarProdutos(9, 1, $codservico)' href='javascript: func' style='color:#fff; margin-top:5px; font-size: 11pt;width:100%;' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-retweet'></span>  Inf. de Estoque</a>
+                                <a tabindex='$contadorindex' onclick='PagPesquisarProdutos(10, 1, $codservico)' href='javascript: func' style='color:#fff; margin-top:5px; font-size: 11pt;width:100%;' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-retweet'></span>  Imagem</a>
+                                $textoteste</td>
+</tr>
+";
+        $contadorindex++;
+      }
+
+
+      $RESULTADOPARACADPRODUTO = $RESULTADOPARACADPRODUTO . "</table></div>";
+
+      $resultado = $RESULTADOPARACADPRODUTO;
+    }
+
+  }
+
+  if ($_GET['msgget'] == 5) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>Categoria Cadastrada com Sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+
+  if ($_GET['msgget'] == 6) {
+    $resultado = "
+    <div class='alert alert-danger' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>Categoria Deletada com Sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+
+  if ($_GET['msgget'] == 7) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>Imagem atualizada com sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+  if ($_GET['msgget'] == 8) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>Usuário Cadastrado com sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+  if ($_GET['msgget'] == 9) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>  Imagem atualizada com sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+  if ($_GET['msgget'] == 10) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>  Despesa Cadastrada Com sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+  if ($_GET['msgget'] == 11) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>  Categoria de Despesa Cadastrada Com Sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+  if ($_GET['msgget'] == 12) {
+    $resultado = "
+    <div class='alert alert-danger' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>  Categoria de Despesa Deletada Com Sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+
+  if ($_GET['msgget'] == 13) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>  Dados do Usuário Atualizado com Sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+
+  
+  if ($_GET['msgget'] == 14) {
+    $resultado = "
+    <div class='alert alert-success' role='alert'>
+      <div class='d-flex justify-content-end'>
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+      </div>
+        <h4 class='alert-heading'>  Configurações do Usuário Atualizada com Sucesso!</h4>
+        
+      <hr>
+      </div>
+  ";
+  }
+
+
+
+}
+//FIM FUNCOES PARA PEGAR MENSAGEM DO SUBMIT ANTERIOR
+
+//INICIO DE FUNCOES DE SUBMIT
+
+//INICIO SUBMIT PARA REALIZAR LOGIN
+if (filter_input(INPUT_POST, "btnEntrar", FILTER_SANITIZE_STRING)) {
+
+  $usuarioController = new UsuarioController();
+  $user = filter_input(INPUT_POST, "txtUsuario", FILTER_SANITIZE_STRING);
+  $pass = filter_input(INPUT_POST, "txtSenha", FILTER_SANITIZE_STRING);
+  $permissao = 1;
+
+  $resultado = $usuarioController->AutenticarUsuario($user, $pass, $permissao);
+
+  if ($resultado != null) {
+    if (filter_input(INPUT_POST, "ckManterLogado", FILTER_SANITIZE_STRING)) {
+      $_SESSION["entrarAdminE"] = true;
+    }
+
+
+    $_SESSION["permissaoF"] = $resultado->getPermissao();
+    $_SESSION["codF"] = $resultado->getCod();
+    $_SESSION["nomeF"] = $resultado->getNome();
+    $_SESSION["cod_orgaoF"] = $resultado->getCod_orgao();
+    $_SESSION["funcaoF"] = $resultado->getFuncao();
+    $_SESSION["logadoF"] = true;
+    if ($resultado->getPermissao() == 1) {
+
+      header("Location: index.php?");
+    } else if ($resultado->getPermissao() == 2) {
+
+      header("Location: index.php?pagina=homefunc");
+    } else if ($resultado->getPermissao() == 3) {
+
+      header("Location: index.php?pagina=hometelao");
+    }
+  } else {
+    $retorno = "<div class=\"alert alert-danger\" role=\"alert\">Usuário ou senha inválido.</div>";
+  }
+}
+//FIM SUBMIT PARA REALIZAR LOGIN
+
+//SUBMIT PARA INICIAR UMA VENDA EXPRESSA, RETIRADA OU ENTREGA
+if (filter_input(INPUT_POST, "btnSubmitPedirVendaExpressa", FILTER_SANITIZE_STRING)) {
+  $status = 1;
+  $usuario1 = filter_input(INPUT_POST, "txtCodCliente", FILTER_SANITIZE_NUMBER_INT);
+  $tipoentrega = filter_input(INPUT_POST, "txtTipoEntrega", FILTER_SANITIZE_NUMBER_INT);
+  $cod_caixa = filter_input(INPUT_POST, "txtCod_caixa", FILTER_SANITIZE_NUMBER_INT);
+  $func = $_SESSION["codF"];
+
+  $data_hoje2 = date('d/m/Y');
+
+  $t = explode("/", $data_hoje2);
+  $dia = $t[0];
+  $mes = $t[1];
+  $ano = $t[2];
+
+
+  if ($tipoentrega == 1) {
+    $sqlNotas = "SELECT * FROM notas WHERE tipo_pedido = 1 ORDER BY cod DESC LIMIT 1";
+    $ordem = 0;
+
+    $dataTableNotas = $banco->ExecuteQuery($sqlNotas);
+    foreach ($dataTableNotas as $resultadonotas) {
+      $ordem = $resultadonotas['ordem'];
+      if ($ordem < 999) {
+        $ordem = $ordem + 1;
+      } elseif ($ordem == 999) {
+        $ordem = 1;
+      }
+    }
+  } else {
+    $ordem = 0;
+  }
+
+
+  $notas = new Notas();
+  $notas->setStatus($status);
+  $notas->setUsuario($usuario1);
+  $notas->setDia($dia);
+  $notas->setMes($mes);
+  $notas->setAno($ano);
+  $notas->setFunc($func);
+  $notas->setOrdem($ordem);
+  $notas->setTipo_entrega($tipoentrega);
+  $notas->setCod_caixa($cod_caixa);
+
+
+  $cod_nota_ult = 0;
+  if ($notasController->Cadastrar($notas)) {
+    $cod_nota_ult = $notasController->RetornarUltimaNotaFunc($_SESSION['codF']);
+
+    header("location: index.php?pagina=carinhocompras&cod=$cod_nota_ult");
+  } else {
+    $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar novo Orçamento!</span> </div>";
+  }
+}
+//FIM SUBMIT PARA PEDIDOS
+
+//SUBMIT PARA FECHAR O CAIXA
+if (filter_input(INPUT_POST, "btnSubmitFecharCaixa", FILTER_SANITIZE_STRING)) {
+  $status = 2;
+  $cod_caixa = filter_input(INPUT_POST, "txtCod_caixa", FILTER_SANITIZE_NUMBER_INT);
+  $func = $_SESSION["codF"];
+
+  $hora = date('d/m/Y H:i');
+
+  $sql = "UPDATE fechar_caixa SET status = :status, hora_fechamento = :hora WHERE cod = :cod";
+  $param = array(
+    ":status" => $status,
+    ":hora" => $hora,
+    ":cod" => $cod_caixa
+  );
+
+  if ($banco->ExecuteNonQuery($sql, $param)) {
+    header("location: index.php?");
+    header("Location: index.php?&codcaixa=$cod_caixa&msgget=3&finalizadocomsucesso");
+  } else {
+    header("Location: index.php?&codcaixa=$cod_caixa&msgget=3&deuerrado");
+  }
+}
+//FIM SUBMIT PARA PEDIDOS
+
+
+//SUBMIT PARA ATUALIZAR CLIENTE EM NOTAS
+if (filter_input(INPUT_POST, "btnSubmitClienteNovaVenda", FILTER_SANITIZE_STRING)) {
+
+
+  $codnota = filter_input(INPUT_POST, "txtCodnota", FILTER_SANITIZE_NUMBER_INT);
+  $codcliente = filter_input(INPUT_POST, "txtCodCliente", FILTER_SANITIZE_NUMBER_INT);
+
+  $sql = "UPDATE notas SET usuario = :usuario WHERE cod = :cod";
+  $param = array(
+    ":usuario" => $codcliente,
+    ":cod" => $codnota
+  );
+
+  if ($banco->ExecuteNonQuery($sql, $param)) {
+    header("Location: index.php?pagina=carinhocompras&cod=$codnota&finalizadocomsucesso");
+  } else {
+    header("Location: index.php?pagina=carinhocompras&cod=$codnota&deuerrado");
+  }
+}
+//FIM DO SUBMIT PARA ATUALIZAR CLIENTE EM VENDAS
+
+//SUBMIT PARA CADASTRO RAPIDO DE CLIENTE
+if (filter_input(INPUT_POST, "btnSubmitClienteCadastroRapido", FILTER_SANITIZE_STRING)) {
+
+
+  $codnota = filter_input(INPUT_POST, "txtCodnota", FILTER_SANITIZE_NUMBER_INT);
+  $contato = filter_input(INPUT_POST, "txtContatoCadRes", FILTER_SANITIZE_STRING);
+  $nomecompleto = filter_input(INPUT_POST, "txtNomeCompletoCadRes", FILTER_SANITIZE_STRING);
+
+  $data = date("d/m/Y");
+
+  $clientes = new Clientes();
+  $clientes->setNome($nomecompleto);
+  $clientes->setCelular($contato);
+  $clientes->setData($data);
+
+
+  if ($clientesController->Cadastrar($clientes)) {
+    $codcliente = $clientesController->RetornarUltimoClientes();
+    header("Location: index.php?&codcli=$codcliente&msgget=1");
+  } else {
+    $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar novo Orçamento!</span> </div>";
+  }
+}
+//FIM DO SUBMIT PARA CADASTRO RAPIDO DE CLIENTE
+
+//SUBMIT PARA CADASTRO COMLETO DE CLIENTE
+if (filter_input(INPUT_POST, "btnSubmitClienteCadastroCompleto", FILTER_SANITIZE_STRING)) {
+
+
+  $codnota = filter_input(INPUT_POST, "txtCodnota", FILTER_SANITIZE_NUMBER_INT);
+  $nomecompleto = filter_input(INPUT_POST, "txtNomeCadCom", FILTER_SANITIZE_STRING);
+  $contato = filter_input(INPUT_POST, "txtContatoCadCom", FILTER_SANITIZE_STRING);
+  $endereco = filter_input(INPUT_POST, "txtEnderecoCadCom", FILTER_SANITIZE_STRING);
+  $numero = filter_input(INPUT_POST, "txtNCadCom", FILTER_SANITIZE_STRING);
+  $bairro = filter_input(INPUT_POST, "txtBairroCadCom", FILTER_SANITIZE_STRING);
+  $complemento = filter_input(INPUT_POST, "txtComplementoCadCOm", FILTER_SANITIZE_STRING);
+  $datanascimento = filter_input(INPUT_POST, "txtDataNascimentoCadCom", FILTER_SANITIZE_STRING);
+
+  $data = date("d/m/Y");
+
+  $clientes = new Clientes();
+  $clientes->setNome($nomecompleto);
+  $clientes->setCelular($contato);
+  $clientes->setEndereco($endereco);
+  $clientes->setNumero($numero);
+  $clientes->setBairro($bairro);
+  $clientes->setComplemento($complemento);
+  $clientes->setNascimento($datanascimento);
+  $clientes->setData($data);
+
+
+  if ($clientesController->Cadastrar($clientes)) {
+    $codcliente = $clientesController->RetornarUltimoClientes();
+    header("Location: index.php?&codcli=$codcliente&msgget=1");
+  } else {
+    $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar novo Orçamento!</span> </div>";
+  }
+}
+//FIM DO SUBMIT PARA CADASTRO COMPLETO DE CLIENTE
+
+
+//INICIO FUNCAO DE ABERTURA DE MOVIMENTOS DE CAIXA
+if (filter_input(INPUT_POST, "btnSubmitIniciarCaixa", FILTER_SANITIZE_STRING)) {
+  $status = 1;
+  $cod_funcionario = filter_input(INPUT_POST, "txtCodFuncionario", FILTER_SANITIZE_NUMBER_INT);
+  $caixainicial = filter_input(INPUT_POST, "txtCaixainicial", FILTER_SANITIZE_STRING);
+
+  $pontos = '.';
+  $result = str_replace($pontos, "", $caixainicial);
+  $result = str_replace(",", ".", $result);
+  $caixainicial = (float) $result;
+
+  $data_hoje2 = date('d/m/Y');
+  
+  
+
+  $t = explode("/", $data_hoje2);
+  $dia = $t[0];
+  $mes = $t[1];
+  $ano = $t[2];
+
+  $hora_inicio = date('d/m/Y H:i');
+
+  $query = mysqli_query($conn, "INSERT INTO `fechar_caixa` (cod_funcionario,status, dia, mes, ano, hora_inicio, caixa_inicial) VALUES ($cod_funcionario, $status, $dia, $mes, $ano, '$hora_inicio', '$caixainicial')");
+  // Se i// Se inserido com scesso
+  if ($query) {
+    $sqlPedidos23 = "SELECT * FROM fechar_caixa WHERE cod_funcionario = :cod AND status = 1 ORDER BY cod DESC LIMIT 1";
+    $paramPedidos23 = array(
+      ":cod" => $_SESSION['codF']
+    );
+
+    $dataTablePedidos23 = $banco->ExecuteQuery($sqlPedidos23, $paramPedidos23);
+    foreach ($dataTablePedidos23 as $resultadocaixa) {
+      $cod = $resultadocaixa['cod'];
+    }
+    header("location: index.php?&codcaixa=$cod&msgget=3");
+  }
+}
+//FUNCAO DE ABERTURA DE MOVIMENTOS DE CAIXA
+
+//INICIO DA FUNCAO PARA CADASTRAR NOVA DESPESA
+
+if (filter_input(INPUT_POST, "btnCadastrarNovaDespesa", FILTER_SANITIZE_STRING)) {
+  $fornecedor = 0;
+  $descricaodespesa = (filter_input(INPUT_POST, "txtDescricaoDespesa", FILTER_SANITIZE_STRING));
+  $valor = (filter_input(INPUT_POST, "txtValorDespesa", FILTER_SANITIZE_STRING));
+  $codcaixadespesa = (filter_input(INPUT_POST, "txtCodcaixadespesa", FILTER_SANITIZE_NUMBER_INT));
+  $diadespesa = (filter_input(INPUT_POST, "txtDiaDepesa", FILTER_SANITIZE_NUMBER_INT));
+  $mesdespesa = (filter_input(INPUT_POST, "txtMesDespesa", FILTER_SANITIZE_NUMBER_INT));
+  $anodespesa = (filter_input(INPUT_POST, "txtAnoDespesa", FILTER_SANITIZE_NUMBER_INT));
+  $categoriadespesa = (filter_input(INPUT_POST, "txtCategoriaDespesa", FILTER_SANITIZE_NUMBER_INT));
+
+  $pontos = '.';
+  $result = str_replace($pontos, "", $valor);
+  $result = str_replace(",", ".", $result);
+  $valor = $result;
+
+
+
+  $erros = ValidarDespesa();
+
+
+  if (empty($erros)) {
+    $movimentoempresa = new MovimentoEmpresa();
+    $movimentoempresa->setDescricao($descricaodespesa);
+    $movimentoempresa->setValor($valor);
+    $movimentoempresa->setDia($diadespesa);
+    $movimentoempresa->setMes($mesdespesa);
+    $movimentoempresa->setAno($anodespesa);
+    $movimentoempresa->setCod_usu(1);
+    $movimentoempresa->setTipo(1);
+    $movimentoempresa->setCat($categoriadespesa);
+    $movimentoempresa->setCod_caixa($codcaixadespesa);
+
+
+    if ($movimentoEmpresaController->Cadastrar($movimentoempresa)) {
+
+      $codultcod = $movimentoEmpresaController->RetornarUltCad(1);
+
+
+      header("Location: index.php?&msgget=10&coddesp=$codultcod");
+      $resultado = " <div class='alert alert-success' role='alert'><span>Produto cadastrado com sucesso! </span> </div>";
+    } else {
+      $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar novo Serviço!</span> </div>";
+    }
+  }
+}
+function ValidarDespesa()
+{
+  $listaErros = [];
+
+  $movimentoEmpresaController = new MovimentoEmpresaController();
+
+  if (strlen(filter_input(INPUT_POST, "txtDescricaoDespesa", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Descrição da Despesa inválida.";
+  }
+  if (strlen(filter_input(INPUT_POST, "txtValorDespesa", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Valor inválido.";
+  }
+
+  return $listaErros;
+}
+// FIM DA FUNCAO PARA CADASTRAR NOVA DESPESA
+
+//INICIO DA FUNCAO PARA CADASTRAR NOVO PRODUTOO
+
+if (filter_input(INPUT_POST, "btnCadastrarNovoProduto", FILTER_SANITIZE_STRING)) {
+  $fornecedor = 0;
+  $nome = (filter_input(INPUT_POST, "txtNomeProduto", FILTER_SANITIZE_STRING));
+  $descricao = (filter_input(INPUT_POST, "txtDescricaoProduto", FILTER_SANITIZE_STRING));
+  $valor = (filter_input(INPUT_POST, "txtValorUntProduto", FILTER_SANITIZE_STRING));
+  $cat = (filter_input(INPUT_POST, "txtCategoria", FILTER_SANITIZE_NUMBER_INT));
+  $tipo = (filter_input(INPUT_POST, "txtTipo", FILTER_SANITIZE_NUMBER_INT));
+  $estmax = (filter_input(INPUT_POST, "txtEstMax", FILTER_SANITIZE_NUMBER_INT));
+  $estmin = (filter_input(INPUT_POST, "txtEstMin", FILTER_SANITIZE_NUMBER_INT));
+  $fornecedor = (filter_input(INPUT_POST, "txtFornecedor", FILTER_SANITIZE_NUMBER_INT));
+  $codbarra = (filter_input(INPUT_POST, "txtCodBarra", FILTER_SANITIZE_NUMBER_INT));
+
+  $pontos = '.';
+  $result = str_replace($pontos, "", $valor);
+  $result = str_replace(",", ".", $result);
+  $valor = $result;
+
+
+
+  $erros = Validar();
+
+
+  if (empty($erros)) {
+    $servicos = new Servicos();
+    $servicos->setNome($nome);
+    $servicos->setDescricao($descricao);
+    $servicos->setValor($valor);
+    $servicos->setCategoria($cat);
+    $servicos->setTipo($tipo);
+    $servicos->setEst_max($estmax);
+    $servicos->setEst_mim($estmin);
+    $servicos->setFornecedor($fornecedor);
+    $servicos->setCodbarra($codbarra);
+    $servicos->setImg(null);
+
+
+    if ($servicoController->Cadastrar($servicos)) {
+      $cod = 0;
+      $nome = "";
+      $descricao = "";
+      $valor = "";
+      $categoria = 0;
+      $codbarra = "";
+      $codultcod = $servicoController->RetornarUltCad(1);
+
+
+      header("Location: index.php?&msgget=4&codprod=$codultcod");
+      $resultado = " <div class='alert alert-success' role='alert'><span>Produto cadastrado com sucesso! </span> </div>";
+    } else {
+      $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar novo Serviço!</span> </div>";
+    }
+  }
+}
+function Validar()
+{
+  $listaErros = [];
+
+  $servicosController = new ServicoController();
+
+  if (strlen(filter_input(INPUT_POST, "txtNomeProduto", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Nome Produto inválido.";
+  }
+  if (strlen(filter_input(INPUT_POST, "txtValorUntProduto", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Valor inválido.";
+  }
+
+  return $listaErros;
+}
+// FIM DA FUNCAO PARA CADASTRAR NOVO PRODUTO
+
+//INICIO SUBMIT PARA CADASTRAR NOVA CATEGORIA E APAGAR CATEGORIA
+if (filter_input(INPUT_POST, "btnCadastrarCategoria", FILTER_SANITIZE_STRING)) {
+
+  $nome = (filter_input(INPUT_POST, "txtNomeCategoria", FILTER_SANITIZE_STRING));
+  $erros = ValidarCat();
+
+
+  if (empty($erros)) {
+
+    $catserfin = new CategoriaSerFin();
+    $catserfin->setNome($nome);
+
+
+    //Cadastrar
+    if ($categoriaserfinController->Cadastrar($catserfin)) {
+      $cod = 0;
+      $nome = "";
+
+      header("Location: index.php?&msgget=5");
+      $resultado = " <div class='alert alert-success' role='alert'><span>Categoria cadastrada com sucesso! </span> </div>";
+    } else {
+      $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar nova categoria!</span> </div>";
+    }
+  }
+}
+if (filter_input(INPUT_POST, "btnApagarCategoria", FILTER_SANITIZE_STRING)) {
+
+  if ($categoriaserfinController->Deletar(filter_input(INPUT_POST, "codcategoria", FILTER_SANITIZE_NUMBER_INT))) {
+    $cod = 0;
+    $nome = "";
+    $descricao = "";
+    $valor = "";
+    $resultado = " <div class='alert alert-success' role='alert'><span>Serviço excluído com sucesso! </span> </div>";
+
+    header("Location: index.php?&msgget=6");
+  } else {
+    $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao excluir o Serviço!</span> </div>";
+  }
+}
+
+function ValidarCat()
+{
+  $listaErros = [];
+
+  $categoriaserfinController = new CategoriaSerFinController();
+  if (strlen(filter_input(INPUT_POST, "txtNomeCategoria", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Nome Categoria inválido.";
+  }
+
+  return $listaErros;
+}
+//FIM SUBMIT PARA CADASTRAR NOVA CATEGORIA E APAGAR CATEGORIA
+
+//INICIO SUBMIT PARA CADASTRAR NOVA CATEGORIA DESPESA E APAGAR CATEGORIA DESPESA
+if (filter_input(INPUT_POST, "btnCadastrarCategoriaDespesa", FILTER_SANITIZE_STRING)) {
+
+  $nome = (filter_input(INPUT_POST, "txtNomeCategoriaDespesa", FILTER_SANITIZE_STRING));
+  $erros = ValidarCatDespesa();
+
+
+  if (empty($erros)) {
+
+    $categoriafinanceiro = new CategoriaFinanceiro();
+    $categoriafinanceiro->setNome($nome);
+    $categoriafinanceiro->setCod_usu(1);
+
+
+    //Cadastrar
+    if ($categoriaFinanceiroController->Cadastrar($categoriafinanceiro)) {
+      $cod = 0;
+      $nome = "";
+
+      header("Location: index.php?&msgget=11");
+      $resultado = " <div class='alert alert-success' role='alert'><span>Categoria cadastrada com sucesso! </span> </div>";
+    } else {
+      $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao cadastrar nova categoria!</span> </div>";
+    }
+  }
+}
+if (filter_input(INPUT_POST, "btnApagarCategoriaDespesa", FILTER_SANITIZE_STRING)) {
+
+  if ($categoriaFinanceiroController->Deletar2(filter_input(INPUT_POST, "codcategoriadesp", FILTER_SANITIZE_NUMBER_INT))) {
+    $cod = 0;
+    $nome = "";
+    $descricao = "";
+    $valor = "";
+    $resultado = " <div class='alert alert-success' role='alert'><span>Serviço excluído com sucesso! </span> </div>";
+
+    header("Location: index.php?&msgget=12");
+  } else {
+    $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um herro ao excluir o Serviço!</span> </div>";
+  }
+}
+
+function ValidarCatDespesa()
+{
+  $listaErros = [];
+
+  $categoriaserfinController = new CategoriaSerFinController();
+  if (strlen(filter_input(INPUT_POST, "txtNomeCategoriaDespesa", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Nome Categoria inválido.";
+  }
+
+  return $listaErros;
+}
+//FIM SUBMIT PARA CADASTRAR NOVA CATEGORIA E APAGAR CATEGORIA
+
+//SUBMIT PARA ATUALIZAR IMAGEM DO PRODUTO
+if (filter_input(INPUT_POST, "btnAlterarImagem", FILTER_SANITIZE_STRING)) {
+  $cod = (filter_input(INPUT_POST, "txtCodser", FILTER_SANITIZE_NUMBER_INT));
+
+  $upload = new Upload();
+  $thumb = filter_input(INPUT_POST, "txtImagemAtual", FILTER_SANITIZE_STRING);
+  $nomeImagem = $upload->LoadFile("Interface/img/Servicos/", "img", $_FILES["flImagemLivre"]);
+  if ($nomeImagem != "" && $nomeImagem != null) {
+    if ($servicoController->AlterarImagem($nomeImagem, $cod)) {
+      unlink("$thumb");
+      //header("Location: index.php?pagina=produtos");
+      $codultcod = $cod;
+
+      header("Location: index.php?&msgget=7&codprod=$codultcod");
+
+      $resultado = "<div class=\"alert alert-success\" role=\"alert\">Imagem alterada com sucesso</div>";
+    } else {
+      $resultado = "<div class=\"alert alert-danger\" role=\"alert\">APERTE F5 para tentar novamente. Caso o erro persista tente iniciar o processo novamente!</div>";
+      unlink("Interface/img/Servicos/{$nomeImagem}");
+    }
+  } else if ($nomeImagem == null) {
+    $resultado = "<div class=\"alert alert-danger\" role=\"alert\">Formato de imagem inválido.</div>";
+  } else {
+    $resultado = "<div class=\"alert alert-danger\" role=\"alert\">APERTE F5 para tentar novamente. Caso o erro persista tente iniciar o processo novamente!</div>";
+  }
+}
+//FIM DO SUBMIT PARA ATUALIZAR IMAGEM DO PRODUTO
+
+
+//SUBMIT PARA ATUALIZAR IMAGEM DO USUARIO
+if (filter_input(INPUT_POST, "btnAlterarImagemUsu", FILTER_SANITIZE_STRING)) {
+  $cod = (filter_input(INPUT_POST, "txtCodser", FILTER_SANITIZE_NUMBER_INT));
+
+  $upload = new Upload();
+  $thumb = filter_input(INPUT_POST, "txtImagemAtual", FILTER_SANITIZE_STRING);
+  $nomeImagem = $upload->LoadFile("Interface/img/Usuarios/", "img", $_FILES["flImagemLivre"]);
+  if ($nomeImagem != "" && $nomeImagem != null) {
+    if ($usuarioController->AlterarImagemUsu($nomeImagem, $cod)) {
+      unlink("$thumb");
+      //header("Location: index.php?pagina=produtos");
+      $codultcod = $cod;
+
+      header("Location: index.php?&msgget=9&codusu=$codultcod");
+
+      $resultado = "<div class=\"alert alert-success\" role=\"alert\">Imagem alterada com sucesso</div>";
+    } else {
+      $resultado = "<div class=\"alert alert-danger\" role=\"alert\">APERTE F5 para tentar novamente. Caso o erro persista tente iniciar o processo novamente!</div>";
+      unlink("Interface/img/Usuarios/{$nomeImagem}");
+    }
+  } else if ($nomeImagem == null) {
+    $resultado = "<div class=\"alert alert-danger\" role=\"alert\">Formato de imagem inválido.</div>";
+  } else {
+    $resultado = "<div class=\"alert alert-danger\" role=\"alert\">APERTE F5 para tentar novamente. Caso o erro persista tente iniciar o processo novamente!</div>";
+  }
+}
+//FIM DO SUBMIT PARA ATUALIZAR IMAGEM DO USUARIO
+
+
+//SUBMIT PARA CADASTRAR NOVO Usuário
+
+if (filter_input(INPUT_POST, "btnSubmitNovoUsuario", FILTER_SANITIZE_STRING)) {
+
+  $erros = ValidarNovoUsu();
+
+  $nome = filter_input(INPUT_POST, "txtNome", FILTER_SANITIZE_STRING);
+  $usuario2 = filter_input(INPUT_POST, "txtLogin", FILTER_SANITIZE_STRING);
+  $celular = filter_input(INPUT_POST, "txtCelular", FILTER_SANITIZE_STRING);
+  $senha = filter_input(INPUT_POST, "txtSenha", FILTER_SANITIZE_STRING);
+  $permissao = filter_input(INPUT_POST, "txtPermissaoCad", FILTER_SANITIZE_NUMBER_INT);
+  $senha = md5($senha);
+
+  if (empty($erros)) {
+
+    $usuario = new Usuarios();
+
+
+
+    $usuario->setNome($nome);
+    $usuario->setUsuario($usuario2);
+    $usuario->setPermissao(2);
+    $usuario->setCelular($celular);
+    $usuario->setSenha($senha);
+    $usuario->setPermissao($permissao);
+
+    //Cadastrar
+    $upload = new Upload();
+    $nomeImagem = $upload->LoadFile("Interface/img/Usuarios/", "img", $_FILES["flImagem"]);
+    $usuario->setFoto($nomeImagem);
+    if ($usuarioController->Cadastrar($usuario)) {
+
+      $cod = 0;
+      $nome = "";
+      $usuario = "";
+      $rg = "";
+      $cpf = "";
+      $email = "";
+      $foto = "";
+      $permissao = 0;
+      $rua = "";
+      $bairro = "";
+      $numero = "";
+      $celular = "";
+      $senha = "";
+
+      $comissao = 0;
+      $listaUsuariosBusca = $usuarioController->RetornarUsuarios("", 1, 1);
+
+      header("Location: index.php?&msgget=8");
+
+      //$resultado = " <div class='alert alert-success' role='alert'><span>Usuario cadastrado com sucesso!</span> </div>";
+    } else {
+      $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um erro ao cadastrar Usuario!</span> </div>";
+    }
+
+  }
+}
+
+
+function ValidarNovoUsu()
+{
+  $listaErros = [];
+
+  $usuarioController = new UsuarioController();
+
+
+  if (strlen(filter_input(INPUT_POST, "txtNome", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Nome inválido.";
+  }
+
+  if (strlen(filter_input(INPUT_POST, "txtLogin", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Usuario inválido.";
+  }
+
+
+
+  return $listaErros;
+}
+
+//FIM SUBMIT PARA CADASTRAR NOVO USUÁRIO
+
+
+if (filter_input(INPUT_POST, "btnEditarDadosUsu", FILTER_SANITIZE_STRING)) {
+
+  $erros = ValidarEditarUsu();
+
+  $cod = filter_input(INPUT_POST, "codusu", FILTER_SANITIZE_NUMBER_INT);
+  $nome = filter_input(INPUT_POST, "txtEditarNomeUsu", FILTER_SANITIZE_STRING);
+  $usuario2 = filter_input(INPUT_POST, "txtEditarUsuarioUsu", FILTER_SANITIZE_STRING);
+  $cpf = filter_input(INPUT_POST, "txtEditarCpfUsu", FILTER_SANITIZE_STRING);
+  $email = filter_input(INPUT_POST, "txtEditarEmailUsu", FILTER_SANITIZE_STRING);
+  $contato = filter_input(INPUT_POST, "txtEditarContatoUsu", FILTER_SANITIZE_STRING);
+  $rua = filter_input(INPUT_POST, "txtEditarRuaUsu", FILTER_SANITIZE_STRING);
+  $numero = filter_input(INPUT_POST, "txtEditarNumeroUsu", FILTER_SANITIZE_STRING);
+  $bairro = filter_input(INPUT_POST, "txtEditarBairroUsu", FILTER_SANITIZE_STRING);
+
+
+  if (empty($erros)) {
+
+    $usuario = new Usuarios();
+
+
+
+    $usuario->setCod($cod);
+    $usuario->setNome($nome);
+    $usuario->setUsuario($usuario2);
+    $usuario->setCpf($cpf);
+    $usuario->setEmail($email);
+    $usuario->setCelular($contato);
+    $usuario->setRua($rua);
+    $usuario->setNumero($numero);
+    $usuario->setBairro($bairro);
+
+    var_dump($usuario);
+
+
+
+    if ($usuarioController->Alterar($usuario)) {
+
+
+      header("Location: index.php?&msgget=13");
+    } else {
+      $resultado = " <div class='alert alert-danger' role='alert'><span>Houve um erro ao alterar dados do usuario!</span> </div>";
+    }
+  }
+}
+
+function ValidarEditarUsu()
+{
+  $listaErros = [];
+
+  $usuarioController = new UsuarioController();
+
+
+  if (strlen(filter_input(INPUT_POST, "txtEditarNomeUsu", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Nome inválido.";
+  }
+
+  if (strlen(filter_input(INPUT_POST, "txtEditarUsuarioUsu", FILTER_SANITIZE_STRING)) < 1) {
+    $listaErros[] = "- Usuario inválido.";
+  }
+
+
+
+  return $listaErros;
+}
+//SUBMIT PARA EDITAR CONFIGURACOES DO USUÁRIO
+
+if (filter_input(INPUT_POST, "btnEditarConfiguracoes", FILTER_SANITIZE_STRING)) {
+
+
+  $cod = filter_input(INPUT_POST, "codusu", FILTER_SANITIZE_NUMBER_INT);
+  $tipoempresa = filter_input(INPUT_POST, "txtTipoEmpresa", FILTER_SANITIZE_STRING);
+  $tipoentrega = filter_input(INPUT_POST, "txtTipoEntrega", FILTER_SANITIZE_STRING);
+  $opcaopreco = filter_input(INPUT_POST, "txtOpcaoPreco", FILTER_SANITIZE_STRING);
+  $etapa = filter_input(INPUT_POST, "txtEtapa", FILTER_SANITIZE_STRING);
+ 
+  $sql = "UPDATE usuarios SET tipoempresa = :tipoempresa, entrega = :tipoentrega, opcaopreco = :opcaopreco, etapas = :etapas WHERE cod = :cod";
+  $param = array(
+    ":cod" => $cod,
+    ":tipoempresa" => $tipoempresa,
+    ":tipoentrega" => $tipoentrega,
+    ":opcaopreco" => $opcaopreco,
+    ":etapas" => $etapa,
+  );
+  
+
+  if ($banco->ExecuteNonQuery($sql, $param)) {
+      
+  header("Location: index.php?&msgget=14");
+
+  } else {
+       
+  $resultado = "ERRO AO ATUALIZAR DADOS";
+
+  }
+  
+}
+
+
+//SUBMIT PARA EDITAR DADOS DO USUÁRIO
+
+//FIM DAS FUNCOES DE SUBMIT
+
+
+
+
+?>
+
+
 <!DOCTYPE html>
 <!-- saved from url=(0052)https://getbootstrap.com/docs/5.0/examples/sidebars/ -->
-<html lang="pt" class="translated-ltr">
+<html lang="pt" class="">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=0.5">
   <meta name="description" content="">
-  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-  <meta name="generator" content="Hugo 0.84.0">
-  <title>Barras laterais · Bootstrap v5.0</title>
+  <meta name="author" content="">
+  <meta name="generator" content="">
+  <title>DopDin</title>
 
   <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/sidebars/">
-
-
 
   <!-- Bootstrap core CSS -->
   <link href="./Barras laterais · Bootstrap v5.0_files/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
   <!-- Favicons -->
-  <link rel="apple-touch-icon" href="https://getbootstrap.com/docs/5.0/assets/img/favicons/apple-touch-icon.png"
-    sizes="180x180">
-  <link rel="icon" href="https://getbootstrap.com/docs/5.0/assets/img/favicons/favicon-32x32.png" sizes="32x32"
-    type="image/png">
-  <link rel="icon" href="https://getbootstrap.com/docs/5.0/assets/img/favicons/favicon-16x16.png" sizes="16x16"
-    type="image/png">
   <link rel="manifest" href="https://getbootstrap.com/docs/5.0/assets/img/favicons/manifest.json">
-  <link rel="mask-icon" href="https://getbootstrap.com/docs/5.0/assets/img/favicons/safari-pinned-tab.svg"
-    color="#7952b3">
-  <link rel="icon" href="https://getbootstrap.com/docs/5.0/assets/img/favicons/favicon.ico">
-  <meta name="theme-color" content="#7952b3">
+  <link rel="icon" href="Interface/img/logo.ico">
+  <meta name="theme-color" content="#fff">
 
 
-  <style>
-    .bd-placeholder-img {
-      font-size: 1.125rem;
-      text-anchor: middle;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
-    }
-
-    @media (min-width: 768px) {
-      .bd-placeholder-img-lg {
-        font-size: 3.5rem;
-      }
-    }
-  </style>
-
+  <link rel="manifest" href="https://coreui.io/demos/bootstrap/5.0/free/assets/favicon/manifest.json">
+<link rel="stylesheet" href="./modelo_files/simplebar.css">
+<link rel="stylesheet" href="./modelo_files/simplebar(1).css">
+<!-- We use those styles to show code examples, you should remove them in your application.-->
+<!-- We use those styles to style Carbon ads and CoreUI PRO banner, you should remove them in your application.-->
+<script src="./modelo_files/config.js.download"></script>
+<script src="./modelo_files/color-modes.js.download"></script>
 
   <!-- Custom styles for this template -->
   <link href="./Barras laterais · Bootstrap v5.0_files/sidebars.css" rel="stylesheet">
   <link type="text/css" rel="stylesheet" charset="UTF-8" href="./Barras laterais · Bootstrap v5.0_files/m=el_main_css">
 </head>
 
-<body>
-
-  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-    <symbol id="bootstrap" viewBox="0 0 118 94">
-      <title>Bootstrap</title>
-      <path fill-rule="evenodd" clip-rule="evenodd"
-        d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z">
-      </path>
-    </symbol>
-    <symbol id="home" viewBox="0 0 16 16">
-      <path
-        d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z">
-      </path>
-    </symbol>
-    <symbol id="speedometer2" viewBox="0 0 16 16">
-      <path
-        d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z">
-      </path>
-      <path fill-rule="evenodd"
-        d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z">
-      </path>
-    </symbol>
-    <symbol id="table" viewBox="0 0 16 16">
-      <path
-        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z">
-      </path>
-    </symbol>
-    <symbol id="people-circle" viewBox="0 0 16 16">
-      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path>
-      <path fill-rule="evenodd"
-        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z">
-      </path>
-    </symbol>
-    <symbol id="grid" viewBox="0 0 16 16">
-      <path
-        d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z">
-      </path>
-    </symbol>
-    <symbol id="collection" viewBox="0 0 16 16">
-      <path
-        d="M2.5 3.5a.5.5 0 0 1 0-1h11a.5.5 0 0 1 0 1h-11zm2-2a.5.5 0 0 1 0-1h7a.5.5 0 0 1 0 1h-7zM0 13a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 16 13V6a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 0 6v7zm1.5.5A.5.5 0 0 1 1 13V6a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-13z">
-      </path>
-    </symbol>
-    <symbol id="calendar3" viewBox="0 0 16 16">
-      <path
-        d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z">
-      </path>
-      <path
-        d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z">
-      </path>
-    </symbol>
-    <symbol id="chat-quote-fill" viewBox="0 0 16 16">
-      <path
-        d="M16 8c0 3.866-3.582 7-8 7a9.06 9.06 0 0 1-2.347-.306c-.584.296-1.925.864-4.181 1.234-.2.032-.352-.176-.273-.362.354-.836.674-1.95.77-2.966C.744 11.37 0 9.76 0 8c0-3.866 3.582-7 8-7s8 3.134 8 7zM7.194 6.766a1.688 1.688 0 0 0-.227-.272 1.467 1.467 0 0 0-.469-.324l-.008-.004A1.785 1.785 0 0 0 5.734 6C4.776 6 4 6.746 4 7.667c0 .92.776 1.666 1.734 1.666.343 0 .662-.095.931-.26-.137.389-.39.804-.81 1.22a.405.405 0 0 0 .011.59c.173.16.447.155.614-.01 1.334-1.329 1.37-2.758.941-3.706a2.461 2.461 0 0 0-.227-.4zM11 9.073c-.136.389-.39.804-.81 1.22a.405.405 0 0 0 .012.59c.172.16.446.155.613-.01 1.334-1.329 1.37-2.758.942-3.706a2.466 2.466 0 0 0-.228-.4 1.686 1.686 0 0 0-.227-.273 1.466 1.466 0 0 0-.469-.324l-.008-.004A1.785 1.785 0 0 0 10.07 6c-.957 0-1.734.746-1.734 1.667 0 .92.777 1.666 1.734 1.666.343 0 .662-.095.931-.26z">
-      </path>
-    </symbol>
-    <symbol id="cpu-fill" viewBox="0 0 16 16">
-      <path d="M6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"></path>
-      <path
-        d="M5.5.5a.5.5 0 0 0-1 0V2A2.5 2.5 0 0 0 2 4.5H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2v1H.5a.5.5 0 0 0 0 1H2A2.5 2.5 0 0 0 4.5 14v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14h1v1.5a.5.5 0 0 0 1 0V14a2.5 2.5 0 0 0 2.5-2.5h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14v-1h1.5a.5.5 0 0 0 0-1H14A2.5 2.5 0 0 0 11.5 2V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5a.5.5 0 0 0-1 0V2h-1V.5zm1 4.5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3A1.5 1.5 0 0 1 6.5 5z">
-      </path>
-    </symbol>
-    <symbol id="gear-fill" viewBox="0 0 16 16">
-      <path
-        d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z">
-      </path>
-    </symbol>
-    <symbol id="speedometer" viewBox="0 0 16 16">
-      <path
-        d="M8 2a.5.5 0 0 1 .5.5V4a.5.5 0 0 1-1 0V2.5A.5.5 0 0 1 8 2zM3.732 3.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 8a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 8zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 7.31A.91.91 0 1 0 8.85 8.569l3.434-4.297a.389.389 0 0 0-.029-.518z">
-      </path>
-      <path fill-rule="evenodd"
-        d="M6.664 15.889A8 8 0 1 1 9.336.11a8 8 0 0 1-2.672 15.78zm-4.665-4.283A11.945 11.945 0 0 1 8 10c2.186 0 4.236.585 6.001 1.606a7 7 0 1 0-12.002 0z">
-      </path>
-    </symbol>
-    <symbol id="toggles2" viewBox="0 0 16 16">
-      <path d="M9.465 10H12a2 2 0 1 1 0 4H9.465c.34-.588.535-1.271.535-2 0-.729-.195-1.412-.535-2z"></path>
-      <path
-        d="M6 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 1a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm.535-10a3.975 3.975 0 0 1-.409-1H4a1 1 0 0 1 0-2h2.126c.091-.355.23-.69.41-1H4a2 2 0 1 0 0 4h2.535z">
-      </path>
-      <path d="M14 4a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"></path>
-    </symbol>
-    <symbol id="tools" viewBox="0 0 16 16">
-      <path
-        d="M1 0L0 1l2.2 3.081a1 1 0 0 0 .815.419h.07a1 1 0 0 1 .708.293l2.675 2.675-2.617 2.654A3.003 3.003 0 0 0 0 13a3 3 0 1 0 5.878-.851l2.654-2.617.968.968-.305.914a1 1 0 0 0 .242 1.023l3.356 3.356a1 1 0 0 0 1.414 0l1.586-1.586a1 1 0 0 0 0-1.414l-3.356-3.356a1 1 0 0 0-1.023-.242L10.5 9.5l-.96-.96 2.68-2.643A3.005 3.005 0 0 0 16 3c0-.269-.035-.53-.102-.777l-2.14 2.141L12 4l-.364-1.757L13.777.102a3 3 0 0 0-3.675 3.68L7.462 6.46 4.793 3.793a1 1 0 0 1-.293-.707v-.071a1 1 0 0 0-.419-.814L1 0zm9.646 10.646a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708zM3 11l.471.242.529.026.287.445.445.287.026.529L5 13l-.242.471-.026.529-.445.287-.287.445-.529.026L3 15l-.471-.242L2 14.732l-.287-.445L1.268 14l-.026-.529L1 13l.242-.471.026-.529.445-.287.287-.445.529-.026L3 11z">
-      </path>
-    </symbol>
-    <symbol id="chevron-right" viewBox="0 0 16 16">
-      <path fill-rule="evenodd"
-        d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z">
-      </path>
-    </symbol>
-    <symbol id="geo-fill" viewBox="0 0 16 16">
-      <path fill-rule="evenodd"
-        d="M4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z">
-      </path>
-    </symbol>
-  </svg>
-
-  <main>
-
-    <div class="d-flex flex-column flex-shrink-0 bg-light" style="width: 4.5rem;">
-      <a class="d-block p-3 link-dark text-decoration-none" title=""
-        data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Retornar">
-        <img src="Interface/img/logo.ico"/ width="50">
-        <span class="visually-hidden">
-          <font style="vertical-align: inherit;">
-            <font style="vertical-align: inherit;">Retornar</font>
-          </font>
-        </span>
-      </a>
-      <ul class="nav nav-pills nav-flush flex-column mb-auto text-center">
-        <li class="nav-item">
-          <a href="" class="nav-link active py-3 border-bottom"
-            aria-current="page" title="" data-bs-toggle="tooltip" data-bs-placement="right"
-            data-bs-original-title="Início">
-            <svg class="bi" width="24" height="24" role="img" aria-label="Lar">
-              <use xlink:href="#home"></use>
-            </svg>
-          </a>
-        </li>
-        
-        <li>
-          <a href="https://getbootstrap.com/docs/5.0/examples/sidebars/#" class="nav-link py-3 border-bottom" title=""
-            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Produtos/Serviços">
-            <svg class="bi" width="24" height="24" role="img" aria-label="Produtos">
-              <use xlink:href="#grid"></use>
-            </svg>
-          </a>
-        </li>
-        
-        <li>
-          <a href="https://getbootstrap.com/docs/5.0/examples/sidebars/#" class="nav-link py-3 border-bottom" title=""
-            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Relatórios">
-            <svg class="bi" width="24" height="24" role="img" aria-label="Painel">
-              <use xlink:href="#speedometer2"></use>
-            </svg>
-          </a>
-        </li>
-        <li>
-          <a href="https://getbootstrap.com/docs/5.0/examples/sidebars/#" class="nav-link py-3 border-bottom" title=""
-            data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Usuários">
-            <svg class="bi" width="24" height="24" role="img" aria-label="Clientes">
-              <use xlink:href="#people-circle"></use>
-            </svg>
-          </a>
-        </li>
-        <li>
-      
-        </li>
-      </ul>
-      <div class="dropdown border-top">
-        <a href="https://getbootstrap.com/docs/5.0/examples/sidebars/#"
-          class="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle"
-          id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="./Barras laterais · Bootstrap v5.0_files/mdo.png" alt="mdo" width="24" height="24"
-            class="rounded-circle">
-        </a>
-        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
-          <li><a class="dropdown-item" href="https://getbootstrap.com/docs/5.0/examples/sidebars/#">
-              <font style="vertical-align: inherit;">
-                <font style="vertical-align: inherit;">Contas a Receber</font>
-              </font>
-            </a></li>
-            <li><a class="dropdown-item" href="https://getbootstrap.com/docs/5.0/examples/sidebars/#">
-              <font style="vertical-align: inherit;">
-                <font style="vertical-align: inherit;">Despesas</font>
-              </font>
-            </a></li>
-          <li><a class="dropdown-item" href="https://getbootstrap.com/docs/5.0/examples/sidebars/#">
-              <font style="vertical-align: inherit;">
-                <font style="vertical-align: inherit;">Configurações</font>
-              </font>
-            </a></li>
-          <li><a class="dropdown-item" href="https://getbootstrap.com/docs/5.0/examples/sidebars/#">
-              <font style="vertical-align: inherit;">
-                <font style="vertical-align: inherit;">Perfil</font>
-              </font>
-            </a></li>
-          <li>
-            <hr class="dropdown-divider">
-          </li>
-          <li><a class="dropdown-item" href="https://getbootstrap.com/docs/5.0/examples/sidebars/#">
-              <font style="vertical-align: inherit;">
-                <font style="vertical-align: inherit;">Sair</font>
-              </font>
-            </a></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="b-example-divider"></div>
-    
-    <div class="col">
-      <div class="p-3 border bg-light">
-        <button style="width:24%;" class="btn btn-outline-success" type="button" data-bs-toggle="offcanvas"
-          data-bs-target="#offcanvasTop" aria-controls="offcanvasRight">Cadastrar Novo Pedido</button>
-
-        <button style="width:24%;" class="btn btn-outline-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight"
-          aria-controls="offcanvasRight">Cadastrar Novo Cliente</button>
-    
-          <button style="width:24%;" class="btn btn-outline-warning" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft"
-          aria-controls="offcanvasRight">Controle de Caixa</button>
-
-          <button style="width:24%;" class="btn btn-outline-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft"
-          aria-controls="offcanvasRight">Resumo do Dia</button>
-
-          <hr>
-          <h3 style="color:red;">Encontre qualquer pedido!</h3>
-          <select class="form-select" size="5" aria-label="Selecione o Tipo de Pedido">
-  <option value="1" >Ult. Pedidos</option>
-  <option value="2"selected>Pedidos em Aberto</option>
-  <option value="3">Pedidos para Entrega</option>
-  <option value="4">Pedidos para o Balcão</option>
-  <option value="5">Pedidos para Retirada</option>
-</select>
+<body >
+  <?PHP
+  if (!isset($_SESSION["permissaoF"])) {
+    ?>
+    <!-- Section: Design Block -->
+    <section style="margin-top:-20px;" class="background-radial-gradient overflow-hidden">
 
 
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
-          <div class="offcanvas-header">
-            <h5 id="offcanvasTopLabel">Controle de Pedidos</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <div class="container px-4 py-5 px-md-5 text-center text-lg-start my-5">
+        <div class="row gx-lg-5 align-items-center mb-5">
+          <div class="col-lg-6 mb-5 mb-lg-0" style="z-index: 10">
+            <h1 class="my-5 display-5 fw-bold ls-tight" style="color: hsl(218, 81%, 95%)">
+              DopDin, O melhor sistema
+              <span style="color: hsl(218, 81%, 75%)">de controle para seu négocio</span>
+            </h1>
+            <p class="mb-4 opacity-70" style="color: hsl(218, 81%, 85%)">
+              O DopDin é uma plataforma web desenvolvida para otimizar a gestão de vendas, faturamento, despesas e estoque
+              em pequenas e médias empresas. Com uma interface intuitiva e ferramentas avançadas, o sistema automatiza
+              processos cruciais, oferecendo controle total e informações estratégicas para tomada de decisões. Ideal para
+              quem busca eficiência e crescimento sustentável, o DopDin transforma a administração financeira em um
+              processo simples e eficaz.
+            </p>
           </div>
-          <div class="offcanvas-body">
-            ...
+
+          <div class="col-lg-6 mb-5 mb-lg-0 position-relative">
+            <div id="radius-shape-1" class="position-absolute rounded-circle shadow-5-strong"></div>
+            <div id="radius-shape-2" class="position-absolute shadow-5-strong"></div>
+
+            <div class="card bg-glass">
+              <div class="card-body px-4 py-5 px-md-5">
+                <form method="post" name="frmCadastro" id="frmCadastro" class="form-signin" novalidate
+                  enctype="multipart/form-data">
+                  <!-- 2 column grid layout with text inputs for the first and last names -->
+                  <div class="row">
+
+
+
+                    <!-- Email input -->
+                    <div data-mdb-input-init class="form-outline mb-4">
+                      <input autofocus type="text" id="txtUsuario" name="txtUsuario" class="form-control" />
+                      <label class="form-label" for="form3Example3">Usuário</label>
+                    </div>
+
+                    <!-- Password input -->
+                    <div data-mdb-input-init class="form-outline mb-4">
+                      <input type="password" id="txtSenha" name="txtSenha" class="form-control" />
+                      <label class="form-label" for="form3Example4">Senha</label>
+                    </div>
+
+
+
+                    <!-- Submit button -->
+                    <input value="Login" id='btnEntrar' name='btnEntrar' type="submit" style='padding:20px;'
+                      data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary btn-block mb-4" />
+
+                </form>
+              </div>
+            </div>
           </div>
         </div>
-
-
-        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
-  <div class="offcanvas-header">
-    <h5 id="offcanvasRightLabel">Cadastrar Clientes</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    ...
-  </div>
-</div>
-<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasLeft" aria-labelledby="offcanvasRightLabel">
-  <div class="offcanvas-header">
-    <h5 id="offcanvasRightLabel">Fechar Caixa</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-  </div>
-  <div class="offcanvas-body">
-    ...
-  </div>
-</div>
       </div>
-    </div>
-    
+    </section>
+    <!-- Section: Design Block -->
 
+  <?php } else {
+    $cod_funcionario = (int) $_SESSION['codF'];
+    $permissao_funcionario = (int) $_SESSION['permissaoF'];
+    require_once("Util/ResquestPagePrincipal.php");
+    ?>
 
-  </main>
+    <?php
+  } ?>
 
 
   <script src="./Barras laterais · Bootstrap v5.0_files/bootstrap.bundle.min.js.download"
@@ -315,61 +1449,569 @@
     crossorigin="anonymous"></script>
 
   <script src="./Barras laterais · Bootstrap v5.0_files/sidebars.js.download"></script>
-  <div id="goog-gt-tt" class="VIpgJd-yAWNEb-L7lbkb skiptranslate"
-    style="border-radius: 12px; margin: 0 0 0 -23px; padding: 0; font-family: &#39;Google Sans&#39;, Arial, sans-serif;"
-    data-id="">
-    <div id="goog-gt-vt" class="VIpgJd-yAWNEb-hvhgNd">
-      <div class=" VIpgJd-yAWNEb-hvhgNd-l4eHX-i3jM8c"><img src="./Barras laterais · Bootstrap v5.0_files/24px.svg"
-          width="24" height="24" alt=""></div>
-      <div class=" VIpgJd-yAWNEb-hvhgNd-k77Iif-i3jM8c">
-        <div class="VIpgJd-yAWNEb-hvhgNd-IuizWc" dir="ltr">Texto original</div>
-        <div id="goog-gt-original-text" class="VIpgJd-yAWNEb-nVMfcd-fmcmS VIpgJd-yAWNEb-hvhgNd-axAV1"></div>
-      </div>
-      <div class="VIpgJd-yAWNEb-hvhgNd-N7Eqid ltr">
-        <div class="VIpgJd-yAWNEb-hvhgNd-N7Eqid-B7I4Od ltr" dir="ltr">
-          <div class="VIpgJd-yAWNEb-hvhgNd-UTujCb">Avalie a tradução</div>
-          <div class="VIpgJd-yAWNEb-hvhgNd-eO9mKe">O feedback vai ser usado para ajudar a melhorar o Google Tradutor
-          </div>
-        </div>
-        <div class="VIpgJd-yAWNEb-hvhgNd-xgov5 ltr"><button id="goog-gt-thumbUpButton" type="button"
-            class="VIpgJd-yAWNEb-hvhgNd-bgm6sf" title="Tradução boa" aria-label="Tradução boa"
-            aria-pressed="false"><span id="goog-gt-thumbUpIcon"><svg width="24" height="24" viewBox="0 0 24 24"
-                focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M">
-                <path
-                  d="M21 7h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 0S7.08 6.85 7 7H2v13h16c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73V9c0-1.1-.9-2-2-2zM7 18H4V9h3v9zm14-7l-3 7H9V8l4.34-4.34L12 9h9v2z">
-                </path>
-              </svg></span><span id="goog-gt-thumbUpIconFilled"><svg width="24" height="24" viewBox="0 0 24 24"
-                focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M">
-                <path
-                  d="M21 7h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 0S7.08 6.85 7 7v13h11c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73V9c0-1.1-.9-2-2-2zM5 7H1v13h4V7z">
-                </path>
-              </svg></span></button><button id="goog-gt-thumbDownButton" type="button"
-            class="VIpgJd-yAWNEb-hvhgNd-bgm6sf" title="Tradução ruim" aria-label="Tradução ruim"
-            aria-pressed="false"><span id="goog-gt-thumbDownIcon"><svg width="24" height="24" viewBox="0 0 24 24"
-                focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M">
-                <path
-                  d="M3 17h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 24s7.09-6.85 7.17-7h5V4H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2zM17 6h3v9h-3V6zM3 13l3-7h9v10l-4.34 4.34L12 15H3v-2z">
-                </path>
-              </svg></span><span id="goog-gt-thumbDownIconFilled"><svg width="24" height="24" viewBox="0 0 24 24"
-                focusable="false" class="VIpgJd-yAWNEb-hvhgNd-THI6Vb NMm5M">
-                <path
-                  d="M3 17h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 24s7.09-6.85 7.17-7V4H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2zm16 0h4V4h-4v13z">
-                </path>
-              </svg></span></button></div>
-      </div>
-      <div id="goog-gt-votingHiddenPane" class="VIpgJd-yAWNEb-hvhgNd-aXYTce">
-        <form id="goog-gt-votingForm" action="https://translate.googleapis.com/translate_voting?client=te_lib"
-          method="post" target="votingFrame" class="VIpgJd-yAWNEb-hvhgNd-aXYTce"><input type="text" name="sl"
-            id="goog-gt-votingInputSrcLang"><input type="text" name="tl" id="goog-gt-votingInputTrgLang"><input
-            type="text" name="query" id="goog-gt-votingInputSrcText"><input type="text" name="gtrans"
-            id="goog-gt-votingInputTrgText"><input type="text" name="vote" id="goog-gt-votingInputVote"></form><iframe
-          name="votingFrame" frameborder="0"
-          src="./Barras laterais · Bootstrap v5.0_files/saved_resource.html"></iframe>
-      </div>
-    </div>
-  </div>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 </body>
+<script>
+  function alternarDivs(tipo) {
+
+
+    var div1 = document.getElementById("DivHome");
+    var div2 = document.getElementById("DivProdutos");
+    var div3 = document.getElementById("DivRelatorios");
+    var div4 = document.getElementById("DivUsuarios");
+    var div5 = document.getElementById("DivContas");
+    var div6 = document.getElementById("DivDespesas");
+    var div7 = document.getElementById("DivConfiguracoes");
+    var div8 = document.getElementById("DivMinhaConta");
+
+    var div9 = document.getElementById("ResultadoPesquisaProduto");
+    var div10 = document.getElementById("DivCadastroProduto");
+    var div11 = document.getElementById("DivCadastroCategoria");
+    var div12 = document.getElementById("DivCadastroEntrada");
+
+    var div13 = document.getElementById("DivCadastroUsuario");
+    var div14 = document.getElementById("ResultadoPesquisaUsuario");
+
+
+    var div15 = document.getElementById("ResultadoPesquisaDespesa");
+    var div16 = document.getElementById("DivCadastroDespesa");
+    var div17 = document.getElementById("DivCadastroCategoriaDespesa");
+
+
+    var div18 = document.getElementById("BtnMostrarFoto");
+    var div19 = document.getElementById("BtnMostrarPerfil");
+    var div20 = document.getElementById("DivParaAtualizarDadosUSu");
+    var div21 = document.getElementById("DivParaTrocarImagemUsu");
+    var div22 = document.getElementById("DivParaGerarRelatorioDespesa");
+
+
+
+    var div1b = document.getElementById("BotaoHome");
+    var div2b = document.getElementById("BotaoProdutos");
+    var div3b = document.getElementById("BotaoRelatorios");
+    var div4b = document.getElementById("BotaoUsuarios");
+    var div5b = document.getElementById("BotaoContas");
+    var div6b = document.getElementById("BotaoDespesas");
+    var div7b = document.getElementById("BotaoConfiguracoes");
+    var div8b = document.getElementById("BotaoMinhaConta");
+
+
+
+    // Ocultar div1 e desocultar div2
+
+    var teste = tipo;
+    if (teste == 1) {
+
+      div1.style.display = "block";
+      div2.style.display = "none";
+      div3.style.display = "none";
+      div4.style.display = "none";
+      div5.style.display = "none";
+      div6.style.display = "none";
+      div7.style.display = "none";
+      div8.style.display = "none";
+
+
+      div1b.className = "nav-link active py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+
+
+    }
+    if (teste == 2) {
+
+      div1.style.display = "none";
+      div2.style.display = "block";
+      div3.style.display = "none";
+      div4.style.display = "none";
+      div5.style.display = "none";
+      div6.style.display = "none";
+      div7.style.display = "none";
+      div8.style.display = "none";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link active py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+
+      document.getElementById('txtPequisarProduto2').focus();
+
+    }
+    if (teste == 3) {
+      div1.style.display = "none";
+      div2.style.display = "none";
+      div3.style.display = "block";
+      div4.style.display = "none";
+      div5.style.display = "none";
+      div6.style.display = "none";
+      div7.style.display = "none";
+      div8.style.display = "none";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  active py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+
+    }
+    if (teste == 4) {
+      div1.style.display = "none";
+      div2.style.display = "none";
+      div3.style.display = "none";
+      div4.style.display = "block";
+      div5.style.display = "none";
+      div6.style.display = "none";
+      div7.style.display = "none";
+      div8.style.display = "none";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link active py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+
+      document.getElementById('txtPequisarUsuario2').focus();
+
+    }
+    if (teste == 5) {
+      div1.style.display = "none";
+      div2.style.display = "none";
+      div3.style.display = "none";
+      div4.style.display = "none";
+      div5.style.display = "block";
+      div6.style.display = "none";
+      div7.style.display = "none";
+      div8.style.display = "none";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link active py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+
+
+    }
+    if (teste == 6) {
+      div1.style.display = "none";
+      div2.style.display = "none";
+      div3.style.display = "none";
+      div4.style.display = "none";
+      div5.style.display = "none";
+      div6.style.display = "block";
+      div7.style.display = "none";
+      div8.style.display = "none";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link active  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+
+
+    }
+    if (teste == 7) {
+      div1.style.display = "none";
+      div2.style.display = "none";
+      div3.style.display = "none";
+      div4.style.display = "none";
+      div5.style.display = "none";
+      div6.style.display = "none";
+      div7.style.display = "block";
+      div8.style.display = "none";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link active  py-3 border-bottom";
+      div8b.className = "nav-link  py-3 border-bottom";
+    }
+    if (teste == 8) {
+      div1.style.display = "none";
+      div2.style.display = "none";
+      div3.style.display = "none";
+      div4.style.display = "none";
+      div5.style.display = "none";
+      div6.style.display = "none";
+      div7.style.display = "none";
+      div8.style.display = "block";
+
+      div1b.className = "nav-link  py-3 border-bottom";
+      div2b.className = "nav-link  py-3 border-bottom";
+      div3b.className = "nav-link  py-3 border-bottom";
+      div4b.className = "nav-link  py-3 border-bottom";
+      div5b.className = "nav-link  py-3 border-bottom";
+      div6b.className = "nav-link  py-3 border-bottom";
+      div7b.className = "nav-link  py-3 border-bottom";
+      div8b.className = "nav-link active  py-3 border-bottom";
+
+
+      document.getElementById('txtEditarNomeUsu').focus();
+
+    }
+
+    if (teste == 9) {
+      div9.style.display = "none";
+      div10.style.display = "block";
+      div11.style.display = "none";
+      div12.style.display = "none";
+
+
+      document.getElementById('txtNomeProduto').focus();
+
+
+    }
+
+    if (teste == 10) {
+      div9.style.display = "none";
+      div10.style.display = "none";
+      div11.style.display = "block";
+      div12.style.display = "none";
+
+
+      document.getElementById('txtNomeCategoria').focus();
+
+    }
+
+    if (teste == 11) {
+      div9.style.display = "none";
+      div10.style.display = "none";
+      div11.style.display = "none";
+      div12.style.display = "block";
+
+
+      document.getElementById('txtNotaFiscalCad').focus();
+
+    }
+    if (teste == 12) {
+      div9.style.display = "block";
+      div10.style.display = "none";
+      div11.style.display = "none";
+      div12.style.display = "none";
+
+    }
+    if (teste == 13) {
+      div13.style.display = "block";
+      div14.style.display = "none";
+
+    }
+    if (teste == 14) {
+      div13.style.display = "none";
+      div14.style.display = "block";
+
+    }
+    if (teste == 15) {
+      div15.style.display = "block";
+      div16.style.display = "none";
+      div17.style.display = "none";
+    }
+    if (teste == 16) {
+      div15.style.display = "none";
+      div16.style.display = "block";
+      div17.style.display = "none";
+      div22.style.display = "none";
+
+
+
+      document.getElementById('txtDescricaoDespesa').focus();
+    }
+    if (teste == 17) {
+      div15.style.display = "none";
+      div16.style.display = "none";
+      div17.style.display = "block";
+      div22.style.display = "none";
+
+
+      document.getElementById('txtNomeCategoriaDespesa').focus();
+
+    }
+    if (teste == 18) {
+      div18.style.display = "none";
+      div19.style.display = "block";
+      div20.style.display = "none";
+      div21.style.display = "block";
+
+
+
+
+    }
+
+    if (teste == 19) {
+      div18.style.display = "block";
+      div19.style.display = "none";
+      div20.style.display = "block";
+      div21.style.display = "none";
+
+      //   document.getElementById('txtNomeCategoriaDespesa').focus();
+
+    }
+    if (teste == 20) {
+      div15.style.display = "none";
+      div16.style.display = "none";
+      div17.style.display = "none";
+      div22.style.display = "block";
+
+
+      //document.getElementById('txtNomeCategoriaDespesa').focus();
+
+    }
+
+  }
+</script>
+
+<script>
+  function FuncaoChamarBotao1() {
+
+    var offcanvasElement = document.getElementById('offcanvasTop');
+
+    offcanvasElement.addEventListener('shown.bs.offcanvas', function () {
+      document.getElementById('btnSubmitPedirVendaExpressa').focus();
+    });
+    return true;
+  }
+
+  function FuncaoChamarBotao2() {
+
+    var offcanvasElement = document.getElementById('offcanvasRight');
+
+    offcanvasElement.addEventListener('shown.bs.offcanvas', function () {
+      document.getElementById('txtPesquisarCliente').focus();
+    });
+    return true;
+  }
+
+  function FuncaoChamarBotao3() {
+    document.getElementById('txtNomeCompletoCadRes').focus();
+  }
+
+  function FuncaoChamarBotao4() {
+    document.getElementById('txtPesquisarCliente').focus();
+  }
+
+  function FuncaoChamarBotao5() {
+    document.getElementById('txtNomeCadCom').focus();
+
+  }
+
+  function FuncaoChamarBotao6() {
+
+    var offcanvasElement = document.getElementById('offcanvasLeft');
+    //<input name='txtPesquisarPorData' id='txtPesquisarPorData' value="" onkeyup="validacao(16, this.value ,0, 13)" type="text" />
+
+    offcanvasElement.addEventListener('shown.bs.offcanvas', function () {
+      document.getElementById('txtDataPequisaCaixa').focus();
+
+      validacao(13, 0, 0, 13);
+    });
+    return true;
+  }
+
+  function FuncaoChamarBotao8() {
+
+    var offcanvasElement = document.getElementById('offcanvasLeft');
+    //<input name='txtPesquisarPorData' id='txtPesquisarPorData' value="" onkeyup="validacao(16, this.value ,0, 13)" type="text" />
+
+    offcanvasElement.addEventListener('shown.bs.offcanvas', function () {
+      FuncaoChamarBotao7(1);
+    });
+    return true;
+  }
+
+  function FuncaoChamarBotao7(tipo) {
+
+
+
+    var div1 = document.getElementById("ResultadoValidacao13");
+    var div2 = document.getElementById("secundariocaixa");
+    var div3 = document.getElementById("FormularioParaPesquisa");
+
+
+
+    // Ocultar div1 e desocultar div2
+
+    var teste = tipo;
+    if (teste == 1) {
+
+      div1.style.display = "none";
+      div2.style.display = "block";
+      div3.style.display = "none";
+
+      document.getElementById('txtCaixainicial').focus();
+    }
+    if (teste == 2) {
+
+      div1.style.display = "block";
+      div2.style.display = "none";
+      div3.style.display = "block";
+
+      document.getElementById('txtDataPequisaCaixa').focus();
+    }
+
+
+
+  }
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("DivProdutos").style.display = "none";
+    document.getElementById("DivRelatorios").style.display = "none";
+    document.getElementById("DivUsuarios").style.display = "none";
+    document.getElementById("DivContas").style.display = "none";
+    document.getElementById("DivDespesas").style.display = "none";
+    document.getElementById("DivProdutos").style.display = "none";
+    document.getElementById("DivConfiguracoes").style.display = "none";
+    document.getElementById("DivMinhaConta").style.display = "none";
+
+    document.getElementById("DivCadastroCategoriaDespesa").style.display = "none";
+    document.getElementById("DivCadastroDespesa").style.display = "none";
+
+  });
+
+  // Example starter JavaScript for disabling form submissions if there are invalid fields
+  (() => {
+    'use strict'
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    const forms = document.querySelectorAll('.needs-validation')
+
+    // Loop over them and prevent submission
+    Array.from(forms).forEach(form => {
+      form.addEventListener('submit', event => {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+  })()
+
+  function ConfirmarIsso() {
+    if (!confirm("APERTE ENTER PARA CONTINUAR."))
+      return false;
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInput = document.getElementById('txtContatoCadRes');
+    VMasker(phoneInput).maskPattern('(99) 99999-9999');
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInput = document.getElementById('txtContatoCadCom');
+    VMasker(phoneInput).maskPattern('(99) 99999-9999');
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInput = document.getElementById('txtDataNascimentoCadCom');
+    VMasker(phoneInput).maskPattern('99/99/9999');
+  });
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInput = document.getElementById('txtCpfCadCom');
+    VMasker(phoneInput).maskPattern('999.999.999-99');
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInput = document.getElementById('txtCelular');
+    VMasker(phoneInput).maskPattern('(99) 99999-9999');
+  });
+
+  //FUNCOES PARA FORMATAR O INPUT DO PESQUISAR POR CONTATO E CPF 
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInputCPF = document.getElementById('txtPesquisarCpf');
+    VMasker(phoneInputCPF).maskPattern('999.999.999-99');
+  });
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var phoneInputContato = document.getElementById('txtPesquisarContato');
+    VMasker(phoneInputContato).maskPattern('(99) 99999-9999');
+
+    //FUNCOES PARA PESQUISAR O QUE ESTÁ SENDO DIGITADO NO INPUT DE PESQUISAR CLIENTES EM PAGAMENTO
+
+    // Evento para quando o modal é aberto
+    $('#exampleModalCliente').on('shown.bs.modal', function () {
+      // Seleciona o input dentro do modal
+      var inputPesquisarContato = document.getElementById("txtPesquisarContato");
+      
+
+      // Adiciona um listener de evento de input
+      inputPesquisarContato.addEventListener("input", function (event) {
+        // Chama a função de validação com os parâmetros desejados
+        validacao(9, inputPesquisarContato.value, 1, 10);
+        validacao(12, '22222', 2, 47);
+      });
+    });
+
+
+    //FIM DAS FUNCOES DE PESQUISAR....
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    window.scrollTo(0, 0); // Rola a página para a posição (0, 0), ou seja, topo
+  });
+
+
+  window.onload = function () {
+    // Seleciona a div pelo id e oculta
+    document.getElementById("DivCadastroProduto").style.display = "none";
+    document.getElementById("DivCadastroCategoria").style.display = "none";
+    document.getElementById("DivCadastroEntrada").style.display = "none";
+    document.getElementById("DivCadastroUsuario").style.display = "none";
+    document.getElementById("DivParaTrocarImagemUsu").style.display = "none";
+    document.getElementById("BtnMostrarPerfil").style.display = "none";
+  };
+
+
+  //FIM DAS FUNCOES DE FORMATAR O INPUT DO PESQUISAR POR CONTATO E CPF
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-masker/1.0.9/vanilla-masker.min.js"></script>
+<script src="Interface/js/funcs.js"></script>
+<script src="Interface/js/snippets.js"></script>
+
+
+<!-- CoreUI and necessary plugins-->
+<script src="./modelo_files/coreui.bundle.min.js.download"></script>
+<script src="./modelo_files/simplebar.min.js.download"></script>
+<script>
+  const header = document.querySelector('header.header');
+
+  document.addEventListener('scroll', () => {
+    if (header) {
+      header.classList.toggle('shadow-sm', document.documentElement.scrollTop > 0);
+    }
+  });
+</script>
+<!-- Plugins and scripts required by this view-->
+<script src="./modelo_files/chart.umd.js.download"></script>
+<script src="./modelo_files/coreui-chartjs.js.download"></script>
+<script src="./modelo_files/index.js.download"></script>
+<script src="./modelo_files/main.js.download"></script>
+
+<script>
+
+</script>
 
 </html>
