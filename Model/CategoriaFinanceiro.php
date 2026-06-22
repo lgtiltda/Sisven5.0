@@ -5,6 +5,7 @@ class CategoriaFinanceiro {
     private $id;
     private $nome;
     private $cod_usu;
+
    
     function getId() {
         return $this->id;
@@ -29,6 +30,8 @@ class CategoriaFinanceiro {
     function setCod_usu($cod_usu) {
         $this->cod_usu = $cod_usu;
     }
+
+    
 
 
 

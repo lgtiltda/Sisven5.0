@@ -241,6 +241,8 @@ if ($listaNotas != null) {
                         </td>
                     </tr>
                 </table>
+                
+                
                 <table class="table table-borderless" style="width: 100%; float: left; font-size: 9pt;">  
 
                     <tr style="">

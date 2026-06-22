@@ -2,6 +2,14 @@
 include("conn.php");
 include("Banco.php");
 include("functions.php");
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+
+use Picqer\Barcode\BarcodeGeneratorPNG;
+
+$generator = new BarcodeGeneratorPNG();
+
 session_start();
 //Error_reporting(0);
 $banco = new Banco();
@@ -24,6 +32,7 @@ switch ($tipo) {
     );
 
     $dataTableServicos222 = $banco->ExecuteQuery($sqlServicoscont, $paramServicoscount);
+
     foreach ($dataTableServicos222 as $resultado22) {
       $totalderegistros = $resultado22['total'];
     }
@@ -52,13 +61,12 @@ switch ($tipo) {
 
       $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
 
+
     }
 
     $codindex = 2;
 
     foreach ($dataTableServicos as $resultadoservicos) {
-
-
 
       $codservico = $resultadoservicos['cod'];
       $descricaoservico = $resultadoservicos['descricao'];
@@ -66,10 +74,13 @@ switch ($tipo) {
       $categoriaservico = $resultadoservicos['categoria'];
       $img = $resultadoservicos['img'];
       $imgservico = $resultadoservicos['img'];
+      if ($imgservico == null) {
+        $imgservico = "logo.ico";
+      }
       $tiposervico = 1;
       $qtdservico = $resultadoservicos['qtd'];
-      $valorservico = $resultadoservicos['valor'];
-      $tiposervico = $resultadoservicos['tipo'];
+      $valorservico = (float) $resultadoservicos['valor'];
+      $tiposervico = (float) $resultadoservicos['tipo'];
 
 
       if ($imgservico == null) {
@@ -112,17 +123,15 @@ switch ($tipo) {
         $textotipo = "PRODUTO";
       }
 
-
       if ($tiposervico == 0) {
 
-        echo "<div class='card-header py-3'>
+        echo "<div class='card-header py-3' id='ResultadoValidacao77$codservico'>
       <h5 class='mb-0'>$nomeservico</h5>
-    </div>
     <div class='card-body'>
       <div class='row'>
         <div class='col-lg-3 col-md-12 mb-4 mb-lg-0'>
           <div class='bg-image hover-overlay hover-zoom ripple rounded' data-mdb-ripple-color='light'>
-            <img style='  ' src='Interface/img/Servicos/logo.ico' class='w-100' />
+            <img style=' ' src='Interface/img/Servicos/$imgservico' class='w-100' />
             <a href='#!'>
               <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div>
             </a>
@@ -163,7 +172,7 @@ switch ($tipo) {
                   </svg>
                   </a>";
           } else {
-            echo "<div class='alert alert-danger' style='text-align:justify'>Por favor, para realizar venda deste produto, o usuário deverá atualizar o valor de estoque. </div>";
+            echo "<div id='ResultadoValidacao76$codservico' style='text-align:justify'><a href='javascript: func()' onclick='validacao(76, $codnota, $codservico, 76$codservico)' class='btn-danger'>Clique Aqui</a> para atualizar o estoque de emergência</div>";
           }
         } else {
           echo " 
@@ -178,22 +187,22 @@ switch ($tipo) {
         echo " 
             </p>
         </div>
+        </div>
       </div>
     </div>";
         $codindex++;
       } else if ($tiposervico == 1) {
-        if ($qtdservico > 0) {
 
-          echo "<div class='card-header py-3'>
+        echo "<div class='card-header py-3' id='ResultadoValidacao77$codservico'>
             <h5 class='mb-0'>$nomeservico</h5>
-          </div>
+          
           <div class='card-body'>
             <div class='row'>
               <div class='col-lg-3 col-md-12 mb-4 mb-lg-0'>
                 <div class='bg-image hover-overlay hover-zoom ripple rounded' data-mdb-ripple-color='light'>
-                  <img style='  ' src='Interface/img/Servicos/logo.ico' class='w-100' />
+                  <img style='  ' src='Interface/img/Servicos/$imgservico' class='w-100' />
                   <a href='#!'>
-                    <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div>
+                    <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div> 
                   </a>
                 </div>
               </div>
@@ -201,20 +210,20 @@ switch ($tipo) {
                 <p><strong>Categoria: $nomecategoria</strong></p>
                 <p>Tipo: $textotipo</p>
                 ";
-          if ($tiposervico == 0) {
-            echo "";
-          } else {
-            if ($qtdservico > 0) {
-              echo "
+        if ($tiposervico == 0) {
+          echo "";
+        } else {
+          if ($qtdservico > 0) {
+            echo "
                 <p>Qtd: $qtdservico</p>
                 <p>Qtd reservada: $qtdreservada</p>
                ";
-            } else {
-              echo "<div class='alert alert-warning'>Ñ Disponível</div>";
-            }
+          } else {
+            echo "<div class='alert alert-warning'>Ñ Disponível</div>";
           }
+        }
 
-          echo " </button>
+        echo " </button>
                 <!-- Data -->
               </div>
               
@@ -222,35 +231,36 @@ switch ($tipo) {
                 <p class='text-start text-md-center' style='font-size:14pt;'>Valor Unt.
                   <strong>R$ $valorformatado</strong></br>
                   ";
-          if ($tiposervico == 1) {
-            if ($qtdservico > 0) {
-              echo " 
+        if ($tiposervico == 1) {
+          if ($qtdservico > 0) {
+            echo " 
                       <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
                        <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
                           <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
                           <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
                         </svg>
                         </a>";
-            } else {
-              echo "<div class='alert alert-danger' style='text-align:justify'>Por favor, para realizar venda deste produto, o usuário deverá atualizar o valor de estoque. </div>";
-            }
           } else {
-            echo " 
+            echo "<div id='ResultadoValidacao76$codservico' style='text-align:justify'><a href='javascript: func()' onclick='validacao(76, $codnota, $codservico, 76$codservico)' class='btn btn-danger'>Clique Aqui</a>para atualizar o estoque de emergência</div>";
+          }
+        } else {
+          echo " 
                     <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
                      <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
                         <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
                         <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
                       </svg>
                       </a>";
-          }
+        }
 
-          echo " 
+        echo " 
                   </p>
               </div>
             </div>
+          </div>
           </div>";
-          $codindex++;
-        }
+        $codindex++;
+
       }
     }
 
@@ -274,8 +284,12 @@ switch ($tipo) {
       $totalfinal = $totalfinal + $valor;
     }
 
-    $totalfinal = number_format($totalfinal, 2, ',', '.');
-    echo "
+    if ($totalfinal == 0) {
+      echo "<h5 class='alert alert-danger' style='text-align:justify;'>ADICIONE PELO MENOS UM ITEM PARA FINALIZAR O PAGAMENTO</h5>";
+    } else {
+
+      $totalfinal = number_format($totalfinal, 2, ',', '.');
+      echo "
       <div class='input-group mb-3'>
             <span class='input-group-text' id='basic-addon1'>
               <svg xmlns='http://www.w3.org/2000/svg' width='30' height='30' fill='currentColor' class='bi bi-coin' viewBox='0 0 16 16'>
@@ -300,6 +314,8 @@ switch ($tipo) {
           
      
     ";
+
+    }
     break;
 
   //FUNCAO PARA VALIDAR VALORES INFORMADOS COMO PAGAMENTO, REALIZAR LOGICA PARA DESCONTO E CONSISTENCIA DAS INFORMAÇÕES.
@@ -318,11 +334,13 @@ switch ($tipo) {
     $codpedido = 0;
     $qtdpedidos = 0;
     $totalfinal = 0;
+    $totalfinal2 = 0;
     $valor = 0;
     while ($pedidos = mysqli_fetch_object($sqlPedido)) {
       $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
       $valor = (float) $pedidos->valor;
       $totalfinal = $totalfinal + $valor;
+      $totalfinal2 = $totalfinal2 + $valor;
     }
 
 
@@ -392,7 +410,10 @@ switch ($tipo) {
     $troco = number_format($troco, 2, ',', '.');
     $totalfinal = number_format($totalfinal, 2, ',', '.');
 
-    echo "
+    if ($totalfinal2 == 0) {
+      echo "<h5 class='alert alert-danger' style='text-align:justify;'>ADICIONE PELO MENOS UM ITEM PARA FINALIZAR O PAGAMENTO</h5>";
+    } else {
+      echo "
       <div class='input-group mb-3'>
             <span class='input-group-text' id='basic-addon1'>
               <svg xmlns='http://www.w3.org/2000/svg' width='30' height='30' fill='currentColor' class='bi bi-coin' viewBox='0 0 16 16'>
@@ -415,17 +436,16 @@ switch ($tipo) {
             <input disabled value='R$ $troco' name='txtTroco' id='txtTroco' type='text' class='form-control' placeholder='Troco' aria-label='Username' aria-describedby='basic-addon1'>
           </div>
           ";
-    if ($msgteste == null) {
-      echo "       
+      if ($msgteste == null) {
+        echo "       
             <input style='width:100%; padding:10px;' id='btnFinalizarPagamento' name='btnFinalizarPagamento' type='submit' class='btn btn-outline-success' value='Finalizar Pagamento' />
          
             ";
-    } else {
-      echo $msgteste;
+      } else {
+        echo $msgteste;
+      }
+
     }
-    echo "
-          
-    ";
     break;
   //FUNCAO PARA CHAMAR DE LISTA DE ITENS
   case 4:
@@ -536,48 +556,51 @@ switch ($tipo) {
     );
     $nomecategoria = "Avulso";
     $dataTablePedidos = $banco->ExecuteQuery($sqlPedidos, $paramPedidos);
-    foreach ($dataTablePedidos as $resultadopedidos) {
 
-      $codservico = $resultadopedidos['servico'];
-      $codpedidoCard = $resultadopedidos['cod'];
+    if ($dataTablePedidos != null) {
 
-      if ($codservico == 0) {
-        $nomeservico = $resultadopedidos['obs'];
-        $obs = $nomeservico;
+      foreach ($dataTablePedidos as $resultadopedidos) {
+
+        $codservico = $resultadopedidos['servico'];
+        $codpedidoCard = $resultadopedidos['cod'];
+
+        if ($codservico == 0) {
+          $nomeservico = $resultadopedidos['obs'];
+          $obs = $nomeservico;
+          $valor = (float) $resultadopedidos['valor'];
+          $qtd = (float) $resultadopedidos['qtd'];
+          $valorunt = $valor / $qtd;
+        } else {
+          $categoria = $resultadopedidos['categoria'];
+          //$sql3 = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod=$categoria LIMIT 1");
+          $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod= :cod LIMIT 1";
+          $paramCategorias = array(
+            ":cod" => $categoria
+          );
+          $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+          foreach ($dataTableCategorias as $resultadocategorias) {
+            $nomecategoria = $resultadocategorias['nome'];
+          }
+          //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
+          $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
+          $paramServicos = array(
+            ":cod" => $codservico
+          );
+          $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+          foreach ($dataTableServicos as $resultadoservicos) {
+            $nomeservico = $resultadoservicos['nome'] . "(" . $nomecategoria . ")";
+            $valorunt = (float) $resultadoservicos['valor'];
+            $obs = $resultadopedidos['obs'];
+          }
+        }
+
         $valor = (float) $resultadopedidos['valor'];
-        $qtd = (float) $resultadopedidos['qtd'];
-        $valorunt = $valor / $qtd;
-      } else {
-        $categoria = $resultadopedidos['categoria'];
-        //$sql3 = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod=$categoria LIMIT 1");
-        $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod= :cod LIMIT 1";
-        $paramCategorias = array(
-          ":cod" => $categoria
-        );
-        $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
-        foreach ($dataTableCategorias as $resultadocategorias) {
-          $nomecategoria = $resultadocategorias['nome'];
-        }
-        //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
-        $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
-        $paramServicos = array(
-          ":cod" => $codservico
-        );
-        $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
-        foreach ($dataTableServicos as $resultadoservicos) {
-          $nomeservico = $resultadoservicos['nome'] . "(" . $nomecategoria . ")";
-          $valorunt = $resultadoservicos['valor'];
-          $obs = $resultadopedidos['obs'];
-        }
+        $codpedido = $resultadopedidos['cod'];
+        $valorunt = number_format($valorunt, 2, ',', '.');
+        $valor = number_format($valor, 2, ',', '.');
       }
 
-      $valor = (float) $resultadopedidos['valor'];
-      $codpedido = $resultadopedidos['cod'];
-      $valorunt = number_format($valorunt, 2, ',', '.');
-      $valor = number_format($valor, 2, ',', '.');
-    }
-
-    echo "
+      echo "
           <div class='row'>
           <div class='col-md-12'>
             <input type='hidden' value='$codpedido' id='txtCodpedido' name='txtCodpedido' />
@@ -590,7 +613,7 @@ switch ($tipo) {
           </div>
           <div class='col-md-6'>
             <label for='txtContatoCadRes' class='form-label'>Valor Unt.</label>
-            <input disabled value='$valorunt' type='text' class='form-control form-control-lg' id='txtValorUntEd' name='txtValorUntEd' value='' required>
+            <input onkeyup='validacaopagamento(6, txtQtdEd.value,  $codnota, this.value, 0, 0, 0, 6)'  value='$valorunt' type='text' class='form-control form-control-lg' id='txtValorUntEd' name='txtValorUntEd' value='' required>
             <div class='valid-feedback'>
               Correto!
             </div>
@@ -622,13 +645,22 @@ switch ($tipo) {
         </div>
       
         ";
+    } else {
+      echo "<scan class='alert-danger'>Nenhum item foi cadastrado</scan>";
+    }
 
     break;
 
   //VALIDACAO PARA GERAR VALOR TOTAL EM EDITAR ULT. ITEM
   case 6:
-    $qtditem = (float) $_GET['param'];
-    $codnota = $_GET['valor'];
+    $qtditem = (float) $_GET['param1'];
+    $codnota = $_GET['param2'];
+    $valoruntvalidcao = $_GET['param3'];
+    $pontos = '.';
+    $result = str_replace($pontos, "", $valoruntvalidcao);
+    $result = str_replace(",", ".", $result);
+    $valoruntvalidcao = $result;
+    $valoruntvalidcao = (float) $valoruntvalidcao;
 
     $sqlPedidos = "SELECT * FROM pedidos WHERE usuario = :cod ORDER BY cod DESC LIMIT 1";
     $paramPedidos = array(
@@ -662,10 +694,10 @@ switch ($tipo) {
       }
 
       $valortotal = 0;
-      $valortotal = $qtditem * $valorunt;
+      $valortotal = $qtditem * $valoruntvalidcao;
 
       $codpedido = $resultadopedidos['cod'];
-      $valorunt = number_format($valorunt, 2, ',', '.');
+      $valoruntvalidcao = number_format($valorunt, 2, ',', '.');
       $valortotal = number_format($valortotal, 2, ',', '.');
     }
 
@@ -892,140 +924,183 @@ switch ($tipo) {
 
     $totalfinal = number_format($totalfinal, 2, ',', '.');
 
-    echo "  
-                <form onsubmit='return ConfirmarIsso();' name='form_cadastrarmovimento' method='post' action='' style='margin-top:5px; width:100%;' class='needs-validation' novalidate>
-             <div class='row' style=''>
-                  
+    echo "    <label for='valortotal'><h4>Tipo de Crediário</h4></label>
+                 
                   <input name='txtCodnota' id='txtCodnota' value='$codnota' type='hidden' />
-                  <label for='valortotal'><h4>Parcelamento e Juros</h4></label>
-                  <div class='input-group' style='width:95%; margin-bottom:10px;'>
-                          <select onchange='Parcelamento(11, numparcelas.value, $codnota, this.value, juros2.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='juros' name='juros'>
-                          <option value='1'>Sem Juros</option>
-                          <option value='2'>Juros Simples</option>
-                          <option value='3'>Juros Composto</option>
+              
+             <div class='input-group' style='width:100%; margin-bottom:10px;'>
+                          <select onchange='ParcelamentoNovaInterface(94, numparcelas.value, $codnota, juros.value, juros2.value, valorentrada.value, " . date("Y-m-d") . ", this.value, tipopagamentoentrada.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='tipocrediario' name='tipocrediario'>
+                          <option value='1'>DA LOJA</option>
+                          <option value='2'>AVANCARD</option>
+                        
                           </select>
                           </div>
+                           <label for='valortotal'><h4>Valor Total</h4></label>
+             <div class='input-group' style='width:100%; margin-bottom:10px;'>
+                          <input disabled onkeyup='ParcelamentoNovaInterface(94, numparcelas.value, $codnota, juros.value, juros2.value, this.value, " . date("Y-m-d") . ", tipocrediario.value, tipopagamentoentrada.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='valorentrada22222' name='valorentrada22222' value='$totalfinal'>
                           
-                      <div class='input-group' style='width:50%;'>
-                          <select onchange='Parcelamento(11, this.value, $codnota, juros.value, juros2.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='numparcelas' name='numparcelas'>
-                          <option value='1'>1x</option>
-                          <option value='2'>2x</option>
-                          <option value='3'>3x</option>
-                          <option value='4'>4x</option>
-                          <option value='5'>5x</option>
-                    			<option value='6'>6x</option>
-                          <option value='7'>7x</option>
-                          <option value='8'>8x</option>
-                          <option value='9'>9x</option>
-                          <option value='10'>10x</option>
-                          <option value='11'>11x</option>
-                          <option value='12'>12x</option>
+                          </div>        
+                          <label for='valortotal'><h4>Forma de Pagamento da Entrada</h4></label>
+                      
+                           <div class='input-group' style='width:100%; margin-bottom:10px;'>
+                         <select onchange='ParcelamentoNovaInterface(94, numparcelas.value, $codnota, juros.value, juros2.value, valorentrada.value, " . date("Y-m-d") . ", tipocrediario.value, this.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='tipopagamentoentrada' name='tipopagamentoentrada'>
+                          <option value='1'>Dinheiro</option>
+                          <option value='2'>Pix</option>
+                          <option value='3'>Débito</option>
+                          <option value='4'>Crédito</option>
+                        
                           </select>
                           </div>
-                          </br>
-                          <div class='input-group' style='width:45%;'>
-                          <select onchange='Parcelamento(11, numparcelas.value, $codnota, juros.value, this.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='juros2' name='juros2'>
-                          <option value='1'>1%</option>
-                          <option value='2'>2%</option>
-                          <option value='3'>3%</option>
-                          <option value='4'>4%</option>
-                          <option value='5'>5%</option>
-                          <option value='6'>6%</option>
-                          <option value='7'>7%</option>
-                          <option value='8'>8%</option>
-                          <option value='9'>9%</option>
-                          <option value='10' selected='selected'>10%</option>
-                          <option value='20'>20%</option>
-                          <option value='30'>30%</option>
-                          <option value='40'>40%</option>
-                          <option value='50'>50%</option>
-                          <option value='60'>60%</option>
-                          <option value='70'>70%</option>
-                          <option value='80'>80%</option>
-                          <option value='90'>90%</option>
-                          <option value='100'>100%</option>
-                          </select>
+                           <label for='valortotal'><h4>Valor da Entrada</h4></label>
+             <div class='input-group' style='width:100%; margin-bottom:10px;'>
+                          <input onkeyup='ParcelamentoNovaInterface(94, numparcelas.value, $codnota, juros.value, juros2.value, this.value, " . date("Y-m-d") . ", tipocrediario.value, tipopagamentoentrada.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='valorentrada' name='valorentrada' value='' type='text'>
+                          
                           </div>
-                        <div id='resultadodoparcelamento' class='row' style='margin-bottom:10px;'>
 
-                          <label for='valortotal'><h4>Valor da Parcela</h4></label>
-                          <div class='input-group'>
-                          <input style='font-size:14pt; padding:25px; ' disabled type='text' class='form-control' id='valorparcela' placeholder='' value='$totalfinal'>
-                          </div><label for='valortotal'><h4>Valor Total</h4></label>
-                          <div class='input-group'>
-                          <input style='font-size:14pt; padding:25px;' disabled type='text' class='form-control' id='valortotal' placeholder='' value='$totalfinal'>
-                        
-                        </div>
-                        
-                      </div>
-                           
-                  </div>
-                  <input style='width:95%; padding:20px; font-size:18pt;' class='btn btn-outline-success' type='submit' name='btnCadastrarFinalizarPagamentoCrediario' id='btnCadastrarFinalizarPagamentoCrediario' value='Finalizar Pagamento'>
-  
-             
-              </form>
+
+
+                  <div id='resultadodoparcelamentoTipo' style='width:100%;'>
+                     <input name='numparcelas' id='numparcelas' value='1' type='hidden' />
+                  <input name='juros' id='juros' value='0' type='hidden' />
+                  <input name='juros2' id='juros2' value='0' type='hidden' />
+                  
+                     </div>      
+                  
               
             ";
 
     break;
 
-  //PAGINA FINAL DE PAGAMENTO - FORMULATARIO DE PAGAMENTO PARCELADO NO CARTÃO DE CREDITO
+  //PAGINA FINAL DE PAGAMENTO - FORMULATARIO DE PAGAMENTO PARCELADO NO CREDIARIO DA LOJA
   case 11:
-    $codnota = $_GET['codnota'];
-    $numparcelas = (float) $_GET['valor'];
-    $juros = $_GET['juros'];
-    $juros2 = (float) $_GET['juros2'];
-    // Procura titulos no banco relacionados ao valor
+$codnota = $_GET['codnota'];
+$tipo_crediario = $_GET['novoparam'];
+$juros = $_GET['juros'];
+$juros2 = $_GET['juros2'];
+$numparcelasloja = (float) $_GET['valor'];
+$valorentrada = (float) $_GET['entrada'];
+$datavencimento = $_GET['novadata'];
+$tipopagentrada = $_GET['tipopagentrada'];
+$datehoje = date('d/m/Y');
+
+$totalcomentrada = 0;
+
+if ($tipo_crediario == 1) {
+
+    $dinheirooudebito = 0;
+
     $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
-    $total = 0;
-    $codpedido = 0;
-    $qtdpedidos = 0;
+
     $totalfinal = 0;
     $valor = 0;
+
     while ($pedidos = mysqli_fetch_object($sqlPedido)) {
-      $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
-      $valor = (float) $pedidos->valor;
-      $totalfinal = $totalfinal + $valor;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
     }
 
-    if ($juros == 1) {
-      $valorparcela = $totalfinal / $numparcelas;
-      $totalfinal2 = $totalfinal;
-      $totalfinal = number_format($totalfinal, 2, ',', '.');
-      $valorparcela = number_format($valorparcela, 2, ',', '.');
-    } else if ($juros == 2) {
-      $totalfinal = $totalfinal + ($totalfinal * ($juros2 / 100));
-      $valorparcela = $totalfinal / $numparcelas;
-      $totalfinal2 = $totalfinal;
-      $totalfinal = number_format($totalfinal, 2, ',', '.');
-      $valorparcela = number_format($valorparcela, 2, ',', '.');
-    } else if ($juros == 3) {
-      $totalfinalporc = ($totalfinal * ($juros2 / 100));
-      $valorparcela = ($totalfinal / $numparcelas) + $totalfinalporc;
-      $totalfinal = 0;
-      for ($i = 1; $i <= $numparcelas; $i++) {
-        $totalfinal = $totalfinal + $valorparcela;
-      }
-      $totalfinal2 = $totalfinal;
-      $totalfinal = number_format($totalfinal, 2, ',', '.');
-      $valorparcela = number_format($valorparcela, 2, ',', '.');
+    $totalcomentrada = $totalfinal - $valorentrada;
+}
+
+$totalfinal = $totalfinal - $valorentrada;
+
+if ($juros == 1) {
+    $totalfinal2 = $totalfinal;
+
+} else if ($juros == 2) {
+    $totalfinal = $totalfinal + ($totalfinal * ($juros2 / 100));
+    $totalfinal2 = $totalfinal;
+
+} else if ($juros == 3) {
+    $totalfinalporc = ($totalfinal * ($juros2 / 100));
+    $valorparcela_juros3 = ($totalfinal / $numparcelasloja) + $totalfinalporc;
+    $totalfinal = 0;
+    for ($i = 1; $i <= $numparcelasloja; $i++) {
+        $totalfinal = $totalfinal + $valorparcela_juros3;
+    }
+    $totalfinal2 = $totalfinal;
+}
+
+// ── Cálculo das parcelas com ajuste de centavos ──────────────────
+$valor_total     = round($totalfinal, 2);
+
+$valor_parc_base = floor($valor_total / $numparcelasloja); // trunca para inteiro (sem centavos)
+
+$soma_parcelas   = round($valor_parc_base * $numparcelasloja, 2);
+$diferenca       = round($valor_total - $soma_parcelas, 2); // centavos que sobram
+
+// Valor da primeira parcela para exibir no campo de preview
+$valorparcela_preview = $valor_parc_base; // exibe a parcela padrão (sem os centavos extras)
+
+echo "
+    <label for='valortotal'><h4>Valor da Parcela</h4></label>
+    <div class='input-group'>
+        <input style='font-size:14pt; padding:25px;' disabled type='text' class='form-control' id='valorparcela' placeholder='' value='" . number_format($valorparcela_preview, 2, ',', '.') . "'>
+    </div>
+";
+
+echo "<table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+    <tr>
+        <td style='width:50%;'>Descrição</td>
+        <td>Valor</td>
+        <td>Data de Vencimento</td>
+    </tr>";
+
+$dia_hoje = (int) date('d');
+$mes_hoje = (int) date('m');
+$ano_hoje = (int) date('Y');
+
+for ($i = 1; $i <= $numparcelasloja; $i++) {
+
+    $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$numparcelasloja";
+
+    // ── Última parcela recebe os centavos restantes ───────────────
+    if ($i == $numparcelasloja) {
+        $valor_parcela = round($valor_parc_base + $diferenca, 2);
+    } else {
+        $valor_parcela = $valor_parc_base;
     }
 
+    // ── Lógica de vencimento ──────────────────────────────────────
+    if ($tipo_crediario == 1) {
 
-    echo "
-       <label for='valortotal'><h4>Valor da Parcela</h4></label>
-                <div class='input-group'>
-                
-                <input style='font-size:14pt; padding:25px;' disabled type='text' class='form-control' id='valorparcela' placeholder='' value='$valorparcela'>
-                </div>
-              
-                <label for='valortotal'><h4>Valor Total</h4></label>
-                <div class='input-group'>
-                
-                <input style='font-size:14pt; padding:25px;' disabled type='text' class='form-control' id='valortotal' placeholder='' value='$totalfinal'>
-                </div>
-               
-       ";
+        // CREDIÁRIO LOJA — vence a cada mês a partir da compra
+        $data_venc = new DateTime($datavencimento);
+        $data_venc->modify("+$i month");
+
+    } elseif ($tipo_crediario == 2) {
+
+        // AVANCARD — sempre vence no dia 20, sincronizado
+        if ($dia_hoje < 20) {
+            $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+            $data_venc->modify("+" . ($i - 1) . " month");
+        } else {
+            $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+            $data_venc->modify("+$i month");
+        }
+
+    }
+
+    $data_vencimento_fmt = $data_venc->format("d/m/Y");
+
+    // ── Destaque visual na última parcela ─────────────────────────
+    $estilo_ultima = ($i == $numparcelasloja && $diferenca > 0)
+        ? "style='font-weight:bold; color:#b8860b;'" 
+        : "";
+
+    $label_ultima = ($i == $numparcelasloja && $diferenca > 0)
+        ? " <small style='color:#b8860b;'>(+ R$ " . number_format($diferenca, 2, ',', '.') . " de ajuste)</small>"
+        : "";
+
+    echo "<tr $estilo_ultima>
+        <td>$descricao_parcelamento</td>
+        <td>R$ " . number_format($valor_parcela, 2, ',', '.') . "$label_ultima</td>
+        <td>$data_vencimento_fmt</td>
+    </tr>";
+}
+
+echo "</table>";
+
     break;
 
 
@@ -1033,7 +1108,7 @@ switch ($tipo) {
 
   case 12:
     $codnota = $_GET['valor']; //CODIGO DA NOTA
-    echo $valor = $_GET['param']; //VALOR DIGITADO NO INPUT
+    $valor = $_GET['param']; //VALOR DIGITADO NO INPUT
     echo "
         <div class='table-responsive'>
           <table class='table table-striped table-sm'>
@@ -1075,7 +1150,7 @@ switch ($tipo) {
                 </tr>
               <tr>
                   <td>  
-                            <a href='index.php?&codcli=$codcliente&msgget=1' type='button' class='btn btn-outline-success btn-sm' style='width:100%; height:40px; font-size:14pt;'>Novo Pedido</a>
+                            <a href='index.php?&codcli=$codcliente&msgget=1' type='button' class='btn btn-outline-success btn-sm' style='width:100%; height:40px; font-size:14pt;'>Ver Tudo</a>
                   </td>
               </tr>
   
@@ -1104,10 +1179,17 @@ switch ($tipo) {
         </tr>
     ";
     //SQL PARA VALIDAR SE A VENDA JÁ FOI REALIZADO O PAGAMENTO
-    $sqlTestePag = "SELECT * FROM fechar_caixa WHERE status = :cod ORDER BY cod ASC";
-    $paramTestePag = array(
-      ":cod" => 1
-    );
+    if ($_SESSION['permissaoF'] == 1) {
+      $sqlTestePag = "SELECT * FROM fechar_caixa WHERE status = :cod ORDER BY cod ASC";
+      $paramTestePag = array(
+        ":cod" => 1
+      );
+    } else {
+      $sqlTestePag = "SELECT * FROM fechar_caixa WHERE status = :cod AND cod_funcionario != 1 ORDER BY cod ASC";
+      $paramTestePag = array(
+        ":cod" => 1
+      );
+    }
     $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
     foreach ($dataTableTestePag as $resultadocaixa) {
       $codcaixa = $resultadocaixa['cod'];
@@ -1121,7 +1203,7 @@ switch ($tipo) {
 
       $caixa_inicial = number_format($caixa_inicial, 2, ',', '.');
 
-      $data_completa = $dia . '/' . $mes . '/' . $ano . ' ' . $hora_inicio;
+      $data_completa = $hora_inicio;
 
       $sqlFunc = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
       $paramFunc = array(
@@ -1291,8 +1373,25 @@ switch ($tipo) {
 
 
 
-    echo "<h5>Resumo do Dia</h5>
+    echo "<h5>Resumo do Dia</h5>";
+    $dia = date('d');
+    $mes = date('m');
+    $ano = date('Y');
 
+    //SQL PARA MONTAR FATURAMENTO, DESPESA E SALDO DIÁRIO
+    $sqlNota = "SELECT * FROM notas WHERE  status = 1  ORDER BY cod DESC";
+
+
+    $dataTableNota = $banco->ExecuteQuery($sqlNota);
+    // var_dump($dataTableNota);
+    foreach ($dataTableNota as $resultadonota) {
+      $codnota = $resultadonota['cod'];
+      $codfunc = $resultadonota['func'];
+      $dia = $resultadonota['dia'];
+      $mes = $resultadonota['mes'];
+      $ano = $resultadonota['ano '];
+    }
+    echo " 
       <table class='table table-hover'>
         <tr>
           <td><b>Faturamento</b></td>
@@ -1511,16 +1610,19 @@ switch ($tipo) {
         ";
 
 
+    echo "
+            <h5>Produtos Mais Vendidos do Mês</h5>
+            
+            ";
+
+
     $mes = date('m');
     $ano = date('Y');
 
 
     $categoria = 0;
-
-    echo "
-            <h5>Produtos Mais Vendidos do Mês</h5>
-            
-            ";
+    $jogo = [];
+    $arraynovo = [];
 
 
     if ($categoria == 0) {
@@ -1536,7 +1638,7 @@ switch ($tipo) {
     foreach ($dataTableServicos as $resultadoservicos) {
       $codservico = $resultadoservicos['cod'];
       $nomeservico = $resultadoservicos['nome'];
-      $valorservico = $resultadoservicos['valor'];
+      $valorservico = (float) $resultadoservicos['valor'];
       $valorservico = number_format($valorservico, 2, ',', '.');
       $qtd_total = 0;
       $valor_total = 0;
@@ -1547,7 +1649,7 @@ switch ($tipo) {
       $dataTableListaSaidas = $banco->ExecuteQuery($sqlListaSaidas, $paramListaSaidas);
       foreach ($dataTableListaSaidas as $resultadolistasaidas) {
         $qtd = $resultadolistasaidas['qtd'];
-        $valor = $resultadolistasaidas['valor'];
+        $valor = (float) $resultadolistasaidas['valor'];
         $qtd_total = $qtd_total + $qtd;
         $valor_total = $valor_total + $valor;
       }
@@ -1561,7 +1663,9 @@ switch ($tipo) {
       );
     }
 
-    arsort($jogo[3]);
+    if (isset($jogo[3]) && is_array($jogo[3])) {
+      arsort($jogo[3]);
+    }
     // var_dump($jogo);
     //  var_dump($arraynovo);
 
@@ -1575,7 +1679,9 @@ switch ($tipo) {
                         <td><b>Valor Total</b></td>
                     </tr>
             </thead>          ";
-    arsort($arraynovo);
+    if ($arraynovo != null) {
+      arsort($arraynovo);
+    }
     $contador2 = 0;
     foreach ($arraynovo as $chave => $valor_total) {
 
@@ -1632,7 +1738,7 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
 // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
 
       $sqlNota = "SELECT * FROM notas WHERE status = :status ORDER BY cod DESC";
       $paramNota = array(
@@ -1747,11 +1853,16 @@ switch ($tipo) {
       $textotipo = 0;
     }
 
-    echo "</table>";
+    echo "</table>
+    
+    ";
+
+
     break;
 
   //VALIDACAO PARA CARREGAR DETALHES DO PEDIDO 
   case 17:
+
     $codnota = $_GET['param'];
 
     $dinheiropag = 0;
@@ -1774,7 +1885,7 @@ switch ($tipo) {
     $nomecategoria = "Avulso";
     $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
 
-
+    $textotipocrediario = "";
     foreach ($dataTableTestePag as $infopagamento) {
 
       $dinheiropag = (float) $infopagamento['dinheiro'];
@@ -1786,6 +1897,16 @@ switch ($tipo) {
       $descontopag = (float) $infopagamento['desconto'];
       $gorjetapag = (float) $infopagamento['gorjeta'];
 
+
+      $tipo_crediario = (float) $infopagamento['tipo_crediario'];
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
 
       $tipopagamento = $infopagamento['tipo'];
       $numparcelas = (int) $infopagamento['numparcelas'];
@@ -1804,7 +1925,7 @@ switch ($tipo) {
     if ($tipopagamento == 2) {
       echo " 
                     <li class='list-group-item d-flex justify-content-between align-items-center px-0'>
-                      Crédiário Parcelado em <b>$numparcelas x</b>
+                     Parcelado no Crédiário $textotipocrediario  em <b>$numparcelas x</b>
                       <span id=''><b>R$ " . number_format($valorparcela, 2, ',', '.') . "</b></span>
                     </li>
                     ";
@@ -1897,12 +2018,300 @@ switch ($tipo) {
               </div>
             </div>";
 
+    if ($dataTableTestePag != null) {
 
-    $total = 0;
-    $contador = 0;
-    echo "
+
+
+
+
+
+      echo "          <div class='card mb-4' id='ResultadoValidacao76'>
+  
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                      
+                       ";
+
+      $valortotalpago = 0;
+
+      if ($dataTableTestePag != null) {
+
+        foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+          $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+          $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+        }
+
+        $total = 0;
+        $contador = 0;
+
+        $contadorparcelaspagas = 0;
+
+
+        $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod ORDER BY cod ASC LIMIT 1";
+        $paramPedidos222 = array(
+          ":cod" => $codnota
+        );
+
+        $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+        if ($dataTablePedidos222 != null) {
+
+          echo " <tr>
+                        <td colspan='6' style='text-align:center; font-size:14pt;'>PARCELAS PAGAS</td>
+                       </tr>";
+
+          $Textopagamento = "";
+          echo "
+                  
+                <tr>
+                  <td style='width:20%;'><b>Descrição</b></td>
+                  <td style='width:20%;'><b>Tipo pagamento</b></td>
+                  <td><b>Valor da Parcela</b></td>
+             
+                 
+                  <td style=''><b>Data de Pagamento</b></td>
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                  <td style=''><b>Status</b></td>
+                 
+                </tr>
+                ";
+          $valortotalpago = 0;
+          //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+          $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+          $paramPedidos22 = array(
+            ":cod" => $codnota
+          );
+
+          $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+
+          foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+            $contadorparcelaspagas++;
+
+            $codpedido = $resultadopedidos22['cod'];
+            $descricao = $resultadopedidos22['descricao'];
+            $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+            $tipopag = $resultadopedidos22['tipopag'];
+
+            if ($tipopag == 1) {
+              $Textopagamento = "Dinheiro";
+
+            } else if ($tipopag == 2) {
+              $Textopagamento = "Pix";
+            } else if ($tipopag == 3) {
+              $Textopagamento = "Débito";
+            } else if ($tipopag == 4) {
+              $Textopagamento = "Crédito";
+            }
+
+            $dia = $resultadopedidos22['dia'];
+            $mes = $resultadopedidos22['mes'];
+            $ano = $resultadopedidos22['ano'];
+            $data_vencimento = $resultadopedidos22['data_vencimento'];
+            $status = $resultadopedidos22['status'];
+            if ($status == 1) {
+              $textostatus = "A PAGAR";
+            } else {
+              $textostatus = "PAGO";
+            }
+
+            $valor = (float) $resultadopedidos22['valor'];
+
+            $valortotalpago = $valortotalpago + $valor;
+
+
+            $valor = number_format($valor, 2, ',', '.');
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                  <td style='width:30%;'><b>$descricao</b></td>
+                  <td ><b>$Textopagamento</b></td>
+                  <td><b>R$ $valor</b></td>
+                
+                      <td><b>$dia/$mes/$ano</b></td>
+                  <td style=''><b>$data_vencimento</b></td>
+                  <td style=''><b>$textostatus</b>
+                  ";
+            if ($status == 1) {
+
+
+            } else {
+              echo "  <a style='width:100%;' target='_blank' class='btn btn-outline-primary' href='Imprimir.php?pagina=23&codrecibo=$codpedido&codnota=$codnota'>
+                                Recibo</a>";
+            }
+            echo "</td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          $total = number_format($total, 2, ',', '.');
+          $restante = $valorfinalpagamento - $valortotalpago;
+
+
+
+          echo "<tr style='font-weight: bold;'>
+                <td style='color:orange;' colspan='1'>Valor Total a Pagar: R$ " .
+            number_format($valorfinalpagamento, 2, ',', '.') . "
+                </td>
+                <td colspan='2' style='color:green;'>
+                Valor Total Pago: R$ " .
+            number_format($valortotalpago, 2, ',', '.') . "                
+                
+                </td>
+                <td style='color:red;' colspan='3'>
+                Restante: R$ " .
+            number_format($valorfinalpagamento - $valortotalpago, 2, ',', '.') . "
+                </td>
+                
+                </tr>";
+        }
+
+        $proximaparcela = 0;
+
+        $total = 0;
+        $contador = 0;
+
+
+        $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod ORDER BY cod ASC LIMIT 1";
+        $paramPedidos222 = array(
+          ":cod" => $codnota
+        );
+
+        $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+        if ($dataTablePedidos222 != null) {
+
+
+          echo "
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                       <tr>
+                        <td colspan='6' style='text-align:center; font-size:14pt;'>PARCELAS A PAGAR</td>
+                       </tr>
+                       ";
+
+          echo "
+                <tr>
+                  <td style='width:20%;'><b>Descrição</b></td>
+                  <td><b>Valor da Parcela</b></td>
+             
+                  <td><b>Data do Parcelamento</b></td>
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                
+                  <td style=''><b></b></td>
+                </tr>
+                ";
+          //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+          $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 1 ORDER BY cod ASC limit 1";
+          $paramPedidos22 = array(
+            ":cod" => $codnota
+          );
+
+          $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+          foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+            $codpedido = $resultadopedidos22['cod'];
+            $descricao = $resultadopedidos22['descricao'];
+            $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+            $tipopag = $resultadopedidos22['tipopag'];
+            $dia = $resultadopedidos22['dia'];
+            $mes = $resultadopedidos22['mes'];
+            $ano = $resultadopedidos22['ano'];
+            $data_vencimento = $resultadopedidos22['data_vencimento'];
+            $status = $resultadopedidos22['status'];
+            if ($status == 1) {
+              $textostatus = "A PAGAR";
+            } else {
+              $textostatus = "PAGO";
+            }
+
+            $valor = (float) $resultadopedidos22['valor'];
+
+
+            $valor = number_format($valor, 2, ',', '.');
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                  <td style='width:30%;'><b>$descricao</b></td>
+                  <td style=''>
+                
+                  <select class='form-control' name='tipopag222$codpedido' id='tipopag222$codpedido'>
+                  <option value='1'>Dinheiro</option>
+                  <option value='2'>Pix</option>
+                  <option value='3'>Débito</option>
+                  <option value='4'>Crédito</option>
+                  </select>
+                 
+                  <b><input href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='$valor' class='form-control' ></b></td>
+                
+                  
+                  <td style=''><b>$data_vencimento</b></td>
+                 
+                  <td style='' id='ResultadoValidacao77$codpedido'>     
+                  
+                  
+
+
+                  
+                  ";
+            $valor = round((float) $valor, 2);
+            $restante = round((float) $restante, 2);
+
+            if ($status == 1) {
+              $valorpag = 0;
+              $tipopag = 1;
+
+              $proximaparcela = $contadorparcelaspagas + 1;
+              if ($numparcelas != $proximaparcela) {
+                if ($valor <= $restante) {
+                  echo "           
+                    
+                <a class='btn btn-outline-primary' onclick='ConfirmarParcelamento(75, $codnota, valorpag2$codpedido.value, tipopag222$codpedido.value, $codpedido, 76) ' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                        Pagar Parcela   
+                        </a>
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        VALOR DA PARCELA não pode ser maior que valor restante a ser pago!
+        </div>";
+                }
+              } else {
+                if ($valor == $restante) {
+                  echo "           
+                    
+                  <a class='btn btn-outline-primary' onclick='ConfirmarParcelamento(75, $codnota, valorpag2$codpedido.value, tipopag222$codpedido.value, $codpedido, 76) ' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                        Pagar Parcela   
+                        </a>
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        O usuário está na última parcela do Crediário, o valor da parcela DEVE ser igual ao restante a ser pago!
+        </div>";
+                }
+              }
+
+
+            }
+            echo "</td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          $total = number_format($total, 2, ',', '.');
+
+
+
+
+        }
+      }
+      echo "</table>";
+
+      $total = 0;
+      $contador = 0;
+      echo "<h3>Lista de Itens</h3>
                        <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>";
-    echo "
+      echo "
                 <tr>
                   <td style='width:50%;'><b>Produto</b></td>
                   <td><b>Qtd</b></td>
@@ -1911,55 +2320,55 @@ switch ($tipo) {
                   <td style=''><b>Obs</b></td>
                 </tr>
                 ";
-    //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
-    $sqlPedidos2 = "SELECT * FROM pedidos WHERE usuario = :cod ORDER BY cod DESC";
-    $paramPedidos2 = array(
-      ":cod" => $codnota
-    );
+      //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $sqlPedidos2 = "SELECT * FROM pedidos WHERE usuario = :cod ORDER BY cod DESC";
+      $paramPedidos2 = array(
+        ":cod" => $codnota
+      );
 
-    $dataTablePedidos2 = $banco->ExecuteQuery($sqlPedidos2, $paramPedidos2);
-    foreach ($dataTablePedidos2 as $resultadopedidos2) {
+      $dataTablePedidos2 = $banco->ExecuteQuery($sqlPedidos2, $paramPedidos2);
+      foreach ($dataTablePedidos2 as $resultadopedidos2) {
 
-      $codpedido = $resultadopedidos2['cod'];
-      $codservico = $resultadopedidos2['servico'];
+        $codpedido = $resultadopedidos2['cod'];
+        $codservico = $resultadopedidos2['servico'];
 
-      if ($codservico == 0) {
-        $nomeservico = $resultadopedidos2['obs'] . "<b><small>(Avulso)</small>" . "<b>";
-        $obs = "";
-      } else {
-        $categoria = $resultadopedidos2['categoria'];
-        //$sql3 = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod=$categoria LIMIT 1");
-        $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod=  :cod LIMIT 1";
-        $paramCategorias = array(
-          ":cod" => $categoria
-        );
-        $nomecategoria = "Avulso";
-        $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
-        foreach ($dataTableCategorias as $resultadocategorias) {
-          $nomecategoria = $resultadocategorias['nome'];
+        if ($codservico == 0) {
+          $nomeservico = $resultadopedidos2['obs'] . "<b><small>(Avulso)</small>" . "<b>";
+          $obs = "";
+        } else {
+          $categoria = $resultadopedidos2['categoria'];
+          //$sql3 = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod=$categoria LIMIT 1");
+          $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod=  :cod LIMIT 1";
+          $paramCategorias = array(
+            ":cod" => $categoria
+          );
+          $nomecategoria = "Avulso";
+          $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+          foreach ($dataTableCategorias as $resultadocategorias) {
+            $nomecategoria = $resultadocategorias['nome'];
+          }
+          //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
+          $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
+          $paramServicos = array(
+            ":cod" => $codservico
+          );
+
+          $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+          foreach ($dataTableServicos as $resultadoservicos) {
+            $nomeservico = $resultadoservicos['nome'] . "<b><small>(" . $nomecategoria . ")</small>" . "<b>";
+            $obs = $resultadopedidos2['obs'];
+          }
         }
-        //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
-        $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
-        $paramServicos = array(
-          ":cod" => $codservico
-        );
+        $valor = (float) $resultadopedidos2['valor'];
+        $qtd = (float) $resultadopedidos2['qtd'];
+        $valorunt = $valor / $qtd;
+        $total = $total + $valor;
+        $codpedido = $resultadopedidos2['cod'];
+        $nomecategoria = "";
+        $valorunt = number_format($valorunt, 2, ',', '.');
+        $valor = number_format($valor, 2, ',', '.');
 
-        $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
-        foreach ($dataTableServicos as $resultadoservicos) {
-          $nomeservico = $resultadoservicos['nome'] . "<b><small>(" . $nomecategoria . ")</small>" . "<b>";
-          $obs = $resultadopedidos2['obs'];
-        }
-      }
-      $valor = (float) $resultadopedidos2['valor'];
-      $qtd = (float) $resultadopedidos2['qtd'];
-      $valorunt = $valor / $qtd;
-      $total = $total + $valor;
-      $codpedido = $resultadopedidos2['cod'];
-      $nomecategoria = "";
-      $valorunt = number_format($valorunt, 2, ',', '.');
-      $valor = number_format($valor, 2, ',', '.');
-
-      echo "
+        echo "
                   
                     <tr>
                       <td>" . $nomeservico . "</td>
@@ -1970,17 +2379,32 @@ switch ($tipo) {
                         
                     </tr>
                  ";
-      $contador++;
-    }
-    $total = number_format($total, 2, ',', '.');
-    echo "
+        $contador++;
+      }
+      $total = number_format($total, 2, ',', '.');
+      echo "
                 <tr>
                   <td colspan='3' style='text-align:right;'>Total:</td>
                   <td colspan='3'><b>R$ " . $total . "</b></td>
                   
                 </tr>
                 ";
-    echo "</table>";
+      echo "</table>  </div>";
+
+      echo "
+            </div>";
+
+
+    }
+
+    $total = 0;
+    $contador = 0;
+    echo " 
+     <div class='modal-footer'>
+          <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Sair</button>
+          <a href='?pagina=carinhocompras&cod=$codnota' type='button' class='btn btn-primary'>Ir para Venda</a>
+        </div>
+    ";
 
 
     break;
@@ -2026,7 +2450,7 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
 // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
 
       $sqlNota = "SELECT * FROM notas WHERE status = :status AND dia = :dia AND mes = :mes AND ano = :ano AND tipo_pedido = 3 ORDER BY cod DESC";
       $paramNota = array(
@@ -2176,7 +2600,7 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
     // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
 
       $sqlNota = "SELECT * FROM notas WHERE status = :status AND dia = :dia AND mes = :mes AND ano = :ano AND tipo_pedido = 3 ORDER BY cod DESC";
       $paramNota = array(
@@ -2340,7 +2764,7 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
     // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
       $sqlNota = "SELECT * FROM notas WHERE status = :status AND dia = :dia AND mes = :mes AND ano = :ano AND tipo_pedido = 1 ORDER BY cod DESC";
       $paramNota = array(
         ":status" => $status,
@@ -2489,7 +2913,7 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
     // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
 
       $sqlNota = "SELECT * FROM notas WHERE status = :status AND dia = :dia AND mes = :mes AND ano = :ano AND tipo_pedido = 1 ORDER BY cod DESC";
       $paramNota = array(
@@ -2803,7 +3227,7 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
 // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
 
       $sqlNota = "SELECT * FROM notas WHERE status = :status AND dia = :dia AND mes = :mes AND ano = :ano AND tipo_pedido = 2 ORDER BY cod DESC";
       $paramNota = array(
@@ -3119,15 +3543,16 @@ switch ($tipo) {
     $valorTotalFinal = 0;
     //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
     // Exibe todos os valores encontrados
-    if ($_SESSION['permissaoF'] == 1) {
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
 
       $sqlNota = "SELECT * FROM notas ORDER BY cod DESC LIMIT 20";
 
     } else {
       $codfunc = $_SESSION['codF'];
-      $sqlNota = "SELECT * FROM notas ORDER BY cod DESC LIMIT 20";
+      $sqlNota = "SELECT * FROM notas WHERE func = $codfunc ORDER BY cod  DESC LIMIT 20";
 
     }
+
 
     $qtdTotalFinal = 0;
     $valorTotalFinal = 0;
@@ -3242,7 +3667,7 @@ switch ($tipo) {
     $categoria = $_GET['param'];
     $valor = $_GET['valor'];
 
-    $sqlServicoscont = "SELECT count(*) as total from servicos WHERE nome LIKE :nome";
+    $sqlServicoscont = "SELECT count(*) as total from servicos WHERE nome LIKE :nome LIMIT 20";
     $paramServicoscount = array(
       ":nome" => "%{$valor}%"
     );
@@ -3260,11 +3685,10 @@ switch ($tipo) {
 						<td style=''><b>Nome</b></td>
 						<td style=''><b>Descrição</b></td>
 						<td style=''><b>Categoria</b></td>
-						<td style=''><b>Valor Unt.</b></td>
 						<td style=''><b>Tipo</b></td>
-						<td><b>Cod. Barra</b></td>
-						<td><b>Cod. Busca</b></td>
-						<td><b>Estoque</b></td>
+				
+            <td><b>Cod. Barra</b></td>
+						<td><b>Cod. Busca</b></td
 						<td></td>
             
 					</tr>    </thead>";
@@ -3351,27 +3775,12 @@ switch ($tipo) {
           <td style=''>
           $nomecategoria
           </td>
-          <td style=''>
-          $valorunt
-                </td>
+          
           <td>$textotipo</td>
               
                                         <td>$codbarra</td>
 					<td>$codbusca</td>
-					<td>
-                                        ";
-        if ($tiposerv == 0) {
-          echo "
-                                               <small style='color:red;'> Sem Estoque
-                                                </small>";
-        } else {
-          echo "
-                                        <b>Qtd:</b>$qtdservico</br>
-                                      
-                                          
-                                       ";
-        }
-        echo "  </td> <td>
+				  <td>
                                         <div class='btn-group'>
                                             <button type='button' class='btn btn-primary' data-bs-toggle='dropdown' aria-expanded='false'>
                                               <svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='currentColor' class='bi bi-gear' viewBox='0 0 16 16'>
@@ -3382,8 +3791,15 @@ switch ($tipo) {
                                             <ul class='dropdown-menu'>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(27, 1, $codservico)' href='javascript: func'>Informações Produto</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(28, 1, $codservico)' href='javascript: func'>Informações Busca</a></li>
-                                              <li><a class='dropdown-item' onclick='PagPesquisarProdutos(29, 1, $codservico)' href='javascript: func'>Informações Estoque</a></li>
-                                              <li><hr class='dropdown-divider'></li>
+                                              
+                                              <li><a class='dropdown-item' onclick='PagPesquisarProdutos(97, 1, $codservico)' href='javascript: func'>Gerar Etiqueta</a></li>
+                                             
+                                              ";
+        if ($_SESSION['tipo'] != 1) {
+          echo " <li><a class='dropdown-item' onclick='PagPesquisarProdutos(29, 1, $codservico)' href='javascript: func'>Informações Estoque</a></li>
+                                              <li><hr class='dropdown-divider'></li>";
+        }
+        echo " 
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(30, 1, $codservico)' href='javascript: func'>Atualizar Imagem do Produto</a></li>
                                               <li><hr class='dropdown-divider'></li>
                                               <li>$textoteste</li>
@@ -3526,6 +3942,7 @@ switch ($tipo) {
                                             <ul class='dropdown-menu'>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(27, 1, $codservico)' href='javascript: func'>Informações Produto</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(28, 1, $codservico)' href='javascript: func'>Informações Busca</a></li>
+                                              <li><a class='dropdown-item' onclick='PagPesquisarProdutos(97, 1, $codservico)' href='javascript: func'>Gerar Etiqueta</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(29, 1, $codservico)' href='javascript: func'>Informações Estoque</a></li>
                                               <li><hr class='dropdown-divider'></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(30, 1, $codservico)' href='javascript: func'>Atualizar Imagem do Produto</a></li>
@@ -3727,7 +4144,7 @@ switch ($tipo) {
     echo "
   <h2 style='padding:5px; color:#000; border-bottom: 2px solid #337AB7; width: 100%; '><span class='glyphicon glyphicon-retweet'></span> Editar Informações de Busca do Produto</h2>
                         
-    <form method='post' name='frmCadastro' id='frmCadastro' novalidate enctype='multipart/form-data'>
+  
                         <input type='hidden' id='txtNomeProdutoEd' name='txtNomeProdutoEd' value='$nomeservico' autofocus>
                         <input type='hidden' id='txtDescricaoProdutoEd' name='txtDescricaoProdutoEd' value='$descricaoservico'  >
                        <input type='hidden' id='txtValorEd' name='txtValorEd' value='$valorunt' onchange='Validacao(7, 1, this.value, 55)'>
@@ -3797,16 +4214,35 @@ switch ($tipo) {
                 </ul>";
 
     $tiposervico = $resultadoservicos['tipo'];
+    $qtdservico = $resultadoservicos['qtd'];
     $est_maxservico = $resultadoservicos['est_max'];
     $est_mimservico = $resultadoservicos['est_mim'];
     $cod_barraservico = $resultadoservicos['codbarra'];
+    $cod_buscaservico = $resultadoservicos['codbusca'];
+    $valorservico = $resultadoservicos['valor'];
+    $nome = $resultadoservicos['nome'];
+    $codigoImagem = 0;
+
+
+
+
+
+
+    $codigoImagem = '<img src="data:image/png;base64,' .
+      base64_encode(
+        $generator->getBarcode(
+          $cod_buscaservico,
+            $generator::TYPE_CODE_128
+        )
+      ) . '">';
 
     echo " 
-            </form>
-    
-
-               
+     </div>
 ";
+
+
+
+
 
     break;
   //VALIDACAO PARA EDITAR INFORMAÇÕES DE ESTOQUE DO PRODUTO/SERVIÇO
@@ -3930,14 +4366,35 @@ switch ($tipo) {
                         </div>
                         
                         <div class='row' id='ResultadoValidacao1212'>
+                        <div class='form-group label-floating'>  
+                                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class='control-label'>Selecionar Loja</label>
+                                <select tabindex='$contadorindex' onchange='' style='height:62px; font-size: 15pt; width: 100%; ' id='txtTipoServico' name='txtTipoServico' class='form-control' value='' >
+                                                    <option  value='1'>Loja Matriz</option>
+                                                    <option  value='1'>Loja Filial 1 - Coari</option>
+                                                    <option  value='1'>Loja Filial 2 - Codajas</option>
+                                                    <option  value='1'>Loja Filial 3 - Tefe</option>
+                                 </select>
+                            </div>
+                        <div class='col-12 col-md-3' style='text-align: left;'>
+                            <div class='form-group label-floating'>
+                                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' style='padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; ' for='txtEstMax' class='control-label'>Qtd da Loja.</label>
+                                <input tabindex='4' style='padding:30px; font-size: 15pt; width: 100%; ' type='text' class='form-control' id='txtEstMax' name='txtEstMax' value='' autofocus>
+                            </div>
+                        </div>  
+                        <div class='col-12 col-md-3' style='text-align: left;'>
+                            <div class='form-group label-floating'>
+                                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' style='padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; ' for='txtEstMax' class='control-label'>Valor Unt da Loja.</label>
+                                <input tabindex='4' style='padding:30px; font-size: 15pt; width: 100%; ' type='text' class='form-control' id='txtEstMax' name='txtEstMax' value='' autofocus>
+                            </div>
+                        </div>  
                             
-                               <div class='col-12 col-md-4' style='text-align: left;'>
+                        <div class='col-12 col-md-3' style='text-align: left;'>
                             <div class='form-group label-floating'>
                                 <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' style='padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; ' for='txtEstMax' class='control-label'>Est Máx.</label>
                                 <input tabindex='4' style='padding:30px; font-size: 15pt; width: 100%; ' type='text' class='form-control' id='txtEstMax' name='txtEstMax' value='$est_maxservico' autofocus>
                             </div>
                         </div>  
-                        <div class='col-12 col-md-4' style='text-align: left;'>
+                        <div class='col-12 col-md-3' style='text-align: left;'>
                             <div class='form-group label-floating'>
                                 <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' style='padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; ' for='txtEstMin' class='control-label'>Est Min.</label>
                                 <input tabindex='4' style='padding:30px; font-size: 15pt; width: 100%; ' type='text' class='form-control' id='txtEstMin' name='txtEstMin' value='$est_mimservico' >
@@ -3945,13 +4402,7 @@ switch ($tipo) {
                         </div>  
                             
                         
-                        <div class='col-12 col-md-4' style='text-align: left;'>
-                            <div class='form-group label-floating'>
-                                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' for='txtCodBarra' class='control-label'>Qtd. Produto</label>
-                                <input tabindex='4' style='padding:30px; font-size: 15pt; width: 100%; ' type='text' class='form-control' id='txtCodBarra' name='txtCodBarra' value='$qtdservico'>
-                            </div>
-                        </div>
-                       </div>  
+                        
                                 
       ";
 
@@ -4212,6 +4663,8 @@ switch ($tipo) {
                                             <ul class='dropdown-menu'>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(27, 1, $codservico)' href='javascript: func'>Informações Produto</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(28, 1, $codservico)' href='javascript: func'>Informações Busca</a></li>
+                                              
+                                              <li><a class='dropdown-item' onclick='PagPesquisarProdutos(97, 1, $codservico)' href='javascript: func'>Gerar Etiqueta</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(29, 1, $codservico)' href='javascript: func'>Informações Estoque</a></li>
                                               <li><hr class='dropdown-divider'></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(30, 1, $codservico)' href='javascript: func'>Atualizar Imagem do Produto</a></li>
@@ -4435,6 +4888,8 @@ switch ($tipo) {
                                             <ul class='dropdown-menu'>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(27, 1, $codservico)' href='javascript: func'>Informações Produto</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(28, 1, $codservico)' href='javascript: func'>Informações Busca</a></li>
+                                              
+                                              <li><a class='dropdown-item' onclick='PagPesquisarProdutos(97, 1, $codservico)' href='javascript: func'>Gerar Etiqueta</a></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(29, 1, $codservico)' href='javascript: func'>Informações Estoque</a></li>
                                               <li><hr class='dropdown-divider'></li>
                                               <li><a class='dropdown-item' onclick='PagPesquisarProdutos(30, 1, $codservico)' href='javascript: func'>Atualizar Imagem do Produto</a></li>
@@ -5115,16 +5570,19 @@ switch ($tipo) {
 
     break;
 
-  //VALIDACAO PARA PESQUISAR EM OUTROS MESES CREDIARIOS EM ABERTO
+  //VALIDACAO PARA PESQUISAR CREDIARIOS EM ABERTO - central
   case 43:
     $codnota = $_GET['codnota'];
+    $tipopesquisa = $_GET['tipopesquisa'];
 
     $t = explode("-", $codnota);
 
     $mes = $t[1];
     $ano = $t[0];
 
-    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências Crediário - ANO : $ano<span class='blog-post-meta'></h3>
+    //GERAR TODOS OS CREDIÁRIOS
+    if($tipopesquisa==0){
+      echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências TODOS Crediário - ANO : $ano<span class='blog-post-meta'></h3>
         
 ";
     echo "<table class='table' style='font-size:12pt; width:100%;'>
@@ -5171,7 +5629,7 @@ switch ($tipo) {
         $tipopag1 = $financeirocli->tipo;
         $tipopag2 = $financeirocli->tipopag;
 
-        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
         // Exibe todos os valores encontrados
         while ($finpar = mysqli_fetch_object($sqlPar)) {
           $contadorparcelas++;
@@ -5181,7 +5639,7 @@ switch ($tipo) {
           $contadorcontas++;
           $totalemcrediario = $totalemcrediario + $valortotalfinanceiro;
 
-          $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+          $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
           // Exibe todos os valores encontrados
           while ($finpar = mysqli_fetch_object($sqlPar)) {
             $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
@@ -5210,7 +5668,7 @@ switch ($tipo) {
       }
     }
     echo "</table>";
-    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências Crediário - " . mostraMes($mes) . " $ano<span class='blog-post-meta'></h3>
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências TODOS Crediário - " . mostraMes($mes) . " $ano<span class='blog-post-meta'></h3>
         ";
     echo " 
 		<table class='table' style='font-size:12pt; width:100%;'>
@@ -5225,6 +5683,7 @@ switch ($tipo) {
 				<td><b></b></td>
 			</tr>
 		";
+    $textotipocrediario = "";
     $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes AND ano = $ano ORDER BY cod ASC");
     // Exibe todos os valores encontrados
     $valortotalfinanceiro2 = 0;
@@ -5236,6 +5695,17 @@ switch ($tipo) {
       $codnota2 = $financeirocli->cod_orcamento;
       $valortotalfinanceiro = (float) $financeirocli->total;
       $valortotalfinanceiro2 = (float) $financeirocli->total;
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
       $diaatual = date('d');
       $anoatual = date('Y');
       $mesatual = date('m');
@@ -5266,7 +5736,7 @@ switch ($tipo) {
         if ($financeirocli->tipopag == 1) {// credito
           $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
         } else {//crediario
-          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário";
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário " . $textotipocrediario;
         }
       }
 
@@ -5310,7 +5780,7 @@ switch ($tipo) {
 
 
 
-      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
       // Exibe todos os valores encontrados
       while ($finpar = mysqli_fetch_object($sqlPar)) {
         $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
@@ -5321,7 +5791,7 @@ switch ($tipo) {
         $contadorparcelas++;
       }
 
-      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 AND status = 2 ORDER BY cod ASC LIMIT 1");
       // Exibe todos os valores encontrados
       while ($finpar = mysqli_fetch_object($sqlPar22)) {
         $diapag2 = $finpar->dia;
@@ -5374,11 +5844,1264 @@ switch ($tipo) {
     }
     echo "</table>";
 
+    
+    //GERAR TODOS OS CREDIÁRIOS DA LOJA
+    }else if($tipopesquisa==1){
+      echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências Crediário da Loja - ANO : $ano<span class='blog-post-meta'></h3>
+        
+";
+    echo "<table class='table' style='font-size:12pt; width:100%;'>
+			<tr style='text-align:center;'>
+				<td><b>Mês</b></td>
+				<td><b>nº de Contas a Receber</b></td>
+				<td><b>Total em Crediário</b></td>
+				<td><b>Total Recebido</b></td>
+				<td><b>Total a Receber</b></td>
+                                </tr>
+                                ";
+
+    for ($i = 1; $i <= 12; $i++) {
+
+      $contadorcontas = 0;
+      $totalemcrediario = 0;
+      $valortotalparcelas = 0;
+
+      $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $i AND ano = $ano AND tipo_crediario = 1 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+
+      while ($financeirocli = mysqli_fetch_object($sql)) {
+        $contadorparcelas = 0;
+        $codfin = $financeirocli->cod;
+        $codnota = $financeirocli->cod_orcamento;
+        $valortotalfinanceiro = (float) $financeirocli->total;
+        $diaatual = date('d');
+        $anoatual = date('Y');
+        $mesatual = date('m');
+
+        $diapag = 0;
+        $mespag = 0;
+        $anopag = 0;
+        $codparcela = 0;
+
+        $troco = $financeirocli->gorjeta;
+        $pagamentototal = (float) $financeirocli->total;
+        $pagamentototal2 = $pagamentototal;
+        $numparcelas = (float) $financeirocli->numparcelas;
+        $valorparcela = $pagamentototal / $numparcelas;
+        $valorparcela = number_format($valorparcela, 2, ',', '.');
+        $valorparcela2 = $valorparcela;
+        $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+        $tipopag1 = $financeirocli->tipo;
+        $tipopag2 = $financeirocli->tipopag;
+
+        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+        // Exibe todos os valores encontrados
+        while ($finpar = mysqli_fetch_object($sqlPar)) {
+          $contadorparcelas++;
+        }
+
+        if ($numparcelas != $contadorparcelas) {
+          $contadorcontas++;
+          $totalemcrediario = $totalemcrediario + $valortotalfinanceiro;
+
+          $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+          // Exibe todos os valores encontrados
+          while ($finpar = mysqli_fetch_object($sqlPar)) {
+            $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+            $diapag = $finpar->dia;
+            $mespag = $finpar->mes;
+            $anopag = $finpar->ano;
+          }
+
+
+          $textostatus = "";
+          if ($diapag == 0) {
+            $textostatus = " Nenhuma Parcela Paga";
+          }
+        }
+      }
+      if ($contadorcontas != 0) {
+        echo " <tr style='text-align:center;'>
+				<td>" . mostraMes($i) . "</td>
+				<td>$contadorcontas</td>
+				<td>" . number_format($totalemcrediario, 2, ',', '.') . "</td>
+				<td>" . number_format($valortotalparcelas, 2, ',', '.') . "</td>
+				<td>" . number_format($totalemcrediario - $valortotalparcelas, 2, ',', '.') . "</td>
+				
+                                </tr>
+                                ";
+      }
+    }
+    echo "</table>";
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências Crediário da Loja - " . mostraMes($mes) . " $ano<span class='blog-post-meta'></h3>
+        ";
+    echo " 
+		<table class='table' style='font-size:12pt; width:100%;'>
+			<tr style='text-align:center;'>
+				<td><b>Cod. Nota</b></td>
+				<td><b>Cliente</b></td>
+				<td><b>Valor Total</b></td>
+				<td><b>Recebido</b></td>
+				<td><b>A receber</b></td>
+				<td><b>Pagamento</b></td>
+				<td><b>Status</b></td>
+				<td><b></b></td>
+			</tr>
+		";
+    $textotipocrediario = "";
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes AND ano = $ano AND tipo_crediario = 1 ORDER BY cod ASC");
+    // Exibe todos os valores encontrados
+    $valortotalfinanceiro2 = 0;
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codfin2 = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $codnota2 = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $valortotalfinanceiro2 = (float) $financeirocli->total;
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $valortotalparcelas = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $valorparcela = $pagamentototal / $numparcelas;
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      if ($financeirocli->tipo == 1) {// a vista
+        if ($financeirocli->tipopag == 1) {// dinheiro
+          $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+        } else {//debito
+          $textopagamentotipo = "Pagamento á Vista no Débito";
+        }
+      } else {//parcelado
+        if ($financeirocli->tipopag == 1) {// credito
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+        } else {//crediario
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário " . $textotipocrediario;
+        }
+      }
+
+      //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+      $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramNotas = array(
+        ":cod" => $codnota
+      );
+
+      $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+      foreach ($dataTableNotas as $resultadonotas) {
+
+        $usuarionota = $resultadonotas['usuario'];
+        $nomecli = $resultadonotas['nomeCli'];
+        //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+        $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+        $paramClientes = array(
+          ":cod" => $usuarionota
+        );
+
+        $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+        foreach ($dataTableClientes as $resultadoclientes) {
+
+          $codcliente = $resultadoclientes['id'];
+          $nomecli = $resultadoclientes['nome'];
+          $celular = $resultadoclientes['celular'];
+        }
+      }
+
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $total = 0;
+      $codpedido = 0;
+      $qtdpedidos = 0;
+      $totalfinal = 0;
+      $valor = 0;
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+        $diapag = $finpar->dia;
+        $mespag = $finpar->mes;
+        $anopag = $finpar->ano;
+        $codparcela = $finpar->cod;
+        $contadorparcelas++;
+      }
+
+      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 AND status = 2 ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar22)) {
+        $diapag2 = $finpar->dia;
+        $mespag2 = $finpar->mes;
+        $anopag2 = $finpar->ano;
+      }
+
+
+      $areceber = 0;
+      $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+      $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+      $textostatus = "";
+      if ($diapag == 0) {
+        $textostatus = " Nenhuma Parcela Paga";
+      }
+      if ($numparcelas != $contadorparcelas) {
+        echo "
+									<tr style='text-align:center;'>
+										<td>$codnota</td>
+										<td>$nomecli</td>
+										<td>$pagamentototal</td>
+										<td>$valortotalparcelas</td>
+										<td>$areceber</td>
+										<td>$textopagamentotipo</td>
+										<td><span style='color:red'>Crediário em Aberto.";
+        if ($diapag != 0) {
+          echo " 
+                                                                                    Ultimo Pagamento:$diapag2/$mespag2/$anopag2</span> ";
+        } else {
+          echo $textostatus;
+        }
+        echo "      </td>
+										<td> 
+                             <a class='btn btn-outline-primary' onclick='validacao(17, $codnota, 0, 17)' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                          <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder-plus' viewBox='0 0 16 16'>
+                          <path d='m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z'/>
+                          <path d='M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5'/>
+                        </svg>
+                    </a>
+                    <a class='btn btn-outline-primary' href='?pagina=carinhocompras&cod=$codnota' type='button' >
+                        <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-arrow-right-square-fill' viewBox='0 0 16 16'>
+                          <path d='M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1'/>
+                        </svg>
+                    </a>
+                    </td>
+									</tr>
+            ";
+      }
+    }
+    echo "</table>";
+
+    //GERAR TODOS OS AVANCARD
+    }else if($tipopesquisa==2){
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências Crediário AVANCARD - ANO : $ano<span class='blog-post-meta'></h3>
+        
+";
+    echo "<table class='table' style='font-size:12pt; width:100%;'>
+			<tr style='text-align:center;'>
+				<td><b>Mês</b></td>
+				<td><b>nº de Contas a Receber</b></td>
+				<td><b>Total em Crediário</b></td>
+				<td><b>Total Recebido</b></td>
+				<td><b>Total a Receber</b></td>
+                                </tr>
+                                ";
+
+    for ($i = 1; $i <= 12; $i++) {
+
+      $contadorcontas = 0;
+      $totalemcrediario = 0;
+      $valortotalparcelas = 0;
+
+      $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $i AND ano = $ano AND tipo_crediario = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+
+      while ($financeirocli = mysqli_fetch_object($sql)) {
+        $contadorparcelas = 0;
+        $codfin = $financeirocli->cod;
+        $codnota = $financeirocli->cod_orcamento;
+        $valortotalfinanceiro = (float) $financeirocli->total;
+        $diaatual = date('d');
+        $anoatual = date('Y');
+        $mesatual = date('m');
+
+        $diapag = 0;
+        $mespag = 0;
+        $anopag = 0;
+        $codparcela = 0;
+
+        $troco = $financeirocli->gorjeta;
+        $pagamentototal = (float) $financeirocli->total;
+        $pagamentototal2 = $pagamentototal;
+        $numparcelas = (float) $financeirocli->numparcelas;
+        $valorparcela = $pagamentototal / $numparcelas;
+        $valorparcela = number_format($valorparcela, 2, ',', '.');
+        $valorparcela2 = $valorparcela;
+        $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+        $tipopag1 = $financeirocli->tipo;
+        $tipopag2 = $financeirocli->tipopag;
+
+        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+        // Exibe todos os valores encontrados
+        while ($finpar = mysqli_fetch_object($sqlPar)) {
+          $contadorparcelas++;
+        }
+
+        if ($numparcelas != $contadorparcelas) {
+          $contadorcontas++;
+          $totalemcrediario = $totalemcrediario + $valortotalfinanceiro;
+
+          $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+          // Exibe todos os valores encontrados
+          while ($finpar = mysqli_fetch_object($sqlPar)) {
+            $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+            $diapag = $finpar->dia;
+            $mespag = $finpar->mes;
+            $anopag = $finpar->ano;
+          }
+
+
+          $textostatus = "";
+          if ($diapag == 0) {
+            $textostatus = " Nenhuma Parcela Paga";
+          }
+        }
+      }
+      if ($contadorcontas != 0) {
+        echo " <tr style='text-align:center;'>
+				<td>" . mostraMes($i) . "</td>
+				<td>$contadorcontas</td>
+				<td>" . number_format($totalemcrediario, 2, ',', '.') . "</td>
+				<td>" . number_format($valortotalparcelas, 2, ',', '.') . "</td>
+				<td>" . number_format($totalemcrediario - $valortotalparcelas, 2, ',', '.') . "</td>
+				
+                                </tr>
+                                ";
+      }
+    }
+    echo "</table>";
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pendências Crediário AVANCARD - " . mostraMes($mes) . " $ano<span class='blog-post-meta'></h3>
+        ";
+    echo " 
+		<table class='table' style='font-size:12pt; width:100%;'>
+			<tr style='text-align:center;'>
+				<td><b>Cod. Nota</b></td>
+				<td><b>Cliente</b></td>
+				<td><b>Valor Total</b></td>
+				<td><b>Recebido</b></td>
+				<td><b>A receber</b></td>
+				<td><b>Pagamento</b></td>
+				<td><b>Status</b></td>
+				<td><b></b></td>
+			</tr>
+		";
+    $textotipocrediario = "";
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes AND ano = $ano AND tipo_crediario = 2 ORDER BY cod ASC");
+    // Exibe todos os valores encontrados
+    $valortotalfinanceiro2 = 0;
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codfin2 = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $codnota2 = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $valortotalfinanceiro2 = (float) $financeirocli->total;
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $valortotalparcelas = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $valorparcela = $pagamentototal / $numparcelas;
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      if ($financeirocli->tipo == 1) {// a vista
+        if ($financeirocli->tipopag == 1) {// dinheiro
+          $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+        } else {//debito
+          $textopagamentotipo = "Pagamento á Vista no Débito";
+        }
+      } else {//parcelado
+        if ($financeirocli->tipopag == 1) {// credito
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+        } else {//crediario
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário " . $textotipocrediario;
+        }
+      }
+
+      //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+      $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramNotas = array(
+        ":cod" => $codnota
+      );
+
+      $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+      foreach ($dataTableNotas as $resultadonotas) {
+
+        $usuarionota = $resultadonotas['usuario'];
+        $nomecli = $resultadonotas['nomeCli'];
+        //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+        $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+        $paramClientes = array(
+          ":cod" => $usuarionota
+        );
+
+        $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+        foreach ($dataTableClientes as $resultadoclientes) {
+
+          $codcliente = $resultadoclientes['id'];
+          $nomecli = $resultadoclientes['nome'];
+          $celular = $resultadoclientes['celular'];
+        }
+      }
+
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $total = 0;
+      $codpedido = 0;
+      $qtdpedidos = 0;
+      $totalfinal = 0;
+      $valor = 0;
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+        $diapag = $finpar->dia;
+        $mespag = $finpar->mes;
+        $anopag = $finpar->ano;
+        $codparcela = $finpar->cod;
+        $contadorparcelas++;
+      }
+
+      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 AND status = 2 ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar22)) {
+        $diapag2 = $finpar->dia;
+        $mespag2 = $finpar->mes;
+        $anopag2 = $finpar->ano;
+      }
+
+
+      $areceber = 0;
+      $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+      $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+      $textostatus = "";
+      if ($diapag == 0) {
+        $textostatus = " Nenhuma Parcela Paga";
+      }
+      if ($numparcelas != $contadorparcelas) {
+        echo "
+									<tr style='text-align:center;'>
+										<td>$codnota</td>
+										<td>$nomecli</td>
+										<td>$pagamentototal</td>
+										<td>$valortotalparcelas</td>
+										<td>$areceber</td>
+										<td>$textopagamentotipo</td>
+										<td><span style='color:red'>Crediário em Aberto.";
+        if ($diapag != 0) {
+          echo " 
+                                                                                    Ultimo Pagamento:$diapag2/$mespag2/$anopag2</span> ";
+        } else {
+          echo $textostatus;
+        }
+        echo "      </td>
+										<td> 
+                             <a class='btn btn-outline-primary' onclick='validacao(17, $codnota, 0, 17)' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                          <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder-plus' viewBox='0 0 16 16'>
+                          <path d='m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z'/>
+                          <path d='M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5'/>
+                        </svg>
+                    </a>
+                    <a class='btn btn-outline-primary' href='?pagina=carinhocompras&cod=$codnota' type='button' >
+                        <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-arrow-right-square-fill' viewBox='0 0 16 16'>
+                          <path d='M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1'/>
+                        </svg>
+                    </a>
+                    </td>
+									</tr>
+            ";
+      }
+    }
+    echo "</table>";
+
+    //GERAR TODOS OS PARCELAS CREDIARIO AVANCARD
+    }else if($tipopesquisa==3){
+     $mes_vencimento = $mes . '/' . $ano;
+
+    $dataHOJE = date("m/Y");
+    
+
+
+      // ── LISTA DO MÊS ─────────────────────────────────────────────
+      echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%;'>
+        Lista de Pendências Crediário da Loja - " . mostraMes($mes) . " $ano 
+                  
+        <span class='blog-post-meta'></span>
+    </h3>";
+
+      $proximaparcela = 0;
+
+      $total = 0;
+      $contador = 0;
+
+
+      $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC LIMIT 1";
+      $paramPedidos222 = array(
+        ":validade" => "%{$mes_vencimento}%"
+      );
+
+      $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+
+
+      if ($dataTablePedidos222 != null) {
+
+        echo "
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                     
+                       ";
+
+        echo "
+                <tr>
+                  <TD><b>Cod. Nota</b></td>
+                  <TD><b>Cliente</b></td>
+                  <TD><b>Valor Total</b></td>
+                  <TD><b>Recebido</b></td>
+                  <TD><b>A receber</b></td>
+                  <TD><b>Pagamento</b></td>
+                  <td ><b>Descrição</b></td>
+        
+                  
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                 
+                <td><b>Valor da Parcela</b></td>
+               
+                <td></td>
+
+                </tr>
+                
+                ";
+
+
+        //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+        $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC";
+        $paramPedidos22 = array(
+          ":validade" => "%{$mes_vencimento}%"
+        );
+
+        $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+        $valortotalparcelas = 0;
+        $valorparcelaagora = 0;
+        foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+
+
+          $codpedido = $resultadopedidos22['cod'];
+          $descricao = $resultadopedidos22['descricao'];
+          $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+          $codnota = $resultadopedidos22['esp_proc'];
+          $tipopag = $resultadopedidos22['tipopag'];
+          $dia = $resultadopedidos22['dia'];
+          $mes = $resultadopedidos22['mes'];
+          $ano = $resultadopedidos22['ano'];
+          $data_vencimento = $resultadopedidos22['data_vencimento'];
+          $status = $resultadopedidos22['status'];
+          if ($status == 1) {
+            $textostatus = "A PAGAR";
+          } else {
+            $textostatus = "PAGO";
+          }
+
+          $valor = (int) $resultadopedidos22['valor'];
+          $valorparcelaagora = (int) $resultadopedidos22['valor'];
+
+
+          $valor = number_format($valor, 2, ',', '.');
+
+
+
+          $valortotalpago = 0;
+          $valorfinalpagamento = 0;
+
+          //SQL PARA VALIDAR SE A VENDA JÁ FOI REALIZADO O PAGAMENTO
+          $sqlTestePag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod AND tipo_crediario = 1 ORDER BY cod ASC";
+          $paramTestePag = array(
+            ":cod" => $codnota
+          );
+          $nomecategoria = "Avulso";
+          $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+
+          if ($dataTableTestePag != null) {
+
+            foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+              $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+              $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+            }
+
+
+
+            $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+            $paramPedidos22 = array(
+              ":cod" => $codnota
+            );
+
+            $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+            $contadorparcelaspagas = 0;
+            $valorparcela = 0;
+
+
+
+
+            foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+              $contadorparcelaspagas++;
+
+              $valorparcela = (float) $resultadopedidos22['valor'];
+
+              $valortotalpago = $valortotalpago + $valorparcela;
+
+            }
+
+            // $total = number_format($total, 2, ',', '.');
+            $restante = $valorfinalpagamento - $valortotalpago;
+
+
+
+            $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_orcamento = $codnota ORDER BY cod ASC");
+            // Exibe todos os valores encontrados
+            $valortotalfinanceiro2 = 0;
+            while ($financeirocli = mysqli_fetch_object($sql)) {
+              $contadorparcelas = 0;
+              $codfin = $financeirocli->cod;
+              $codfin2 = $financeirocli->cod;
+              $codnota = $financeirocli->cod_orcamento;
+              $codnota2 = $financeirocli->cod_orcamento;
+
+
+              $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+              if ($tipo_crediario == 1) {
+                $textotipocrediario = "DA LOJA";
+              } else {
+
+                $textotipocrediario = "AVANCARD";
+              }
+
+
+              $valortotalfinanceiro = (float) $financeirocli->total;
+              $valortotalfinanceiro2 = (float) $financeirocli->total;
+              $diaatual = date('d');
+              $anoatual = date('Y');
+              $mesatual = date('m');
+              $diapag = 0;
+              $mespag = 0;
+              $anopag = 0;
+              $valortotalparcelas = 0;
+              $codparcela = 0;
+
+              $troco = $financeirocli->gorjeta;
+              $pagamentototal = (float) $financeirocli->total;
+              $pagamentototal2 = $pagamentototal;
+              $numparcelas = (float) $financeirocli->numparcelas;
+              $valorparcela = $pagamentototal / $numparcelas;
+              $valorparcela = number_format($valorparcela, 2, ',', '.');
+              $valorparcela2 = $valorparcela;
+              $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+              $tipopag1 = $financeirocli->tipo;
+              $tipopag2 = $financeirocli->tipopag;
+
+              if ($financeirocli->tipo == 1) {// a vista
+                if ($financeirocli->tipopag == 1) {// dinheiro
+                  $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+                } else {//debito
+                  $textopagamentotipo = "Pagamento á Vista no Débito";
+                }
+              } else {//parcelado
+                if ($financeirocli->tipopag == 1) {// credito
+                  $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+                } else {//crediario
+                  $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+                }
+              }
+
+              //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+              $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+              $paramNotas = array(
+                ":cod" => $codnota
+              );
+
+              $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+              foreach ($dataTableNotas as $resultadonotas) {
+
+                $usuarionota = $resultadonotas['usuario'];
+                $nomecli = $resultadonotas['nomeCli'];
+                //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+                $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+                $paramClientes = array(
+                  ":cod" => $usuarionota
+                );
+
+                $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+                foreach ($dataTableClientes as $resultadoclientes) {
+
+                  $codcliente = $resultadoclientes['id'];
+                  $nomecli = $resultadoclientes['nome'];
+                  $celular = $resultadoclientes['celular'];
+                }
+              }
+
+              $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+              $total = 0;
+              $codpedido = 0;
+              $qtdpedidos = 0;
+              $totalfinal = 0;
+              $valor = 0;
+              while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+                $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+                $valor = (float) $pedidos->valor;
+                $totalfinal = $totalfinal + $valor;
+              }
+
+
+
+              $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+              // Exibe todos os valores encontrados
+              while ($finpar = mysqli_fetch_object($sqlPar)) {
+                $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+                $diapag = $finpar->dia;
+                $mespag = $finpar->mes;
+                $anopag = $finpar->ano;
+                $codparcela = $finpar->cod;
+                $contadorparcelas++;
+              }
+
+              $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+              // Exibe todos os valores encontrados
+              while ($finpar = mysqli_fetch_object($sqlPar22)) {
+                $diapag2 = $finpar->dia;
+                $mespag2 = $finpar->mes;
+                $anopag2 = $finpar->ano;
+              }
+
+
+              $areceber = 0;
+              $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+              $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+              $textostatus = "";
+              if ($diapag == 0) {
+                $textostatus = " Nenhuma Parcela Paga";
+              }
+
+            }
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                     <Td>$codnota</td>
+                     <Td>$nomecli</td>
+                     <Td>" . number_format($pagamentototal2, 2, ',', '.') . "</td>
+                     <Td>$valortotalparcelas</td>
+                     <Td>$areceber</td>
+                     <Td>$textopagamentotipo</td>
+                  <td style=''><b>$descricao</b></td>
+                
+                
+               
+                  
+                  <td style=''><b>$data_vencimento</b></td>
+                 
+                  <td style='' id='ResultadoValidacao77$codpedido'>     
+                  
+                  
+
+
+                  
+                  ";
+            $valor = round((float) $valor, 2);
+            $restante = round((float) $restante, 2);
+
+            if ($status == 1) {
+              $valorpag = 0;
+              $tipopag = 1;
+
+              $proximaparcela = $contadorparcelaspagas + 1;
+              if ($numparcelas != $proximaparcela) {
+
+                $valor = (int) $valor;
+
+
+                if ($valorparcelaagora <= $restante) {
+                  $valorparcelaagora = number_format($valorparcelaagora, 2, ',', '.');
+                  echo "           
+            
+                           <input value='3' type='hidden' name='tipopag222$codpedido' id='tipopag222$codpedido' />
+                
+                  <b><input disabled href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='R$ $valorparcelaagora' class='form-control' ></b></td>
+                
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        VALOR DA PARCELA não pode ser maior que valor restante a ser pago!
+        </div>";
+                }
+              } else {
+
+                echo "           
+            
+                           <input value='3' type='hidden' name='tipopag222$codpedido' id='tipopag222$codpedido' />
+                
+                  <b><input disabled href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='R$ $restante' class='form-control' ></b></td>
+                
+                    ";
+
+              }
+
+
+            }
+            echo "</td>
+            <td> 
+                             <a class='btn btn-outline-primary' onclick='validacao(17, $codnota, 0, 17)' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                          <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder-plus' viewBox='0 0 16 16'>
+                          <path d='m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z'/>
+                          <path d='M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5'/>
+                        </svg>
+                    </a>
+                    <a class='btn btn-outline-primary' href='?pagina=carinhocompras&cod=$codnota' type='button' >
+                        <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-arrow-right-square-fill' viewBox='0 0 16 16'>
+                          <path d='M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1'/>
+                        </svg>
+                    </a>
+                    </td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          //  $total = number_format($total, 2, ',', '.');
+
+
+
+
+        }
+      }
+      echo "</table>";
+
+    //GERAR TODOS OS PARCELAS CREDIARIO DA LOJA
+    }else if($tipopesquisa==4){
+
+    //GERAR TODAS AS PARCELAS CREDIARIO AVANCARD
+    $mes_vencimento = $mes . '/' . $ano;
+
+    $dataHOJE = date("m/Y");
+    
+
+
+      // ── LISTA DO MÊS ─────────────────────────────────────────────
+      echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%;'>
+        Lista de Pendências AVANCARD - " . mostraMes($mes) . " $ano -     <a style=''  onclick='PagVerTudo(92, txtDataFechaCaixa.value, 44)' class='btn  btn-outline-primary'>REALIZAR DÉBITO AUTOMÁTICO</a>
+                  
+        <span class='blog-post-meta'></span>
+    </h3>";
+
+      $proximaparcela = 0;
+
+      $total = 0;
+      $contador = 0;
+
+
+      $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC LIMIT 1";
+      $paramPedidos222 = array(
+        ":validade" => "%{$mes_vencimento}%"
+      );
+
+      $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+
+
+      if ($dataTablePedidos222 != null) {
+
+        echo "
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                     
+                       ";
+
+        echo "
+                <tr>
+                  <TD><b>Cod. Nota</b></td>
+                  <TD><b>Cliente</b></td>
+                  <TD><b>Valor Total</b></td>
+                  <TD><b>Recebido</b></td>
+                  <TD><b>A receber</b></td>
+                  <TD><b>Pagamento</b></td>
+                  <td ><b>Descrição</b></td>
+        
+                  
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                 
+                <td><b>Valor da Parcela</b></td>
+                </tr>
+                
+                ";
+
+
+        //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+        $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC";
+        $paramPedidos22 = array(
+          ":validade" => "%{$mes_vencimento}%"
+        );
+
+        $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+        $valortotalparcelas = 0;
+        $valorparcelaagora = 0;
+        foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+
+
+          $codpedido = $resultadopedidos22['cod'];
+          $descricao = $resultadopedidos22['descricao'];
+          $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+          $codnota = $resultadopedidos22['esp_proc'];
+          $tipopag = $resultadopedidos22['tipopag'];
+          $dia = $resultadopedidos22['dia'];
+          $mes = $resultadopedidos22['mes'];
+          $ano = $resultadopedidos22['ano'];
+          $data_vencimento = $resultadopedidos22['data_vencimento'];
+          $status = $resultadopedidos22['status'];
+          if ($status == 1) {
+            $textostatus = "A PAGAR";
+          } else {
+            $textostatus = "PAGO";
+          }
+
+          $valor = (int) $resultadopedidos22['valor'];
+          $valorparcelaagora = (int) $resultadopedidos22['valor'];
+
+
+          $valor = number_format($valor, 2, ',', '.');
+
+
+
+          $valortotalpago = 0;
+          $valorfinalpagamento = 0;
+
+          //SQL PARA VALIDAR SE A VENDA JÁ FOI REALIZADO O PAGAMENTO
+          $sqlTestePag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod AND tipo_crediario = 2 ORDER BY cod ASC";
+          $paramTestePag = array(
+            ":cod" => $codnota
+          );
+          $nomecategoria = "Avulso";
+          $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+
+          if ($dataTableTestePag != null) {
+
+            foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+              $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+              $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+            }
+
+
+
+            $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+            $paramPedidos22 = array(
+              ":cod" => $codnota
+            );
+
+            $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+            $contadorparcelaspagas = 0;
+            $valorparcela = 0;
+
+
+
+
+            foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+              $contadorparcelaspagas++;
+
+              $valorparcela = (float) $resultadopedidos22['valor'];
+
+              $valortotalpago = $valortotalpago + $valorparcela;
+
+            }
+
+            // $total = number_format($total, 2, ',', '.');
+            $restante = $valorfinalpagamento - $valortotalpago;
+
+
+
+            $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_orcamento = $codnota ORDER BY cod ASC");
+            // Exibe todos os valores encontrados
+            $valortotalfinanceiro2 = 0;
+            while ($financeirocli = mysqli_fetch_object($sql)) {
+              $contadorparcelas = 0;
+              $codfin = $financeirocli->cod;
+              $codfin2 = $financeirocli->cod;
+              $codnota = $financeirocli->cod_orcamento;
+              $codnota2 = $financeirocli->cod_orcamento;
+
+
+              $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+              if ($tipo_crediario == 1) {
+                $textotipocrediario = "DA LOJA";
+              } else {
+
+                $textotipocrediario = "AVANCARD";
+              }
+
+
+              $valortotalfinanceiro = (float) $financeirocli->total;
+              $valortotalfinanceiro2 = (float) $financeirocli->total;
+              $diaatual = date('d');
+              $anoatual = date('Y');
+              $mesatual = date('m');
+              $diapag = 0;
+              $mespag = 0;
+              $anopag = 0;
+              $valortotalparcelas = 0;
+              $codparcela = 0;
+
+              $troco = $financeirocli->gorjeta;
+              $pagamentototal = (float) $financeirocli->total;
+              $pagamentototal2 = $pagamentototal;
+              $numparcelas = (float) $financeirocli->numparcelas;
+              $valorparcela = $pagamentototal / $numparcelas;
+              $valorparcela = number_format($valorparcela, 2, ',', '.');
+              $valorparcela2 = $valorparcela;
+              $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+              $tipopag1 = $financeirocli->tipo;
+              $tipopag2 = $financeirocli->tipopag;
+
+              if ($financeirocli->tipo == 1) {// a vista
+                if ($financeirocli->tipopag == 1) {// dinheiro
+                  $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+                } else {//debito
+                  $textopagamentotipo = "Pagamento á Vista no Débito";
+                }
+              } else {//parcelado
+                if ($financeirocli->tipopag == 1) {// credito
+                  $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+                } else {//crediario
+                  $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+                }
+              }
+
+              //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+              $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+              $paramNotas = array(
+                ":cod" => $codnota
+              );
+
+              $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+              foreach ($dataTableNotas as $resultadonotas) {
+
+                $usuarionota = $resultadonotas['usuario'];
+                $nomecli = $resultadonotas['nomeCli'];
+                //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+                $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+                $paramClientes = array(
+                  ":cod" => $usuarionota
+                );
+
+                $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+                foreach ($dataTableClientes as $resultadoclientes) {
+
+                  $codcliente = $resultadoclientes['id'];
+                  $nomecli = $resultadoclientes['nome'];
+                  $celular = $resultadoclientes['celular'];
+                }
+              }
+
+              $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+              $total = 0;
+              $codpedido = 0;
+              $qtdpedidos = 0;
+              $totalfinal = 0;
+              $valor = 0;
+              while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+                $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+                $valor = (float) $pedidos->valor;
+                $totalfinal = $totalfinal + $valor;
+              }
+
+
+
+              $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+              // Exibe todos os valores encontrados
+              while ($finpar = mysqli_fetch_object($sqlPar)) {
+                $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+                $diapag = $finpar->dia;
+                $mespag = $finpar->mes;
+                $anopag = $finpar->ano;
+                $codparcela = $finpar->cod;
+                $contadorparcelas++;
+              }
+
+              $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+              // Exibe todos os valores encontrados
+              while ($finpar = mysqli_fetch_object($sqlPar22)) {
+                $diapag2 = $finpar->dia;
+                $mespag2 = $finpar->mes;
+                $anopag2 = $finpar->ano;
+              }
+
+
+              $areceber = 0;
+              $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+              $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+              $textostatus = "";
+              if ($diapag == 0) {
+                $textostatus = " Nenhuma Parcela Paga";
+              }
+
+            }
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                     <Td>$codnota</td>
+                     <Td>$nomecli</td>
+                     <Td>" . number_format($pagamentototal2, 2, ',', '.') . "</td>
+                     <Td>$valortotalparcelas</td>
+                     <Td>$areceber</td>
+                     <Td>$textopagamentotipo</td>
+                  <td style=''><b>$descricao</b></td>
+                
+                
+               
+                  
+                  <td style=''><b>$data_vencimento</b></td>
+                 
+                  <td style='' id='ResultadoValidacao77$codpedido'>     
+                  
+                  
+
+
+                  
+                  ";
+            $valor = round((float) $valor, 2);
+            $restante = round((float) $restante, 2);
+
+            if ($status == 1) {
+              $valorpag = 0;
+              $tipopag = 1;
+
+              $proximaparcela = $contadorparcelaspagas + 1;
+              if ($numparcelas != $proximaparcela) {
+
+                $valor = (int) $valor;
+
+
+                if ($valorparcelaagora <= $restante) {
+                  $valorparcelaagora = number_format($valorparcelaagora, 2, ',', '.');
+                  echo "           
+            
+                           <input value='3' type='hidden' name='tipopag222$codpedido' id='tipopag222$codpedido' />
+                
+                  <b><input disabled href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='R$ $valorparcelaagora' class='form-control' ></b></td>
+                
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        VALOR DA PARCELA não pode ser maior que valor restante a ser pago!
+        </div>";
+                }
+              } else {
+
+                echo "           
+            
+                           <input value='3' type='hidden' name='tipopag222$codpedido' id='tipopag222$codpedido' />
+                
+                  <b><input disabled href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='R$ $restante' class='form-control' ></b></td>
+                
+                    ";
+
+              }
+
+
+            }
+            echo "</td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          //  $total = number_format($total, 2, ',', '.');
+
+
+
+
+        }
+      }
+      echo "</table>";
+
+
+
+
+
+
+    
+    }
+
+    
     break;
 
   //VALIDACAO PARA BUSCAR CREDIARIOS EM ATRASO
   case 44:
-
     echo "<h3 style='padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; '>Lista de Pagamentos Atrasados - <span class='blog-post-meta'>" . mostraMes(date('m')) . " " . date('d') . ", " . date('Y') . "</h3>
     ";
 
@@ -5558,41 +7281,55 @@ switch ($tipo) {
     break;
   //pagina inicial do filtro para faturamento   
   case 45:
-
     echo "
           <div class='row' style='background-color:#fff; margin-bottom:10px;'>
-            <div class='col-sm-12 col-xl-4'>
-              <label>Deseja consultar qual período</label>
-              <select onchange='validacaorelatorios(46, this.value, txtTipopagamentoAvista.value, txtTipopagamento.value, 0, 0, 0, 46)' name='txtConsultaPeriodo' id='txtConsultaPeriodo' class='form-control' style='font-size:12pt; padding:20px;'>
+            <div class='col-sm-12 col-xl-2'>
+              <label>Qual período</label>
+              <select onchange='validacaorelatorios(46, this.value, txtTipopagamentoAvista2.value, txtTipopagamento2.value, txtDataParaPesquisa222.value, txtTipoRelatorio222.value, 0, 46)' name='txtConsultaPeriodo2' id='txtConsultaPeriodo2' class='form-control' style='font-size:12pt; padding:20px;'>
                   <option value='1'>Dia</option>
                   <option value='2'>Mes</option>
                   <option value='3'>Ano</option>
               </select>
             </div>  
-            <div class='col-sm-12 col-xl-4'>
+            <div class='col-sm-12 col-xl-2'>
               <label>Tipo de Pagamento</label>
-              <select onchange='validacaorelatorios(46, txtConsultaPeriodo.value, this.value, txtTipopagamento.value, 0, 0, 0, 46)' name='txtTipopagamentoAvista' id='txtTipopagamentoAvista' class='form-control' style='font-size:12pt; padding:20px;'>
+              <select onchange='validacaorelatorios(47, txtConsultaPeriodo2.value, this.value, txtTipopagamento2.value, txtDataParaPesquisa222.value, txtTipoRelatorio222.value, 0, 47)' name='txtTipopagamentoAvista2' id='txtTipopagamentoAvista2' class='form-control' style='font-size:12pt; padding:20px;'>
                   <option value='0'>TODOS</option>
                   <option value='1'>Á VISTA</option>
                   <option value='2'>CRÉDIARIO</option>
               </select>
             </div>  
         
-            <div class='col-sm-12 col-xl-4'>
+            <div class='col-sm-12 col-xl-2'>
               <label>Tipo de Pagamento</label>
-              <select onchange='validacaorelatorios(46, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, this.value, 0, 0, 0, 46)' name='txtTipopagamento' id='txtTipopagamento' class='form-control' style='font-size:12pt; padding:20px;'>
+              <select onchange='validacaorelatorios(47, txtConsultaPeriodo2.value, txtTipopagamentoAvista2.value, this.value, txtDataParaPesquisa222.value, txtTipoRelatorio222.value, 0, 47)' name='txtTipopagamento2' id='txtTipopagamento2' class='form-control' style='font-size:12pt; padding:20px;'>
                   <option value='0'>Todos</option>
                   <option value='1'>Dinheiro</option>
                   <option value='2'>Débito</option>
                   <option value='3'>Crédito</option>
                   <option value='4'>Pix</option>
-                  <option value='5'>Desconto</option>
               </select>
-            </div>  
+            </div>
+            <div class='col-sm-12 col-xl-3'>
+          <label>Tipo Relatório</label>
+          <select
+            onchange='validacaorelatorios(47, txtConsultaPeriodo2.value, txtTipopagamentoAvista2.value, txtTipopagamento2.value, txtDataParaPesquisa222.value, this.value, 0, 47)'
+            name='txtTipoRelatorio222' id='txtTipoRelatorio222' class='form-control' style='font-size:12pt; padding:20px;'>
+            <option value='0'>RESUMIDO</option>
+            <option value='1'>COMPLETO</option>
+          </select>
+        </div>  
 
+          <div class='col-sm-12 col-xl-3'>
+                  <div id='ResultadoValidacao46'>
+                        <label>Data</label>
+                        <input onkeyup='validacaorelatorios(47, txtConsultaPeriodo2.value, txtTipopagamentoAvista2.value, txtTipopagamento2.value, this.value, txtTipoRelatorio222.value, 0, 47)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa222' name'txtDataParaPesquisa222' value='" . date('Y-m-d') . "' />
+                    </div>  
+                      
           </div>  
-          <div id='ResultadoValidacao46'>
           </div>
+                       <div id='ResultadoValidacao47'> 
+                      </div>
       ";
     break;
   //pagina de resultado do filtro para faturamento   
@@ -5602,788 +7339,39 @@ switch ($tipo) {
     $param1 = $_GET['param1'];
     $param2 = $_GET['param2'];
     $param3 = $_GET['param3'];
-
+    $param4 = $_GET['param4'];
+    $param5 = $_GET['param5'];
     if ($param1 == 1) {
       echo "
-                <div class='col-sm-12 col-xl-3'>
                         <label>Data</label>
-                        <input onkeyup='validacaorelatorios(47, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 47)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
-                      </div>  
-                       <div id='ResultadoValidacao47'> 
+                        <input onkeyup='validacaorelatorios(47, txtConsultaPeriodo2.value, txtTipopagamentoAvista2.value, txtTipopagamento2.value, this.value, txtTipoRelatorio222.value, 0, 47)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa222' name'txtDataParaPesquisa222' value='" . date('Y-m-d') . "' />
+              ";
+
+
+
+    }
+    if ($param1 == 2) {
+      echo "
+              <label>Mês/Ano</label>
+              <input onkeyup='validacaorelatorios(47, txtConsultaPeriodo2.value, txtTipopagamentoAvista2.value, txtTipopagamento2.value, this.value, txtTipoRelatorio222.value, 0, 47)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa222' name'txtDataParaPesquisa222' value='" . date('Y-m') . "' />
               ";
 
 
       $dia_hoje = date("d");
       $mes_hoje = date("m");
       $ano_hoje = date("Y");
-
-
-      if ($param3 == 0) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-
-      } else if ($param3 == 1) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 2) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 3) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-
-      } else if ($param3 == 4) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 5) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      }
-
-      echo "<table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
-                      <tr>
-                          <td><b>Cod. Nota</b></td>
-                          <td><b>Tipo Pagamento</b></td>
-                          <td><b>Cliente</b></td>
-                         
-                          <td><b>Funcionário</b></td>
-                          <td><b>Data e Hora</b></td>
-                          <td><b>Tipo Venda</b></td>
-                           <td><b>Valor Total	</b></td>
-                           <td><b>SubTotal</b></td>
-                          <td><b>Dinheiro</b></td>
-                          <td><b>Débito</b></td>
-                          <td><b>Crédito</b></td>
-                          <td><b>Pix</b></td>
-                          <td><b>Desconto</b></td>
-
-                      </tr>
-              
-          ";
-
-      $textotipo = 0;
-      $valorTotalFinal = 0;
-      $nomecli = "";
-
-      $totalfinalsubtotal = 0;
-      $totalfinaldinheiro = 0;
-      $totalfinaldebito = 0;
-      $totalfinalcredito = 0;
-      $totalfinalpix = 0;
-      $totalfinaldesconto = 0;
-
-      $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
-      foreach ($dataTableNotaPag as $resultadonotaPag) {
-        $cod_orcamento = (float) $resultadonotaPag['cod_orcamento'];
-
-        $sqlNota = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod DESC";
-        $paramNota = array(
-          ":cod" => $cod_orcamento
-        );
-
-
-        $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
-        foreach ($dataTableNota as $resultadonota) {
-          $codnota = $resultadonota['cod'];
-          $codcli = $resultadonota['usuario'];
-
-          $dia = $resultadonota['dia'];
-          $mes = $resultadonota['mes'];
-          $ano = $resultadonota['ano'];
-          $hora = $resultadonota['hora'];
-
-          $func = $resultadonota['func'];
-          $tipo = $resultadonota['tipo_pedido'];
-
-
-          if ($codcli != 0) {
-            $nomeCli = "";
-            $sqlCli = "SELECT * FROM clientes WHERE id = :id ORDER BY id ASC LIMIT 1";
-            $paramCli = array(
-              ":id" => $codcli
-            );
-            $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
-            foreach ($dataTableCli as $resultadocli) {
-              $nomecli = $resultadocli['nome'];
-            }
-          } else {
-            $nomecli = $resultadonota['nomeCli'];
-          }
-          $sqlCli = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-          $paramCli = array(
-            ":cod" => $func
-          );
-          $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
-          foreach ($dataTableCli as $resultadocli) {
-            $nomefunc = $resultadocli['nome'];
-          }
-          $textotipovenda = "";
-          if ($tipo == 1) {
-            $textotipovenda = "Venda Expressa";
-          } else if ($tipo == 2) {
-            $textotipovenda = "Retirada no Balcão";
-          } else if ($tipo == 3) {
-            $textotipovenda = "Entrega";
-          }
-
-          $datahora = $dia . '/' . $mes . '/' . $ano . ' ' . $hora;
-
-        }
-
-        $numparcelas = (float) $resultadonotaPag['numparcelas'];
-        $tipo = (float) $resultadonotaPag['tipo'];
-        if ($tipo == 1) {
-          $textotipo = "Pagamento á vista";
-        } else {
-          $textotipo = "Pagamento Parcelado" . $numparcelas . "x";
-        }
-
-
-        $total = (float) $resultadonotaPag['total'];
-        $subtotal = (float) $resultadonotaPag['subtotal'];
-        $gorjeta = (float) $resultadonotaPag['gorjeta'];
-        $dinheiro = (float) $resultadonotaPag['dinheiro'];
-        $debito = (float) $resultadonotaPag['debito'];
-        $credito = (float) $resultadonotaPag['credito'];
-        $pix = (float) $resultadonotaPag['pix'];
-        $desconto = (float) $resultadonotaPag['desconto'];
-
-        $valorTotalFinal = $valorTotalFinal + $total;
-
-
-        $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
-        $totalfinaldinheiro = $totalfinaldinheiro + $dinheiro;
-        $totalfinaldebito = $totalfinaldebito + $debito;
-        $totalfinalcredito = $totalfinalcredito + $credito;
-        $totalfinalpix = $totalfinalpix + $pix;
-        $totalfinaldesconto = $totalfinaldesconto + $desconto;
-
-
-
-        echo "<tr>
-                    <td>$cod_orcamento</td>
-                    <td>$textotipo</td>
-                    <td>$nomecli</td>
-                    <td>$nomefunc</td>
-                    <td>$datahora</td>
-                    <td>$textotipovenda</td>
-                    
-                    <td>R$ " . number_format($total, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($subtotal, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($dinheiro, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($debito, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($credito, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($pix, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($desconto, 2, ',', '.') . "</td>
-                 
-                 </tr>";
-
-      }
-      echo "<tr>
-              
-              <td colspan='6' style='text-align:right;'>TOTAL FINAL</td>
-              <td>R$ " . number_format($valorTotalFinal, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinalsubtotal, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinalpix, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinaldesconto, 2, ',', '.') . "</td>
-           
-           </tr>";
-
-      echo "</table></div>";
     }
-    if ($param1 == 2) {
+    if ($param1 == 3) {
       echo "
-      <div class='col-sm-12 col-xl-3'>
-              <label>Mês/Ano</label>
-              <input onkeyup='validacaorelatorios(48, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 48)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
-            </div>  
-    ";
-      echo "
-               
-                       <div id='ResultadoValidacao48'> 
+              <label>Ano</label>
+              <input onkeyup='validacaorelatorios(47, txtConsultaPeriodo2.value, txtTipopagamentoAvista2.value, txtTipopagamento2.value, this.value, txtTipoRelatorio222.value, 0, 47)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa222' name'txtDataParaPesquisa222' value='" . date('Y') . "' />
               ";
 
 
       $dia_hoje = date("d");
-      $mes_hoje = (float) date("m");
+      $mes_hoje = date("m");
       $ano_hoje = date("Y");
-
-
-      if ($param3 == 0) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-
-      } else if ($param3 == 1) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 2) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 3) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-
-      } else if ($param3 == 4) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 5) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      }
-
-      echo "<table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
-                      <tr>
-                          <td><b>Data e Hora</b></td>
-                           <td><b>Valor Total	</b></td>
-                           <td><b>SubTotal</b></td>
-                          <td><b>Dinheiro</b></td>
-                          <td><b>Débito</b></td>
-                          <td><b>Crédito</b></td>
-                          <td><b>Pix</b></td>
-                          <td><b>Desconto</b></td>
-
-                      </tr>
-              
-          ";
-
-      $textotipo = 0;
-      $valorTotalFinal = 0;
-      $nomecli = "";
-
-      $totalfinalsubtotal = 0;
-      $totalfinaldinheiro = 0;
-      $totalfinaldebito = 0;
-      $totalfinalcredito = 0;
-      $totalfinalpix = 0;
-      $totalfinaldesconto = 0;
-
-      $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
-      foreach ($dataTableNotaPag as $resultadonotaPag) {
-        $cod_orcamento = (float) $resultadonotaPag['cod_orcamento'];
-
-        $sqlNota = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod DESC";
-        $paramNota = array(
-          ":cod" => $cod_orcamento
-        );
-
-
-        $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
-        foreach ($dataTableNota as $resultadonota) {
-          $codnota = $resultadonota['cod'];
-          $codcli = $resultadonota['usuario'];
-
-          $dia = $resultadonota['dia'];
-          $mes = $resultadonota['mes'];
-          $ano = $resultadonota['ano'];
-          $hora = $resultadonota['hora'];
-
-          $func = $resultadonota['func'];
-          $tipo = $resultadonota['tipo_pedido'];
-
-
-          if ($codcli != 0) {
-            $nomeCli = "";
-            $sqlCli = "SELECT * FROM clientes WHERE id = :id ORDER BY id ASC LIMIT 1";
-            $paramCli = array(
-              ":id" => $codcli
-            );
-            $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
-            foreach ($dataTableCli as $resultadocli) {
-              $nomecli = $resultadocli['nome'];
-            }
-          } else {
-            $nomecli = $resultadonota['nomeCli'];
-          }
-          $sqlCli = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-          $paramCli = array(
-            ":cod" => $func
-          );
-          $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
-          foreach ($dataTableCli as $resultadocli) {
-            $nomefunc = $resultadocli['nome'];
-          }
-          $textotipovenda = "";
-          if ($tipo == 1) {
-            $textotipovenda = "Venda Expressa";
-          } else if ($tipo == 2) {
-            $textotipovenda = "Retirada no Balcão";
-          } else if ($tipo == 3) {
-            $textotipovenda = "Entrega";
-          }
-
-          $datahora = $dia . '/' . $mes . '/' . $ano . ' ' . $hora;
-
-        }
-
-        $numparcelas = (float) $resultadonotaPag['numparcelas'];
-        $tipo = (float) $resultadonotaPag['tipo'];
-        if ($tipo == 1) {
-          $textotipo = "Pagamento á vista";
-        } else {
-          $textotipo = "Pagamento Parcelado" . $numparcelas . "x";
-        }
-
-
-        $total = (float) $resultadonotaPag['total'];
-        $subtotal = (float) $resultadonotaPag['subtotal'];
-        $gorjeta = (float) $resultadonotaPag['gorjeta'];
-        $dinheiro = (float) $resultadonotaPag['dinheiro'];
-        $debito = (float) $resultadonotaPag['debito'];
-        $credito = (float) $resultadonotaPag['credito'];
-        $pix = (float) $resultadonotaPag['pix'];
-        $desconto = (float) $resultadonotaPag['desconto'];
-
-        $valorTotalFinal = $valorTotalFinal + $total;
-
-
-        $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
-        $totalfinaldinheiro = $totalfinaldinheiro + $dinheiro;
-        $totalfinaldebito = $totalfinaldebito + $debito;
-        $totalfinalcredito = $totalfinalcredito + $credito;
-        $totalfinalpix = $totalfinalpix + $pix;
-        $totalfinaldesconto = $totalfinaldesconto + $desconto;
-
-
-
-        echo "
-                 <tr>
-                    <td>$datahora</td>
-                    
-                    <td>R$ " . number_format($total, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($subtotal, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($dinheiro, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($debito, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($credito, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($pix, 2, ',', '.') . "</td>
-                    <td>R$ " . number_format($desconto, 2, ',', '.') . "</td>
-                 
-                 </tr>";
-
-      }
-      echo "<tr>
-              
-              <td colspan='1' style='text-align:right;'>TOTAL FINAL</td>
-              <td>R$ " . number_format($valorTotalFinal, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinalsubtotal, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinalpix, 2, ',', '.') . "</td>
-              <td>R$ " . number_format($totalfinaldesconto, 2, ',', '.') . "</td>
-           
-           </tr>";
-
-      echo "</table></div>";
     }
-    if ($param1 == 3) {
-      echo "
-      <div class='col-sm-12 col-xl-3'>
-              <label>Ano</label>
-              <input onkeyup='validacaorelatorios(49, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 49)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y') . "' />
-            </div>  
-    ";
-
-      echo "
-               
-    <div id='ResultadoValidacao49'> 
-";
-
-
-      $dia_hoje = date("d");
-      $mes_hoje = (float) date("m");
-      $ano_hoje = date("Y");
-
-
-      if ($param3 == 0) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-
-      } else if ($param3 == 1) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 2) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 3) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-
-      } else if ($param3 == 4) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 5) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      }
-
-      echo "<table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
-   <tr>
-       <td><b>Data e Hora</b></td>
-        <td><b>Valor Total	</b></td>
-        <td><b>SubTotal</b></td>
-       <td><b>Dinheiro</b></td>
-       <td><b>Débito</b></td>
-       <td><b>Crédito</b></td>
-       <td><b>Pix</b></td>
-       <td><b>Desconto</b></td>
-
-   </tr>
-
-";
-
-      $textotipo = 0;
-      $valorTotalFinal = 0;
-      $nomecli = "";
-
-      $totalfinalsubtotal = 0;
-      $totalfinaldinheiro = 0;
-      $totalfinaldebito = 0;
-      $totalfinalcredito = 0;
-      $totalfinalpix = 0;
-      $totalfinaldesconto = 0;
-
-      $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
-      foreach ($dataTableNotaPag as $resultadonotaPag) {
-        $cod_orcamento = (float) $resultadonotaPag['cod_orcamento'];
-
-        $sqlNota = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod DESC";
-        $paramNota = array(
-          ":cod" => $cod_orcamento
-        );
-
-
-        $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
-        foreach ($dataTableNota as $resultadonota) {
-          $codnota = $resultadonota['cod'];
-          $codcli = $resultadonota['usuario'];
-
-          $dia = $resultadonota['dia'];
-          $mes = $resultadonota['mes'];
-          $ano = $resultadonota['ano'];
-          $hora = $resultadonota['hora'];
-
-          $func = $resultadonota['func'];
-          $tipo = $resultadonota['tipo_pedido'];
-
-
-          if ($codcli != 0) {
-            $nomeCli = "";
-            $sqlCli = "SELECT * FROM clientes WHERE id = :id ORDER BY id ASC LIMIT 1";
-            $paramCli = array(
-              ":id" => $codcli
-            );
-            $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
-            foreach ($dataTableCli as $resultadocli) {
-              $nomecli = $resultadocli['nome'];
-            }
-          } else {
-            $nomecli = $resultadonota['nomeCli'];
-          }
-          $sqlCli = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-          $paramCli = array(
-            ":cod" => $func
-          );
-          $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
-          foreach ($dataTableCli as $resultadocli) {
-            $nomefunc = $resultadocli['nome'];
-          }
-          $textotipovenda = "";
-          if ($tipo == 1) {
-            $textotipovenda = "Venda Expressa";
-          } else if ($tipo == 2) {
-            $textotipovenda = "Retirada no Balcão";
-          } else if ($tipo == 3) {
-            $textotipovenda = "Entrega";
-          }
-
-          $datahora = $dia . '/' . $mes . '/' . $ano . ' ' . $hora;
-
-        }
-
-        $numparcelas = (float) $resultadonotaPag['numparcelas'];
-        $tipo = (float) $resultadonotaPag['tipo'];
-        if ($tipo == 1) {
-          $textotipo = "Pagamento á vista";
-        } else {
-          $textotipo = "Pagamento Parcelado" . $numparcelas . "x";
-        }
-
-
-        $total = (float) $resultadonotaPag['total'];
-        $subtotal = (float) $resultadonotaPag['subtotal'];
-        $gorjeta = (float) $resultadonotaPag['gorjeta'];
-        $dinheiro = (float) $resultadonotaPag['dinheiro'];
-        $debito = (float) $resultadonotaPag['debito'];
-        $credito = (float) $resultadonotaPag['credito'];
-        $pix = (float) $resultadonotaPag['pix'];
-        $desconto = (float) $resultadonotaPag['desconto'];
-
-        $valorTotalFinal = $valorTotalFinal + $total;
-
-
-        $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
-        $totalfinaldinheiro = $totalfinaldinheiro + $dinheiro;
-        $totalfinaldebito = $totalfinaldebito + $debito;
-        $totalfinalcredito = $totalfinalcredito + $credito;
-        $totalfinalpix = $totalfinalpix + $pix;
-        $totalfinaldesconto = $totalfinaldesconto + $desconto;
-
-
-
-        echo "
-<tr>
- <td>$datahora</td>
- 
- <td>R$ " . number_format($total, 2, ',', '.') . "</td>
- <td>R$ " . number_format($subtotal, 2, ',', '.') . "</td>
- <td>R$ " . number_format($dinheiro, 2, ',', '.') . "</td>
- <td>R$ " . number_format($debito, 2, ',', '.') . "</td>
- <td>R$ " . number_format($credito, 2, ',', '.') . "</td>
- <td>R$ " . number_format($pix, 2, ',', '.') . "</td>
- <td>R$ " . number_format($desconto, 2, ',', '.') . "</td>
-
-</tr>";
-
-      }
-      echo "<tr>
-
-<td colspan='1' style='text-align:right;'>TOTAL FINAL</td>
-<td>R$ " . number_format($valorTotalFinal, 2, ',', '.') . "</td>
-<td>R$ " . number_format($totalfinalsubtotal, 2, ',', '.') . "</td>
-<td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
-<td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
-<td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
-<td>R$ " . number_format($totalfinalpix, 2, ',', '.') . "</td>
-<td>R$ " . number_format($totalfinaldesconto, 2, ',', '.') . "</td>
-
-</tr>";
-
-      echo "</table></div>";
-
-    }
-
-
-
-
 
 
 
@@ -6396,122 +7384,1335 @@ switch ($tipo) {
     $param2 = $_GET['param2'];
     $param3 = $_GET['param3'];
     $param4 = $_GET['param4'];
+    $param5 = $_GET['param5'];
 
-    $partes = explode('-', $param4);
+    $tipoconsulta = "";
+    $tipopagamento = "";
+    $tipopagamento2 = "";
+    $tiporelatório = "";
+    $dataconsulta = "";
+    $dataconsulta = $param4;
 
-    $dia_hoje = $partes['2'];
-    $mes_hoje = $partes['1'];
-    $ano_hoje = $partes['0'];
+
 
     if ($param1 == 1) {
+      $tipoconsulta = "Por Dia";
+      $dataconsulta = date("d/m/Y", strtotime($param4));
 
-      if ($param3 == 0) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
+    } else if ($param1 == 2) {
+      $tipoconsulta = "Por Mês";
+      $dataconsulta = date("m/Y", strtotime($param4));
+
+    } else if ($param1 == 3) {
+      $tipoconsulta = "Por Ano";
+      $dataconsulta = date("Y", strtotime($param4));
+
+    }
+
+    if ($param2 == 0) {
+      $tipopagamento = "Todos";
+    } else if ($param2 == 1) {
+      $tipopagamento = "Pagamentos à Vista";
+    } else if ($param2 == 2) {
+      $tipopagamento = "Pagamentos Crediário";
+    }
+
+    if ($param3 == 0) {
+      $tipopagamento2 = "Todos";
+    } else if ($param3 == 1) {
+      $tipopagamento2 = "Em Dinheiro";
+    } else if ($param3 == 2) {
+      $tipopagamento2 = "Em Débito";
+    } else if ($param3 == 3) {
+      $tipopagamento2 = "Em Crédito";
+    } else if ($param3 == 4) {
+      $tipopagamento2 = "Em Pix";
+    } else if ($param3 == 5) {
+      $tipopagamento2 = "Descontos";
+    }
+
+    if ($param5 == 0) {
+      $tiporelatório = "Resumido";
+    } else {
+      $tiporelatório = "Completo";
+    }
+
+    $partes = explode('-', $param4);
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 6pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão de Faturamento</br>
+                Tipo de Consulta: $tipoconsulta </br>
+                Tipo de Pagamentos: $tipopagamento / $tipopagamento2 / $tiporelatório </br> 
+                Data: $dataconsulta
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
+    if ($param5 == 0) {
+      $valorTotalFinal22 = 0;
+      echo "";
+      if ($param1 == 1) {
+        echo "<table class='table table-bordered' style='font-size:5pt; width:99%;'>
+                          <tr style='text-align:center;'>
+                            <td></td>
+                            <td colspan='3'><b>FATURAMENTO POR CREDIÁRIO</b></td>
+                            <td colspan='5'><b>FATURAMENTO À VISTA</b></td>
+                            
+                            <td colspan='' rowspan='2'><b></br>TOTAL FATURAMENTO DO DIA</b></td>
+                            <td colspan='' rowspan='2'><b></br>CREDIÁRIO DA LOJA</b></td>
+                            <td colspan='' rowspan='2'><b></br> CREDIÁRIO DA AVANCARD</b></td>
+                            <td colspan='' rowspan='2'><b></br>TOTAL DE VENDAS DO DIA</b></td>
+                           
+                            
+                        </tr>
+                        <tr style='text-align:center;'>
+                            <td><b>Dia</b></td>
+                            <td><b>Entradas de Crediário</b></td>
+                            <td><b>Parcelas de Crediário</b></td>
+                            <td><b>Faturamento Total em Crediário</b></td>
+                            <td><b>Dinheiro</b></td>
+                            <td><b>Débito</b></td>
+                            <td><b>Pix</b></td>
+                            <td><b>Cartão de Crédito</b></td>
+                           
+                            <td><b>Faturamento Total à Vista</b></td>
+                            
+                        </tr>
+                        ";
+
+        $valorTotalFinal2 = 0;
+        $totalpagoemparcelas = 0;
+
+        $i = $partes['2'];
+        $mes_hoje = $partes['1'];
+        $ano_hoje = $partes['0'];
+        $param2;
+        if ($param3 == 0) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  dia = :dia AND mes = :mes AND ano = :ano ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 1) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 2) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 3) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 4) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND  mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 5) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND  mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $i,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
         }
 
-      } else if ($param3 == 1) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 2) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
-        }
-      } else if ($param3 == 3) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
+        $totalpagoemparcelasdebito = 0;
+        $totalpagoemparcelascredito = 0;
+        $totalpagoemparcelaspix = 0;
+        $totalpagoemparcelasdinheiro = 0;
+        $valorTotalFinal3 = 0;
+        $TOTALAVISTA = 0;
+        $totalpagoemparcelas = 0;
+        $totalpagoemparcelas = 0;
+
+        //aqui vai o codigo para somar todos os indicadores;  TOTAL EM CREDIARIO, TOTAL A VISTA
+        //DINHEIRO, PIX, DEBITO, CREDITO, DESCONTO
+        $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE dia = $i AND mes = $mes_hoje AND ano = $ano_hoje AND status = 2 ORDER BY cod DESC";
+
+
+        $dataTableNotaPagParcelas = $banco->ExecuteQuery($sqlNotaPagParcelas);
+
+
+        foreach ($dataTableNotaPagParcelas as $resultadonotaPagParcelas) {
+          $valorpagoparcela = (float) $resultadonotaPagParcelas['valor'];
+          $tipopagparcelas = (float) $resultadonotaPagParcelas['tipopag'];
+          $totalpagoemparcelas = $totalpagoemparcelas + $valorpagoparcela;
+
+          if ($tipopagparcelas == 1) {
+            $totalpagoemparcelasdinheiro = $totalpagoemparcelasdinheiro + $valorpagoparcela;
+          } else if ($tipopagparcelas == 2) {
+            $totalpagoemparcelaspix = $totalpagoemparcelaspix + $valorpagoparcela;
+          } else if ($tipopagparcelas == 3) {
+            $totalpagoemparcelasdebito = $totalpagoemparcelasdebito + $valorpagoparcela;
+          } else if ($tipopagparcelas == 4) {
+            $totalpagoemparcelascredito = $totalpagoemparcelascredito + $valorpagoparcela;
+          }
+
         }
 
-      } else if ($param3 == 4) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
+
+        $total_parcelado = 0;
+        $total_avista = 0;
+        $valorTotalFinal = 0;
+        $totalfinalsubtotal = 0;
+        $totalfinaldinheiro = 0;
+        $totalfinaldebito = 0;
+        $totalfinalcredito = 0;
+        $totalfinalpix = 0;
+        $totalfinaldesconto = 0;
+
+
+        $totalentrada = 0;
+        $total_loja = 0;
+        $total_avancard = 0;
+
+
+
+        $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
+
+
+        foreach ($dataTableNotaPag as $resultadonotaPag) {
+          $tipo = (float) $resultadonotaPag['tipo'];
+          $codpagamento = (float) $resultadonotaPag['cod'];
+          if ($tipo == 1) {
+            $total_avista = $total_avista + (float) $resultadonotaPag['total'];
+
+            $valorTotalFinal22 = $valorTotalFinal22 + (float) $resultadonotaPag['total'];
+          } else {
+            $total_parcelado = $total_parcelado + (float) $resultadonotaPag['total'];
+
+            $valorTotalFinal22 = $valorTotalFinal22 + (float) $resultadonotaPag['total'];
+          }
+
+
+
+
+          $total = (float) $resultadonotaPag['total'];
+
+          $entradavalor = (float) $resultadonotaPag['entrada'];
+          $totalentrada = $totalentrada + $entradavalor;
+
+
+
+          $tipo_crediario = (float) $resultadonotaPag['tipo_crediario'];
+          if ($tipo == 2) {
+            if ($tipo_crediario == 1) {
+
+              $total_loja = $total_loja + $total;
+            } else {
+
+              $total_avancard = $total_avancard + $total;
+            }
+          }
+
+          $subtotal = (float) $resultadonotaPag['subtotal'];
+
+          $gorjeta = (float) $resultadonotaPag['gorjeta'];
+          $dinheiro = (float) $resultadonotaPag['dinheiro'];
+          $debito = (float) $resultadonotaPag['debito'];
+          $credito = (float) $resultadonotaPag['credito'];
+          $pix = (float) $resultadonotaPag['pix'];
+          $desconto = (float) $resultadonotaPag['desconto'];
+
+          $valorTotalFinal2 = $valorTotalFinal2 + $total;
+
+
+          $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
+          $totalfinaldinheiro = $totalfinaldinheiro + $dinheiro;
+          $totalfinaldebito = $totalfinaldebito + $debito;
+          $totalfinalcredito = $totalfinalcredito + $credito;
+          $totalfinalpix = $totalfinalpix + $pix;
+          $totalfinaldesconto = $totalfinaldesconto + $desconto;
+
         }
-      } else if ($param3 == 5) {
-        if ($param2 == 0) {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-          );
-        } else {
-          $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
-          $paramNotaPag = array(
-            ":dia" => $dia_hoje,
-            ":mes" => $mes_hoje,
-            ":ano" => $ano_hoje,
-            ":tipo" => $param2,
-          );
+
+        $TOTALAVISTA = $totalfinaldinheiro + $totalfinaldebito + $totalfinalcredito + $totalfinalpix;
+
+        $faturamentototaldia = 0;
+
+        $faturamentototaldia = $totalentrada + $totalpagoemparcelas + $TOTALAVISTA;
+
+        $valorTotalFinal3 = $valorTotalFinal3 + $TOTALAVISTA + $totalentrada + $totalpagoemparcelas + $total_loja + $total_avancard;
+        if ($valorTotalFinal22 != 0) {
+          echo "<tr style='text-align:center;'>
+                              <td>Dia $i</td>
+                              <td>R$ " . number_format($totalentrada, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalpagoemparcelas, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalentrada + $totalpagoemparcelas, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinalpix, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($TOTALAVISTA, 2, ',', '.') . "</td>
+
+                              <TD>R$ " . number_format($faturamentototaldia, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($total_loja, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($total_avancard, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($faturamentototaldia + $total_loja + $total_avancard, 2, ',', '.') . "</TD>
+                            </tr>";
         }
+        $valorTotalFinal22 = 0;
+
+        $total_parcelado = 0;
+        $total_avista = 0;
+        $valorTotalFinal = 0;
+
+        $totalfinalsubtotal = 0;
+        $totalfinaldinheiro = 0;
+        $totalfinaldebito = 0;
+        $totalfinalcredito = 0;
+        $totalfinalpix = 0;
+        $totalfinaldesconto = 0;
+
+        echo "<tr style='text-align:center;'>
+                            
+                            <td colspan='12' style='text-align:right; '><b>TOTAL FINAL</b></td>
+                              <td>R$ " . number_format($valorTotalFinal3, 2, ',', '.') . "</td>
+                            
+                            
+                        </tr>";
+        echo " 
+              </table>
+                            ";
+      } else if ($param1 == 2) {
+        echo "<table class='table table-bordered' style='font-size:5pt; width:99%;'>
+                          <tr style='text-align:center;'>
+                            <td></td>
+                            <td colspan='3'><b>FATURAMENTO POR CREDIÁRIO</b></td>
+                            <td colspan='5'><b>FATURAMENTO À VISTA</b></td>
+                            
+                            <td colspan='' rowspan='2'><b></br>TOTAL FATURAMENTO DO MÊS</b></td>
+                            <td colspan='' rowspan='2'><b></br>CREDIÁRIO DA LOJA</b></td>
+                            <td colspan='' rowspan='2'><b></br> CREDIÁRIO DA AVANCARD</b></td>
+                            <td colspan='' rowspan='2'><b></br>TOTAL DE VENDAS DO MÊS</b></td>
+                           
+                            
+                        </tr>
+                        <tr style='text-align:center;'>
+                            <td><b>Mês</b></td>
+                            <td><b>Entradas de Crediário</b></td>
+                            <td><b>Parcelas de Crediário</b></td>
+                            <td><b>Faturamento Total em Crediário</b></td>
+                            <td><b>Dinheiro</b></td>
+                            <td><b>Débito</b></td>
+                            <td><b>Pix</b></td>
+                            <td><b>Cartão de Crédito</b></td>
+                           
+                            <td><b>Faturamento Total à Vista</b></td>
+                            
+                        </tr>
+                        ";
+
+        $valorTotalFinal2 = 0;
+        $valorTotalFinal3 = 0;
+        $i = 0;
+        for ($i = 1; $i <= 31; $i++) {
+          $valorTotalFinal2 = 0;
+          $totalpagoemparcelas = 0;
+
+
+          $mes_hoje = $partes['1'];
+          $ano_hoje = $partes['0'];
+
+          if ($param3 == 0) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  dia = :dia AND mes = :mes AND ano = :ano ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+
+          } else if ($param3 == 1) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          } else if ($param3 == 2) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          } else if ($param3 == 3) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+
+          } else if ($param3 == 4) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND  mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          } else if ($param3 == 5) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND  mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          }
+
+          $totalpagoemparcelasdebito = 0;
+          $totalpagoemparcelascredito = 0;
+          $totalpagoemparcelaspix = 0;
+          $totalpagoemparcelasdinheiro = 0;
+
+          $TOTALAVISTA = 0;
+          $totalpagoemparcelas = 0;
+          $totalpagoemparcelas = 0;
+
+          //aqui vai o codigo para somar todos os indicadores;  TOTAL EM CREDIARIO, TOTAL A VISTA
+          //DINHEIRO, PIX, DEBITO, CREDITO, DESCONTO
+          $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE dia = $i AND mes = $mes_hoje AND ano = $ano_hoje AND status = 2 ORDER BY cod DESC";
+
+
+          $dataTableNotaPagParcelas = $banco->ExecuteQuery($sqlNotaPagParcelas);
+
+
+          foreach ($dataTableNotaPagParcelas as $resultadonotaPagParcelas) {
+            $valorpagoparcela = (float) $resultadonotaPagParcelas['valor'];
+            $tipopagparcelas = (float) $resultadonotaPagParcelas['tipopag'];
+            $totalpagoemparcelas = $totalpagoemparcelas + $valorpagoparcela;
+
+            if ($tipopagparcelas == 1) {
+              $totalpagoemparcelasdinheiro = $totalpagoemparcelasdinheiro + $valorpagoparcela;
+            } else if ($tipopagparcelas == 2) {
+              $totalpagoemparcelaspix = $totalpagoemparcelaspix + $valorpagoparcela;
+            } else if ($tipopagparcelas == 3) {
+              $totalpagoemparcelasdebito = $totalpagoemparcelasdebito + $valorpagoparcela;
+            } else if ($tipopagparcelas == 4) {
+              $totalpagoemparcelascredito = $totalpagoemparcelascredito + $valorpagoparcela;
+            }
+
+          }
+
+
+          $total_parcelado = 0;
+          $total_avista = 0;
+          $valorTotalFinal = 0;
+          $totalfinalsubtotal = 0;
+          $totalfinaldinheiro = 0;
+          $totalfinaldebito = 0;
+          $totalfinalcredito = 0;
+          $totalfinalpix = 0;
+          $totalfinaldesconto = 0;
+
+
+          $totalentrada = 0;
+          $total_loja = 0;
+          $total_avancard = 0;
+
+          //var_dump($dataTableNotaPag);
+
+          $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
+          foreach ($dataTableNotaPag as $resultadonotaPag) {
+            $tipo = (float) $resultadonotaPag['tipo'];
+            $codpagamento = (float) $resultadonotaPag['cod'];
+            if ($tipo == 1) {
+              $total_avista = $total_avista + (float) $resultadonotaPag['total'];
+
+              $valorTotalFinal = $valorTotalFinal + (float) $resultadonotaPag['total'];
+              $valorTotalFinal22 = $valorTotalFinal22 + (float) $resultadonotaPag['total'];
+            } else {
+              $total_parcelado = $total_parcelado + (float) $resultadonotaPag['total'];
+
+              $valorTotalFinal22 = $valorTotalFinal22 + (float) $resultadonotaPag['total'];
+            }
+
+
+
+
+            $total = (float) $resultadonotaPag['total'];
+
+            $entradavalor = (float) $resultadonotaPag['entrada'];
+            $totalentrada = $totalentrada + $entradavalor;
+
+
+
+            $tipo_crediario = (float) $resultadonotaPag['tipo_crediario'];
+            if ($tipo == 2) {
+              if ($tipo_crediario == 1) {
+
+                $total_loja = $total_loja + $total;
+              } else {
+
+                $total_avancard = $total_avancard + $total;
+              }
+            }
+
+            $subtotal = (float) $resultadonotaPag['subtotal'];
+
+            $gorjeta = (float) $resultadonotaPag['gorjeta'];
+            $dinheiro = (float) $resultadonotaPag['dinheiro'];
+            $debito = (float) $resultadonotaPag['debito'];
+            $credito = (float) $resultadonotaPag['credito'];
+            $pix = (float) $resultadonotaPag['pix'];
+            $desconto = (float) $resultadonotaPag['desconto'];
+
+            $valorTotalFinal2 = $valorTotalFinal2 + $total;
+
+
+            $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
+            $totalfinaldinheiro = $totalfinaldinheiro + $dinheiro;
+            $totalfinaldebito = $totalfinaldebito + $debito;
+            $totalfinalcredito = $totalfinalcredito + $credito;
+            $totalfinalpix = $totalfinalpix + $pix;
+            $totalfinaldesconto = $totalfinaldesconto + $desconto;
+
+          }
+
+          $TOTALAVISTA = $totalfinaldinheiro + $totalfinaldebito + $totalfinalcredito + $totalfinalpix;
+
+          $faturamentototaldia = 0;
+
+          $faturamentototaldia = $totalentrada + $totalpagoemparcelas + $TOTALAVISTA;
+
+          $valorTotalFinal3 = $valorTotalFinal3 + $TOTALAVISTA + $totalentrada + $totalpagoemparcelas + $total_loja + $total_avancard;
+          if ($valorTotalFinal22 != 0) {
+            echo "<tr style='text-align:center;'>
+                              <td>Dia $i</td>
+                              <td>R$ " . number_format($totalentrada, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalpagoemparcelas, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalentrada + $totalpagoemparcelas, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinalpix, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($TOTALAVISTA, 2, ',', '.') . "</td>
+
+                              <TD>R$ " . number_format($faturamentototaldia, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($total_loja, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($total_avancard, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($faturamentototaldia + $total_loja + $total_avancard, 2, ',', '.') . "</TD>
+                            </tr>";
+          }
+          $valorTotalFinal22 = 0;
+          $total_parcelado = 0;
+          $total_avista = 0;
+          $totalpagoemparcelas = 0;
+          $valorTotalFinal = 0;
+
+          $totalfinalsubtotal = 0;
+          $totalfinaldinheiro = 0;
+          $totalfinaldebito = 0;
+          $totalfinalcredito = 0;
+          $totalfinalpix = 0;
+          $totalfinaldesconto = 0;
+        }
+
+
+        echo "<tr style='text-align:center;'>
+                            
+                            <td colspan='12' style='text-align:right; '><b>TOTAL FINAL</b></td>
+                              <td>R$ " . number_format($valorTotalFinal3, 2, ',', '.') . "</td>
+                            
+                            
+                        </tr>";
+        echo " 
+              </table>
+                            ";
+
+      } else if ($param1 == 3) {
+        echo "<table class='table table-bordered' style='font-size:5pt; width:99%;'>
+                          <tr style='text-align:center;'>
+                            <td></td>
+                            <td colspan='3'><b>FATURAMENTO POR CREDIÁRIO</b></td>
+                            <td colspan='5'><b>FATURAMENTO À VISTA</b></td>
+                            
+                            <td colspan='' rowspan='2'><b></br>TOTAL FATURAMENTO DO ANO</b></td>
+                            <td colspan='' rowspan='2'><b></br>CREDIÁRIO DA LOJA</b></td>
+                            <td colspan='' rowspan='2'><b></br> CREDIÁRIO DA AVANCARD</b></td>
+                            <td colspan='' rowspan='2'><b></br>TOTAL DE VENDAS DO ANO</b></td>
+                           
+                            
+                        </tr>
+                        <tr style='text-align:center;'>
+                            <td><b>Mês</b></td>
+                            <td><b>Entradas de Crediário</b></td>
+                            <td><b>Parcelas de Crediário</b></td>
+                            <td><b>Faturamento Total em Crediário</b></td>
+                            <td><b>Dinheiro</b></td>
+                            <td><b>Débito</b></td>
+                            <td><b>Pix</b></td>
+                            <td><b>Cartão de Crédito</b></td>
+                           
+                            <td><b>Faturamento Total à Vista</b></td>
+                            
+                        </tr>
+                        ";
+
+
+        $valorTotalFinal2 = 0;
+        $valorTotalFinal3 = 0;
+        for ($i = 1; $i <= 12; $i++) {
+          $mes_hoje = $i;
+          $ano_hoje = $partes['0'];
+
+          $valorTotalFinal2 = 0;
+          $totalpagoemparcelas = 0;
+
+
+          if ($param3 == 0) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   mes = :mes AND ano = :ano ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":dia" => $i,
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+
+          } else if ($param3 == 1) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          } else if ($param3 == 2) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          } else if ($param3 == 3) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+
+          } else if ($param3 == 4) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          } else if ($param3 == 5) {
+            if ($param2 == 0) {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+              );
+            } else {
+              $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
+              $paramNotaPag = array(
+
+                ":mes" => $mes_hoje,
+                ":ano" => $ano_hoje,
+                ":tipo" => $param2,
+              );
+            }
+          }
+
+          $totalpagoemparcelasdebito = 0;
+          $totalpagoemparcelascredito = 0;
+          $totalpagoemparcelaspix = 0;
+          $totalpagoemparcelasdinheiro = 0;
+
+          $TOTALAVISTA = 0;
+          $totalpagoemparcelas = 0;
+          $totalpagoemparcelas = 0;
+
+          //aqui vai o codigo para somar todos os indicadores;  TOTAL EM CREDIARIO, TOTAL A VISTA
+          //DINHEIRO, PIX, DEBITO, CREDITO, DESCONTO
+          $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE  mes = $mes_hoje AND ano = $ano_hoje AND status = 2 ORDER BY cod DESC";
+
+
+          $dataTableNotaPagParcelas = $banco->ExecuteQuery($sqlNotaPagParcelas);
+
+
+          foreach ($dataTableNotaPagParcelas as $resultadonotaPagParcelas) {
+            $valorpagoparcela = (float) $resultadonotaPagParcelas['valor'];
+            $tipopagparcelas = (float) $resultadonotaPagParcelas['tipopag'];
+            $totalpagoemparcelas = $totalpagoemparcelas + $valorpagoparcela;
+
+            if ($tipopagparcelas == 1) {
+              $totalpagoemparcelasdinheiro = $totalpagoemparcelasdinheiro + $valorpagoparcela;
+            } else if ($tipopagparcelas == 2) {
+              $totalpagoemparcelaspix = $totalpagoemparcelaspix + $valorpagoparcela;
+            } else if ($tipopagparcelas == 3) {
+              $totalpagoemparcelasdebito = $totalpagoemparcelasdebito + $valorpagoparcela;
+            } else if ($tipopagparcelas == 4) {
+              $totalpagoemparcelascredito = $totalpagoemparcelascredito + $valorpagoparcela;
+            }
+
+          }
+
+
+          $total_parcelado = 0;
+          $total_avista = 0;
+          $valorTotalFinal = 0;
+          $totalfinalsubtotal = 0;
+          $totalfinaldinheiro = 0;
+          $totalfinaldebito = 0;
+          $totalfinalcredito = 0;
+          $totalfinalpix = 0;
+          $totalfinaldesconto = 0;
+
+
+          $totalentrada = 0;
+          $total_loja = 0;
+          $total_avancard = 0;
+
+          //var_dump($dataTableNotaPag);
+
+          $dataTableNotaPag = $banco->ExecuteQuery($sqlNotaPag, $paramNotaPag);
+          foreach ($dataTableNotaPag as $resultadonotaPag) {
+            $tipo = (float) $resultadonotaPag['tipo'];
+            $codpagamento = (float) $resultadonotaPag['cod'];
+            if ($tipo == 1) {
+              $total_avista = $total_avista + (float) $resultadonotaPag['total'];
+
+              $valorTotalFinal = $valorTotalFinal + (float) $resultadonotaPag['total'];
+              $valorTotalFinal22 = $valorTotalFinal22 + (float) $resultadonotaPag['total'];
+            } else {
+              $total_parcelado = $total_parcelado + (float) $resultadonotaPag['total'];
+
+              $valorTotalFinal22 = $valorTotalFinal22 + (float) $resultadonotaPag['total'];
+            }
+
+
+
+
+            $total = (float) $resultadonotaPag['total'];
+
+            $entradavalor = (float) $resultadonotaPag['entrada'];
+            $totalentrada = $totalentrada + $entradavalor;
+
+
+
+            $tipo_crediario = (float) $resultadonotaPag['tipo_crediario'];
+            if ($tipo == 2) {
+              if ($tipo_crediario == 1) {
+
+                $total_loja = $total_loja + $total;
+              } else {
+
+                $total_avancard = $total_avancard + $total;
+              }
+            }
+
+            $subtotal = (float) $resultadonotaPag['subtotal'];
+
+            $gorjeta = (float) $resultadonotaPag['gorjeta'];
+            $dinheiro = (float) $resultadonotaPag['dinheiro'];
+            $debito = (float) $resultadonotaPag['debito'];
+            $credito = (float) $resultadonotaPag['credito'];
+            $pix = (float) $resultadonotaPag['pix'];
+            $desconto = (float) $resultadonotaPag['desconto'];
+
+            $valorTotalFinal2 = $valorTotalFinal2 + $total;
+
+
+            $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
+            $totalfinaldinheiro = $totalfinaldinheiro + $dinheiro;
+            $totalfinaldebito = $totalfinaldebito + $debito;
+            $totalfinalcredito = $totalfinalcredito + $credito;
+            $totalfinalpix = $totalfinalpix + $pix;
+            $totalfinaldesconto = $totalfinaldesconto + $desconto;
+
+          }
+
+          $TOTALAVISTA = $totalfinaldinheiro + $totalfinaldebito + $totalfinalcredito + $totalfinalpix;
+
+          $faturamentototaldia = 0;
+
+          $faturamentototaldia = $totalentrada + $totalpagoemparcelas + $TOTALAVISTA;
+
+          $valorTotalFinal3 = $valorTotalFinal3 + $TOTALAVISTA + $totalentrada + $totalpagoemparcelas + $total_loja + $total_avancard;
+          if ($valorTotalFinal22 != 0) {
+            echo "<tr style='text-align:center;'>
+                              <td>" . mostraMes($i) . "</td>
+                              <td>R$ " . number_format($totalentrada, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalpagoemparcelas, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalentrada + $totalpagoemparcelas, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinalpix, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
+                              <td>R$ " . number_format($TOTALAVISTA, 2, ',', '.') . "</td>
+
+                              <TD>R$ " . number_format($faturamentototaldia, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($total_loja, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($total_avancard, 2, ',', '.') . "</TD>
+                              <TD>R$ " . number_format($faturamentototaldia + $total_loja + $total_avancard, 2, ',', '.') . "</TD>
+                            </tr>";
+          }
+          $valorTotalFinal22 = 0;
+          $total_parcelado = 0;
+          $total_avista = 0;
+          $totalpagoemparcelas = 0;
+          $valorTotalFinal = 0;
+
+          $totalfinalsubtotal = 0;
+          $totalfinaldinheiro = 0;
+          $totalfinaldebito = 0;
+          $totalfinalcredito = 0;
+          $totalfinalpix = 0;
+          $totalfinaldesconto = 0;
+        }
+        echo "<tr style='text-align:center;'>
+                            
+                            <td colspan='12' style='text-align:right; '><b>TOTAL FINAL</b></td>
+                              <td>R$ " . number_format($valorTotalFinal3, 2, ',', '.') . "</td>
+                            
+                            
+                        </tr>";
+        echo " 
+              </table>
+                            ";
       }
+    } else {
 
-      echo "<table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+      if ($param1 == 1) {
+
+
+        $dia_hoje = $partes['2'];
+        $mes_hoje = $partes['1'];
+        $ano_hoje = $partes['0'];
+
+
+        $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE dia = $dia_hoje AND mes = $mes_hoje AND ano = $ano_hoje AND status = 2 ORDER BY cod DESC";
+
+        if ($param3 == 0) {
+
+
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 1) {
+
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 2) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 3) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 4) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 5) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE dia = :dia AND mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":dia" => $dia_hoje,
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        }
+
+      }
+      if ($param1 == 2) {
+        $mes_hoje = $partes['1'];
+        $ano_hoje = $partes['0'];
+
+        $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE mes = $mes_hoje AND ano = $ano_hoje AND status = 2 ORDER BY cod DESC";
+
+
+        if ($param3 == 0) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 1) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 2) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 3) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 4) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 5) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":mes" => $mes_hoje,
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        }
+
+
+      }
+      if ($param1 == 3) {
+
+        $ano_hoje = $partes['0'];
+
+        $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE ano = $ano_hoje AND status = 2 ORDER BY cod DESC";
+
+        if ($param3 == 0) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 1) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo AND dinheiro !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 2) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo AND debito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 3) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo AND credito !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+
+        } else if ($param3 == 4) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE   ano = :ano AND tipo = :tipo AND pix !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        } else if ($param3 == 5) {
+          if ($param2 == 0) {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+            );
+          } else {
+            $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  ano = :ano AND tipo = :tipo AND desconto !=0 ORDER BY cod DESC";
+            $paramNotaPag = array(
+              ":ano" => $ano_hoje,
+              ":tipo" => $param2,
+            );
+          }
+        }
+
+      }
+      echo "<h1>Informações Completas</h1>";
+
+      echo "<table class='table table-striped table-sm bordered' style='font-size:6pt; width:98%'>
                         <tr>
                             <td><b>Cod. Nota</b></td>
                             <td><b>Tipo Pagamento</b></td>
@@ -6521,7 +8722,8 @@ switch ($tipo) {
                             <td><b>Data e Hora</b></td>
                             <td><b>Tipo Venda</b></td>
                              <td><b>Valor Total	</b></td>
-                             <td><b>SubTotal</b></td>
+                             <td><b>Valor de Entrada(Crediário)</b></td>
+                             <td><b>Total Final</b></td>
                             <td><b>Dinheiro</b></td>
                             <td><b>Débito</b></td>
                             <td><b>Crédito</b></td>
@@ -6534,6 +8736,7 @@ switch ($tipo) {
 
       $textotipo = 0;
       $valorTotalFinal = 0;
+      $totalfinalentrada = 0;
       $nomecli = "";
 
       $totalfinalsubtotal = 0;
@@ -6618,8 +8821,8 @@ switch ($tipo) {
         $credito = (float) $resultadonotaPag['credito'];
         $pix = (float) $resultadonotaPag['pix'];
         $desconto = (float) $resultadonotaPag['desconto'];
+        $entrada = (float) $resultadonotaPag['entrada'];
 
-        $valorTotalFinal = $valorTotalFinal + $total;
 
 
         $totalfinalsubtotal = $totalfinalsubtotal + $subtotal;
@@ -6627,8 +8830,9 @@ switch ($tipo) {
         $totalfinaldebito = $totalfinaldebito + $debito;
         $totalfinalcredito = $totalfinalcredito + $credito;
         $totalfinalpix = $totalfinalpix + $pix;
+        $totalfinalentrada = $totalfinalentrada + $entrada;
         $totalfinaldesconto = $totalfinaldesconto + $desconto;
-
+        $valorTotalFinal = $valorTotalFinal + $total;
 
 
         echo "<tr>
@@ -6640,7 +8844,8 @@ switch ($tipo) {
                       <td>$textotipovenda</td>
                       
                       <td>R$ " . number_format($total, 2, ',', '.') . "</td>
-                      <td>R$ " . number_format($subtotal, 2, ',', '.') . "</td>
+                      <td>R$ " . number_format($entrada, 2, ',', '.') . "</td>
+                      <td>R$ " . number_format($total + $entrada, 2, ',', '.') . "</td>
                       <td>R$ " . number_format($dinheiro, 2, ',', '.') . "</td>
                       <td>R$ " . number_format($debito, 2, ',', '.') . "</td>
                       <td>R$ " . number_format($credito, 2, ',', '.') . "</td>
@@ -6654,7 +8859,8 @@ switch ($tipo) {
                 
                 <td colspan='6' style='text-align:right;'>TOTAL FINAL</td>
                 <td>R$ " . number_format($valorTotalFinal, 2, ',', '.') . "</td>
-                <td>R$ " . number_format($totalfinalsubtotal, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($totalfinalentrada, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($valorTotalFinal + $totalfinalentrada, 2, ',', '.') . "</td>
                 <td>R$ " . number_format($totalfinaldinheiro, 2, ',', '.') . "</td>
                 <td>R$ " . number_format($totalfinaldebito, 2, ',', '.') . "</td>
                 <td>R$ " . number_format($totalfinalcredito, 2, ',', '.') . "</td>
@@ -6662,26 +8868,98 @@ switch ($tipo) {
                 <td>R$ " . number_format($totalfinaldesconto, 2, ',', '.') . "</td>
              
              </tr>";
+      echo "<tr>
+                      <td colspan='8' style='text-align: right;'>Descrição de Parcelas Pagas</td>
+                     
+                      
+                      <td>Valor da Parcela</td>
+                      <td>Dinheiro</td>
+                      <td>Débito</td>
+                      <td>Crédito</td>
+                      <td>Pix</td>
+                      <Td></td>
+                   
+                   </tr>";
+
+      $totalpagoemparcelasdebito = 0;
+      $totalpagoemparcelascredito = 0;
+      $totalpagoemparcelaspix = 0;
+      $totalpagoemparcelasdinheiro = 0;
+      $totalpagoemparcelasdebito2 = 0;
+      $totalpagoemparcelascredito2 = 0;
+      $totalpagoemparcelaspix2 = 0;
+      $totalpagoemparcelasdinheiro2 = 0;
+      $valorTotalFinal3 = 0;
+      $TOTALAVISTA = 0;
+      $totalpagoemparcelas = 0;
+      $totalpagoemparcelas = 0;
+
+      //aqui vai o codigo para somar todos os indicadores;  TOTAL EM CREDIARIO, TOTAL A VISTA
+      //DINHEIRO, PIX, DEBITO, CREDITO, DESCONTO
+
+
+      $dataTableNotaPagParcelas = $banco->ExecuteQuery($sqlNotaPagParcelas);
+
+
+      foreach ($dataTableNotaPagParcelas as $resultadonotaPagParcelas) {
+        $valorpagoparcela = (float) $resultadonotaPagParcelas['valor'];
+        $tipopagparcelas = (float) $resultadonotaPagParcelas['tipopag'];
+        $descricaoparcelas = $resultadonotaPagParcelas['descricao'];
+        $totalpagoemparcelas = $totalpagoemparcelas + $valorpagoparcela;
+
+        if ($tipopagparcelas == 1) {
+          $totalpagoemparcelasdinheiro = $totalpagoemparcelasdinheiro + $valorpagoparcela;
+          $totalpagoemparcelasdinheiro2 = $totalpagoemparcelasdinheiro2 + $valorpagoparcela;
+        } else if ($tipopagparcelas == 2) {
+          $totalpagoemparcelaspix = $totalpagoemparcelaspix + $valorpagoparcela;
+          $totalpagoemparcelaspix2 = $totalpagoemparcelaspix2 + $valorpagoparcela;
+        } else if ($tipopagparcelas == 3) {
+          $totalpagoemparcelasdebito = $totalpagoemparcelasdebito + $valorpagoparcela;
+          $totalpagoemparcelasdebito2 = $totalpagoemparcelasdebito2 + $valorpagoparcela;
+        } else if ($tipopagparcelas == 4) {
+          $totalpagoemparcelascredito = $totalpagoemparcelascredito + $valorpagoparcela;
+          $totalpagoemparcelascredito2 = $totalpagoemparcelascredito2 + $valorpagoparcela;
+        }
+
+
+
+        echo "<tr>
+                      <td colspan='8' style='text-align: right;'>$descricaoparcelas</td>
+                     
+                      
+                      <td>R$ " . number_format($valorpagoparcela, 2, ',', '.') . "</td>
+                      <td>R$ " . number_format($totalpagoemparcelasdinheiro, 2, ',', '.') . "</td>
+                      <td>R$ " . number_format($totalpagoemparcelasdebito, 2, ',', '.') . "</td>
+                      <td>R$ " . number_format($totalpagoemparcelascredito, 2, ',', '.') . "</td>
+                      <td>R$ " . number_format($totalpagoemparcelaspix, 2, ',', '.') . "</td>
+                      <Td></td>
+                   
+                   </tr>";
+        $totalpagoemparcelasdinheiro = 0;
+        $totalpagoemparcelasdebito = 0;
+        $totalpagoemparcelascredito = 0;
+        $totalpagoemparcelaspix = 0;
+
+      }
+
+      echo "<tr>
+                
+                <td colspan='6' style='text-align:right;'>TOTAL FINAL</td>
+                <td></td>
+                <td></td>
+                <td>R$ " . number_format($valorTotalFinal + $totalfinalentrada + $totalpagoemparcelas, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($totalfinaldinheiro + $totalpagoemparcelasdinheiro2, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($totalfinaldebito + $totalpagoemparcelasdebito2, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($totalfinalcredito + $totalpagoemparcelascredito2, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($totalfinalpix + $totalpagoemparcelaspix2, 2, ',', '.') . "</td>
+                <td>R$ " . number_format($totalfinaldesconto, 2, ',', '.') . "</td>
+             
+             </tr>";
 
       echo "</table>";
     }
-    if ($param1 == 2) {
-      echo "
-        <div class='col-sm-12 col-xl-3'>
-                <label>Mês/Ano</label>
-                <input class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
-              </div>  
-      ";
-    }
-    if ($param1 == 3) {
-      echo "
-        <div class='col-sm-12 col-xl-3'>
-                <label>Data</label>
-                <input  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y') . "' />
-              </div>  
-      ";
-    }
-
+    echo "</br>";
+    echo "</div>";
 
     break;
 
@@ -7125,6 +9403,7 @@ switch ($tipo) {
       }
 
 
+
       $total = (float) $resultadonotaPag['total'];
       $subtotal = (float) $resultadonotaPag['subtotal'];
       $gorjeta = (float) $resultadonotaPag['gorjeta'];
@@ -7181,8 +9460,8 @@ switch ($tipo) {
 
   //pagina inicial do filtro para faturamento   
   case 50:
-    echo "
-  <div class='col-sm-12 col-xl-3'>
+    echo "  
+  <div class='col-sm-12 col-xl-12'>
           <label>Mês/Ano</label>
           <input onkeyup='validacaorelatorios(51, 0, 0, 0, this.value, 0, 0, 51)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
         </div>  
@@ -7212,10 +9491,52 @@ switch ($tipo) {
     $totalfinaldia = 0;
     $valortotalent = 0;
     $totaldesp = 0;
+    $totalentrada = 0;
+
+
+    $totalparcelaemdinheiro = 0;
+    $totalparcelaemdebito = 0;
+    $totalparcelaemcredito = 0;
+    $totalparcelaempix = 0;
+
+    $totalentradaemdinheiro = 0;
+    $totalentradaemdebito = 0;
+    $totalentradaemcredito = 0;
+    $totalentradaempix = 0;
+
+    $totalpagoemparcelas = 0;
+    $totalpagoemparcelasdinheiro = 0;
+    $sqlNotaPagParcelas = "SELECT * FROM pag_par_pro WHERE status = :cod AND mes = $mes_hoje AND ano = $ano_hoje ORDER BY cod DESC";
+    $paramNotaPagParcelas = array(
+      ":cod" => 2
+    );
+
+    $dataTableNotaPagParcelas = $banco->ExecuteQuery($sqlNotaPagParcelas, $paramNotaPagParcelas);
+    foreach ($dataTableNotaPagParcelas as $resultadonotaPagParcelas) {
+      $valorpagoparcela = (float) $resultadonotaPagParcelas['valor'];
+      $tipopagparcelas = (float) $resultadonotaPagParcelas['tipopag'];
+      $totalpagoemparcelas = $totalpagoemparcelas + $valorpagoparcela;
+
+      if ($tipopagparcelas == 1) {
+        $totalpagoemparcelasdinheiro = $totalpagoemparcelasdinheiro + $valorpagoparcela;
+      } else if ($tipopagparcelas == 2) {
+        $totalpagoemparcelaspix = $totalpagoemparcelaspix + $valorpagoparcela;
+      } else if ($tipopagparcelas == 3) {
+        $totalpagoemparcelasdebito = $totalpagoemparcelasdebito + $valorpagoparcela;
+      } else if ($tipopagparcelas == 4) {
+        $totalpagoemparcelascredito = $totalpagoemparcelascredito + $valorpagoparcela;
+      }
+
+    }
 
 
 
     //SCRIP PARA BUSCAR FATURAMENTO MENSAL 
+
+    $totalcrediarioloja = 0;
+    $totalcrediarioavancard = 0;
+
+
 
     $sqlNotaPag = "SELECT * FROM financeiro_clientes WHERE  mes = :mes AND ano = :ano ORDER BY cod DESC";
     $paramNotaPag = array(
@@ -7233,12 +9554,44 @@ switch ($tipo) {
       );
       $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
       foreach ($dataTableNota as $resultadonota) {
-        $totalfinaldia = $totalfinaldia + (float) $resultadonotaPag['total'];
+        $tipopag = $resultadonotaPag['tipopag'];
+        $tipocrediario = $resultadonotaPag['tipo_crediario'];
+
+        if ($tipocrediario == 1) {
+          if ($tipopag == 2) {
+            $totalcrediarioloja = $totalcrediarioloja + (float) $resultadonotaPag['total'];
+          }
+        } else {
+          if ($tipopag == 2) {
+            $totalcrediarioavancard = $totalcrediarioavancard + (float) $resultadonotaPag['total'];
+
+          }
+        }
+
+        if ($tipopag == 1) {
+          $totalfinaldia = $totalfinaldia + (float) $resultadonotaPag['total'] - $resultadonotaPag['gorjeta'];
+        }
+        $totalentrada = $totalentrada + (float) $resultadonotaPag['entrada'];
+        $tipopagentrada = (float) $resultadonotaPag['tipopagentrada'];
+
+        if ($tipopagentrada == 1) {
+          $totalentradaemdinheiro = $totalentradaemdinheiro + (float) $resultadonotaPag['entrada'];
+        } else if ($tipopagentrada == 2) {
+          $totalentradaemdebito = $totalentradaemdebito + (float) $resultadonotaPag['entrada'];
+        } else if ($tipopagentrada == 3) {
+          $totalentradaemcredito = $totalentradaemcredito + (float) $resultadonotaPag['entrada'];
+        } else if ($tipopagentrada == 4) {
+          $totalentradaempix = $totalentradaempix + (float) $resultadonotaPag['entrada'];
+        }
+
+
+
+
       }
     }
 
     //SCRIPT PARA BUSCAR VALOR TOTAL EM ESTOQUE
-    $sqlNotaEntrada = "SELECT * FROM entradas WHERE  mes = :mes AND ano = :ano ORDER BY cod DESC";
+    $sqlNotaEntrada = "SELECT * FROM entradas WHERE  mes = :mes AND ano = :ano AND status = 3 ORDER BY cod DESC";
     $paramNotaEntrada = array(
       ":mes" => $mes_hoje,
       ":ano" => $ano_hoje
@@ -7248,7 +9601,7 @@ switch ($tipo) {
     foreach ($dataTableNotaEntrada as $resultadonotaEntrada) {
       $cod_entrada = (float) $resultadonotaEntrada['cod'];
       //SQL PARA MONTAR FATURAMENTO, DESPESA E SALDO DIÁRIO
-      $sqlNota = "SELECT * FROM lista_entradas WHERE cod_entrada = :cod ORDER BY cod DESC LIMIT 1";
+      $sqlNota = "SELECT * FROM lista_entradas WHERE cod_entrada = :cod ORDER BY cod DESC";
       $paramNota = array(
         ":cod" => $cod_entrada,
       );
@@ -7274,13 +9627,100 @@ switch ($tipo) {
 
     }
 
+
+    $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE mes = :data AND ano =:ano ORDER BY cod ASC";
+    $paramPedidos22 = array(
+      ":data" => $mes_hoje,
+      ":ano" => $ano_hoje,
+    );
+    $parcela_areceber = 0;
+    $parcela_paga = 0;
+    $parcela_total = 0;
+
+    $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+    foreach ($dataTablePedidos22 as $resultadopedidos22) {
+      $statusparcela = $resultadopedidos22['status'];
+      $tipopag = $resultadopedidos22['tipopag'];
+      if ($statusparcela == 1) {
+        $parcela_areceber = $parcela_areceber + (float) $resultadopedidos22['valor'];
+      } else {
+        $parcela_paga = $parcela_paga + (float) $resultadopedidos22['valor'];
+        if ($tipopag == 1) {
+          $totalparcelaemdinheiro = $totalparcelaemdinheiro + (float) $resultadopedidos22['valor'];
+        } else if ($tipopag == 2) {
+          $totalparcelaemdebito = $totalparcelaemdebito + (float) $resultadopedidos22['valor'];
+        } else if ($tipopag == 3) {
+          $totalparcelaemcredito = $totalparcelaemcredito + (float) $resultadopedidos22['valor'];
+        } else if ($tipopag == 4) {
+          $totalparcelaempix = $totalparcelaempix + (float) $resultadopedidos22['valor'];
+        }
+
+
+
+      }
+
+      $parcela_total = $parcela_total + (float) $resultadopedidos22['valor'];
+    }
+
+
+    $dataconsulta = date("m/Y", strtotime($param4));
+
+
+    $partes = explode('-', $param4);
+
+
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão Balanço Mensal</br>
+                
+                Data: $dataconsulta
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
     echo " 
   
-<table class='table table-bordered' style='width: 100%;'>  
+<table class='table table-bordered' style='width: 99%; font-size:9pt;'>  
 
     <tr>
         <td colspan='' style='text-align: center;'>
-            <b>FATURAMENTO</b>
+            <b>FATURAMENTO(VENDAS À VISTA + ENTRADAS + PARCELAS)</b>
         </td>
         <td colspan='' style='text-align: center;'>
             <b>INVESTIMENTO EM ESTOQUE</b>
@@ -7294,7 +9734,7 @@ switch ($tipo) {
     </tr>
     <tr>
         <td colspan='' style='text-align: center;'>
-            R$ " . number_format($totalfinaldia, 2, ',', '.') . "
+            R$ " . number_format($totalfinaldia + $totalentrada + $parcela_paga, 2, ',', '.') . "
         </td>
         <td colspan='' style='text-align: center;'>
             R$ " . number_format($valortotalent, 2, ',', '.') . "
@@ -7304,7 +9744,7 @@ switch ($tipo) {
 
         </td>
         <td colspan='' style='text-align: center;'>
-            R$ " . number_format($totalfinaldia - $valortotalent - $totaldesp, 2, ',', '.') . "
+            R$ " . number_format($totalentrada + $parcela_paga + $totalfinaldia - $valortotalent - $totaldesp, 2, ',', '.') . "
         </td>
     </tr>
 </table>
@@ -7371,69 +9811,158 @@ switch ($tipo) {
     }
 
 
-    echo "<table class='table table-bordered' style='width: 100%;'>  
+    echo "<table class='table table-bordered' style='width: 99%; font-size:9pt; text-align:center;'>  
 
             <tr>
-                <td colspan='8' style='text-align: center;'>
+                <td colspan='12' style='text-align: center;'>
                     <b>Faturamento</b>
                 </td>
             </tr>
             <tr style='text-align: center;'>
-                <td rowspan='2'>
-                    </br>
-                    Total 
-                </td>
-                <td colspan='2'>
-                    Forma de Pagamento
+               
+                <td colspan='3'>
+                    Faturamento Por Crediário
                 </td> 
-                <td colspan='5'>
-                    Tipo Pagamento
+                <td rowspan='2'>
+                    </br><b>Faturamento à vista</b>
                 </td>
+                <td rowspan='2'><b></br>Valor Total de Faturamento</b></td>
+                <td rowspan='2'><b></br>Vendas em Crediário da Loja</b></td>
+                <td rowspan='2'><b></br>Vendas em Crediário AVANCARD</b></td>
+                <td rowspan='2'><b></br>TOTAL FINAL (Faturamento + Crediário Loja + Crediário AVANCARD)</b></td>
+                
 
             </tr>
         <tr>
-            <th>Á vista</th>
-            <th>Crediário</th>
-            <th>Dinheiro</th>
-            <th>Débito</th>
-            <th>Crédito</th>
-            <th>Pix</th>
-            <th>Desconto</th>
+            <th>Entradas de Crediário</th>
+            <th>Parcelas de Crediário</th>
+            <th>Total de Faturamento Por Crediário</th>
+          
         </tr>   
         <tr>
-            <td>
-                   R$ " . number_format($totalfinaldia, 2, ',', '.') . "
+            <td>R$ " . number_format($totalentrada, 2, ',', '.') . "</td>
+            <td>R$ " . number_format($parcela_paga, 2, ',', '.') . "</td>
+            <td>R$ " . number_format($totalentrada + $parcela_paga, 2, ',', '.') . "</td>
+            <td>       R$ " . number_format($tipopagamentodinheiro + $tipopagamentodebito + $tipopagamentocredito + $tipopagamentopix, 2, ',', '.') . "
             </td>
-            <td>
-                   R$ " . number_format($tipopagamentoavista, 2, ',', '.') . "
-            </td>
-            <td>       R$ " . number_format($tipopagamentocrediario, 2, ',', '.') . "
-            </td>
-            <td>       R$ " . number_format($tipopagamentodinheiro, 2, ',', '.') . "
-            </td>
-            <td>       R$ " . number_format($tipopagamentodebito, 2, ',', '.') . "
-            </td>
-            <td>       R$ " . number_format($tipopagamentocredito, 2, ',', '.') . "
-            </td>
-            
-            <td>       R$ " . number_format($tipopagamentopix, 2, ',', '.') . "
-            </td>
-            <td>       R$ " . number_format($tipopagamentodesconto, 2, ',', '.') . "
-            </td>
+            <TD>       R$ " . number_format($parcela_paga + $totalentrada + $tipopagamentodinheiro + $tipopagamentodebito + $tipopagamentocredito + $tipopagamentopix, 2, ',', '.') . "</td>
+            <TD>R$ " . number_format($totalcrediarioloja, 2, ',', '.') . "</TD>
+            <TD>R$ " . number_format($totalcrediarioavancard, 2, ',', '.') . "</TD>
+            <TD>R$ " . number_format($totalcrediarioloja + $totalcrediarioavancard + $parcela_paga + $totalentrada + $tipopagamentodinheiro + $tipopagamentodebito + $tipopagamentocredito + $tipopagamentopix, 2, ',', '.') . "</TD>
             
         </tr>   
             
     </table>
-
-    <h3>Crediários em Aberto</h3>
-    <table class='table table-bordered' style='width: 100%;'>
+    
+   <table class='table table-bordered' style='width: 99%; font-size:9pt;'>
+    
+      <tr>
+        <td><b>Tipo de Faturamento</b></td>
+        <td><b>Dinheiro</b></td>
+        <td><b>Débito</b></td>
+        <td><b>Crédito</b></td>
+        <td><b>Pix</b></td>
+        <td><b>Total</b></td>
+      </tr>
+      <tr>
+        <td>Faturamento - Vendas à Vista</td>      
+        <td>
+             R$ " . number_format($tipopagamentodinheiro, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($tipopagamentodebito, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($tipopagamentocredito, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($tipopagamentopix, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($tipopagamentodinheiro + $tipopagamentodebito + $tipopagamentocredito + $tipopagamentopix, 2, ',', '.') . "
+       </td>
+      </tr>
+    
+   
+     
+      <tr>
+      <td >  Faturamento - Parcelas de Crediário</td>
+        <td>
+             R$ " . number_format($totalparcelaemdinheiro, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($totalparcelaemdebito, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($totalparcelaemcredito, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($totalparcelaempix, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($totalparcelaemdinheiro + $totalparcelaemdebito + $totalparcelaemcredito + $totalparcelaempix, 2, ',', '.') . "
+       </td>
+      </tr>
+ 
+      
+      <tr>
+       <td >  Faturamento - Entradas de Crediário</td>
+        <td>
+             R$ " . number_format($totalentradaemdinheiro, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($totalentradaemdebito, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($totalentradaemcredito, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($totalentradaempix, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($totalentradaemdinheiro + $totalentradaemdebito + $totalentradaemcredito + $totalentradaempix, 2, ',', '.') . "
+       </td>
+      </tr>
+    
+      <tr>
+      <td>  Faturamento:<b> </br>Vendas à vista +</br> Parcelas de Crediário +</br> Entradas de Crédiario</b></td>
+      
+        <td>
+             R$ " . number_format($tipopagamentodinheiro+$totalentradaemdinheiro+$totalparcelaemdinheiro, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($tipopagamentodebito+$totalentradaemdebito+$totalparcelaemdebito, 2, ',', '.') . "
+       </td>
+        <td>
+             R$ " . number_format($tipopagamentocredito+$totalentradaemcredito+$totalparcelaemcredito, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($tipopagamentopix+$totalentradaempix+$totalparcelaempix, 2, ',', '.') . "
+       </td>
+       
+        <td>
+             R$ " . number_format($tipopagamentodinheiro+$totalentradaemdinheiro+$totalparcelaemdinheiro+$tipopagamentodebito+$totalentradaemdebito+$totalparcelaemdebito+$tipopagamentocredito+$totalentradaemcredito+$totalparcelaemcredito+$tipopagamentopix+$totalentradaempix+$totalparcelaempix, 2, ',', '.') . "
+       </td>
+      </tr>
+    </table>
+";
+    echo "
+    <h5>Crediários AVANCARD</h5>
+    <table class='table table-bordered' style='width: 99%; font-size:9pt;'>
     
     ";
     $mes = $mes_hoje;
     $ano = $ano_hoje;
 
     echo "
-			<tr style='text-align:center;'>
+			<tr style='text-align:center; font-size:9pt;'>
 				<td colspan='2'><b>nº de Contas a Receber</b></td>
 				<td colspan='2'><b>Total em Crediário</b></td>
 				<td colspan='2'><b>Total Recebido</b></td>
@@ -7445,8 +9974,10 @@ switch ($tipo) {
     $contadorcontas = 0;
     $totalemcrediario = 0;
     $valortotalparcelas = 0;
+    $parcela_paga = 0;
+    $parcela_areceber = 0;
 
-    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes_hoje AND ano = $ano_hoje ORDER BY cod ASC");
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes_hoje AND ano = $ano_hoje AND tipo_crediario = 2 ORDER BY cod ASC");
     // Exibe todos os valores encontrados
 
     while ($financeirocli = mysqli_fetch_object($sql)) {
@@ -7478,11 +10009,12 @@ switch ($tipo) {
       $tipopag1 = $financeirocli->tipo;
       $tipopag2 = $financeirocli->tipopag;
 
-      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
       // Exibe todos os valores encontrados
       while ($finpar = mysqli_fetch_object($sqlPar)) {
         $contadorparcelas++;
       }
+
 
       if ($numparcelas != $contadorparcelas) {
         $contadorcontas++;
@@ -7491,7 +10023,16 @@ switch ($tipo) {
         $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
         // Exibe todos os valores encontrados
         while ($finpar = mysqli_fetch_object($sqlPar)) {
-          $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+          $statusparcela = $finpar->status;
+          if ($statusparcela == 1) {
+            $parcela_areceber = $parcela_areceber + $finpar->valor;
+          } else {
+
+            $parcela_paga = $parcela_paga + $finpar->valor;
+          }
+
+          $parcela_total = $parcela_total + $finpar->valor;
+
           $diapag = $finpar->dia;
           $mespag = $finpar->mes;
           $anopag = $finpar->ano;
@@ -7509,14 +10050,15 @@ switch ($tipo) {
       echo " <tr style='text-align:center;'>
 				
 				<td colspan='2'>$contadorcontas</td>
-				<td colspan='2'>" . number_format($totalemcrediario, 2, ',', '.') . "</td>
-				<td colspan='2'>" . number_format($valortotalparcelas, 2, ',', '.') . "</td>
-				<td colspan='2'>" . number_format($totalemcrediario - $valortotalparcelas, 2, ',', '.') . "</td>
+				<td colspan='2'>R$ " . number_format($totalemcrediario, 2, ',', '.') . "</td>
+				<td colspan='2'>R$ " . number_format($parcela_paga, 2, ',', '.') . "</td>
+				<td colspan='2'>R$ " . number_format($parcela_areceber, 2, ',', '.') . "</td>
 				
                                 </tr>
                                 ";
       $VALORTOTALARECEBER = $totalemcrediario - $valortotalparcelas;
     }
+
 
     echo "<tr>
       <th>Cód. Nota</th>
@@ -7526,10 +10068,9 @@ switch ($tipo) {
       <th>Recebido</th>
       <th>A Receber</th>
       <th>Pagamento</th>
-      <th>Status</th>
     </tr>";
 
-    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes AND ano = $ano ORDER BY cod ASC");
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes AND ano = $ano AND tipo_crediario = 2 ORDER BY cod ASC");
     // Exibe todos os valores encontrados
     $valortotalfinanceiro2 = 0;
     while ($financeirocli = mysqli_fetch_object($sql)) {
@@ -7538,6 +10079,20 @@ switch ($tipo) {
       $codnota = $financeirocli->cod_orcamento;
       $valortotalfinanceiro = (float) $financeirocli->total;
       $valortotalfinanceiro2 = (float) $financeirocli->total;
+      $valortotalfinanceiro3 = (float) $financeirocli->total;
+
+
+      $tipo_crediario = $financeirocli->tipo_crediario;
+
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
       $diaatual = date('d');
       $anoatual = date('Y');
       $mesatual = date('m');
@@ -7572,7 +10127,7 @@ switch ($tipo) {
         if ($financeirocli->tipopag == 1) {// credito
           $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
         } else {//crediario
-          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário";
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário " . $textotipocrediario;
         }
       }
 
@@ -7581,7 +10136,6 @@ switch ($tipo) {
       $paramNotas = array(
         ":cod" => $codnota
       );
-
       $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
       foreach ($dataTableNotas as $resultadonotas) {
 
@@ -7602,6 +10156,7 @@ switch ($tipo) {
         }
       }
 
+
       $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
       $total = 0;
       $codpedido = 0;
@@ -7616,7 +10171,11 @@ switch ($tipo) {
 
 
 
-      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+      $parcela_areceber = 0;
+      $parcela_paga = 0;
+      $parcela_total = 0;
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod DESC");
       // Exibe todos os valores encontrados
       while ($finpar = mysqli_fetch_object($sqlPar)) {
         $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
@@ -7625,45 +10184,315 @@ switch ($tipo) {
         $anopag = $finpar->ano;
         $codparcela = $finpar->cod;
         $contadorparcelas++;
+
+
+        $statusparcela = $finpar->status;
+        if ($statusparcela == 1) {
+          $parcela_areceber = $parcela_areceber + $finpar->valor;
+        } else {
+
+          $parcela_paga = $parcela_paga + (float) $finpar->valor;
+        }
+
+        $parcela_total = $parcela_total + (float) $finpar->valor;
+
+
       }
+      $parcela_areceber = $valortotalfinanceiro3 - $parcela_paga;
       $areceber = 0;
-      $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
-      $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
 
       $textostatus = "";
       if ($diapag == 0) {
         $textostatus = " Nenhuma Parcela Paga";
       }
-      if ($numparcelas != $contadorparcelas) {
-        echo "
+      echo " 
 									<tr style='text-align:center;'>
 										<td>$codnota</td>
 										<td>$nomecli</td>
 										<td>$qtdpedidos</td>
-										<td>$pagamentototal</td>
-										<td>$valortotalparcelas</td>
-										<td>$areceber</td>
+										<td>R$ $pagamentototal</td>
+										<td>R$ " . number_format($valortotalparcelas, 2, ',', '.') . "</td>
+										<td>R$ " . number_format($parcela_areceber, 2, ',', '.') . "</td>
 										<td>$textopagamentotipo</td>
-										<td><span style='color:red'>Crediário em Aberto.";
-        if ($diapag != 0) {
-          echo " 
-                                                                                    Ultimo Pagamento:$diapag/$mespag/$anopag</span> ";
-        } else {
-          echo $textostatus;
-        }
-        echo "      </td>
+										
 										</td>
 									</tr>
             ";
-      }
+
     }
     echo "
   </table>
+    <h5>Crediários da Loja</h5>
+    <table class='table table-bordered' style='width: 99%; font-size:9pt;'>
+    
+    ";
+    $mes = $mes_hoje;
+    $ano = $ano_hoje;
 
+    echo "
+			<tr style='text-align:center; font-size:9pt;'>
+				<td colspan='2'><b>nº de Contas a Receber</b></td>
+				<td colspan='2'><b>Total em Crediário</b></td>
+				<td colspan='2'><b>Total Recebido</b></td>
+				<td colspan='2'><b>Total a Receber</b></td>
+                                </tr>
+                                ";
+
+
+    $contadorcontas = 0;
+    $totalemcrediario = 0;
+    $valortotalparcelas = 0;
+    $parcela_paga = 0;
+    $parcela_areceber = 0;
+
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes_hoje AND ano = $ano_hoje AND tipo_crediario = 1 ORDER BY cod ASC");
+    // Exibe todos os valores encontrados
+
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      if ($numparcelas != 0) {
+        $valorparcela = $pagamentototal / $numparcelas;
+      } else {
+        $valorparcela = $pagamentototal;
+      }
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $contadorparcelas++;
+      }
+
+
+      if ($numparcelas != $contadorparcelas) {
+        $contadorcontas++;
+        $totalemcrediario = $totalemcrediario + $valortotalfinanceiro;
+
+        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+        // Exibe todos os valores encontrados
+        while ($finpar = mysqli_fetch_object($sqlPar)) {
+          $statusparcela = $finpar->status;
+          if ($statusparcela == 1) {
+            $parcela_areceber = $parcela_areceber + $finpar->valor;
+          } else {
+
+            $parcela_paga = $parcela_paga + $finpar->valor;
+          }
+
+          $parcela_total = $parcela_total + $finpar->valor;
+
+          $diapag = $finpar->dia;
+          $mespag = $finpar->mes;
+          $anopag = $finpar->ano;
+        }
+
+
+        $textostatus = "";
+        if ($diapag == 0) {
+          $textostatus = " Nenhuma Parcela Paga";
+        }
+      }
+    }
+    $VALORTOTALARECEBER = 0;
+    if ($contadorcontas != 0) {
+      echo " <tr style='text-align:center;'>
+				
+				<td colspan='2'>$contadorcontas</td>
+				<td colspan='2'>R$ " . number_format($totalemcrediario, 2, ',', '.') . "</td>
+				<td colspan='2'>R$ " . number_format($parcela_paga, 2, ',', '.') . "</td>
+				<td colspan='2'>R$ " . number_format($parcela_areceber, 2, ',', '.') . "</td>
+				
+                                </tr>
+                                ";
+      $VALORTOTALARECEBER = $totalemcrediario - $valortotalparcelas;
+    }
+
+
+    echo "<tr>
+      <th>Cód. Nota</th>
+      <th>Cliente</th>
+      <th>Qtd Pedidos</th>
+      <th>Valor Total</th>
+      <th>Recebido</th>
+      <th>A Receber</th>
+      <th>Pagamento</th>
+    </tr>";
+
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $mes AND ano = $ano AND tipo_crediario = 1 ORDER BY cod ASC");
+    // Exibe todos os valores encontrados
+    $valortotalfinanceiro2 = 0;
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $valortotalfinanceiro2 = (float) $financeirocli->total;
+      $valortotalfinanceiro3 = (float) $financeirocli->total;
+
+
+      $tipo_crediario = $financeirocli->tipo_crediario;
+
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $valortotalparcelas = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      if ($numparcelas != 0) {
+        $valorparcela = $pagamentototal / $numparcelas;
+      } else {
+        $valorparcela = $pagamentototal;
+      }
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      if ($financeirocli->tipo == 1) {// a vista
+        if ($financeirocli->tipopag == 1) {// dinheiro
+          $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+        } else {//debito
+          $textopagamentotipo = "Pagamento á Vista no Débito";
+        }
+      } else {//parcelado
+        if ($financeirocli->tipopag == 1) {// credito
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+        } else {//crediario
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário " . $textotipocrediario;
+        }
+      }
+
+      //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+      $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramNotas = array(
+        ":cod" => $codnota
+      );
+      $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+      foreach ($dataTableNotas as $resultadonotas) {
+
+        $usuarionota = $resultadonotas['usuario'];
+        $nomecli = $resultadonotas['nomeCli'];
+        //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+        $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+        $paramClientes = array(
+          ":cod" => $usuarionota
+        );
+
+        $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+        foreach ($dataTableClientes as $resultadoclientes) {
+
+          $codcliente = $resultadoclientes['id'];
+          $nomecli = $resultadoclientes['nome'];
+          $celular = $resultadoclientes['celular'];
+        }
+      }
+
+
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $total = 0;
+      $codpedido = 0;
+      $qtdpedidos = 0;
+      $totalfinal = 0;
+      $valor = 0;
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+
+      $parcela_areceber = 0;
+      $parcela_paga = 0;
+      $parcela_total = 0;
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod DESC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+        $diapag = $finpar->dia;
+        $mespag = $finpar->mes;
+        $anopag = $finpar->ano;
+        $codparcela = $finpar->cod;
+        $contadorparcelas++;
+
+
+        $statusparcela = $finpar->status;
+        if ($statusparcela == 1) {
+          $parcela_areceber = $parcela_areceber + $finpar->valor;
+        } else {
+
+          $parcela_paga = $parcela_paga + (float) $finpar->valor;
+        }
+
+        $parcela_total = $parcela_total + (float) $finpar->valor;
+
+
+      }
+      $parcela_areceber = $valortotalfinanceiro3 - $parcela_paga;
+      $areceber = 0;
+
+      $textostatus = "";
+      if ($diapag == 0) {
+        $textostatus = " Nenhuma Parcela Paga";
+      }
+      echo " 
+									<tr style='text-align:center;'>
+										<td>$codnota</td>
+										<td>$nomecli</td>
+										<td>$qtdpedidos</td>
+										<td>R$ $pagamentototal</td>
+										<td>R$ " . number_format($valortotalparcelas, 2, ',', '.') . "</td>
+										<td>R$ " . number_format($parcela_areceber, 2, ',', '.') . "</td>
+										<td>$textopagamentotipo</td>
+										
+										</td>
+									</tr>
+            ";
+
+    }
+    echo "
+  </table>
   
-
-  <h3>Entradas</h3>
-  <table class='table table-bordered' style='width: 100%;'>
+  <h5>Entradas de Estoque</h5>
+  <table class='table table-bordered' style='width: 99%; font-size:9pt;''>
     
     <tr>
       <th></th>
@@ -7683,16 +10512,16 @@ switch ($tipo) {
       $trueorfalsecat = 0;
       $trueorfalsecat = 1;
 
-      $sqlListaEntradas = mysqli_query($conn, "SELECT * FROM lista_entradas WHERE dia = $i AND mes = $mes_hoje AND ano = $ano_hoje ORDER BY cod ASC");
+      $sqlListaEntradas = mysqli_query($conn, "SELECT * FROM lista_entradas WHERE dia = $i AND mes = $mes_hoje AND ano = $ano_hoje  ORDER BY cod ASC");
       while ($listent = mysqli_fetch_object($sqlListaEntradas)) {
         $cod_entrada = $listent->cod_entrada;
-        $sqlEntradas = mysqli_query($conn, "SELECT * FROM entradas WHERE cod = $cod_entrada ORDER BY cod ASC LIMIT 1");
+        $sqlEntradas = mysqli_query($conn, "SELECT * FROM entradas WHERE cod = $cod_entrada AND status = 3 ORDER BY cod ASC LIMIT 1");
         while ($ent = mysqli_fetch_object($sqlEntradas)) {
           $qtdtotalent = $qtdtotalent + $listent->qtd;
           $qtdtotalentfinal = $qtdtotalentfinal + $listent->qtd;
 
-          $valortotalent = $valortotalent + $listent->valor_total;
-          $valortotalentfinal = $valortotalentfinal + $listent->valor_total;
+          $valortotalent = $valortotalent + (float) $listent->valor_total;
+          $valortotalentfinal = $valortotalentfinal + (float) $listent->valor_total;
         }
       }
       $saldoqtd = $qtdtotalent;
@@ -7720,46 +10549,70 @@ switch ($tipo) {
 
     echo " 
   </table>
+  ";
+    $nomecat = '';
+    $totalfinaldiacat = 0;
 
-  <h3>Despesas</h3>
-  <table class='table table-bordered' style='width: 100%;'>
-    <tr>
-      <th>Descrição Categoria</th>
-      <th>Total</th>
-    </tr>
-    ";
-    $sqlCategorias = "SELECT * FROM lc_cat WHERE cod_usu = :cod ORDER BY id ASC";
-    $paramCategorias = array(
-      ":cod" => 1
-    );
-    $TOTALFINALCATEGORIAS = 0;
-    $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+    echo "
+    
+  <h5>Despesas por Categoria</h5>
+    <table class='table table-bordered' style='font-size:9pt; width:99%;'>
+      <tr>
+        <td><b>Categoria</b></td>
+        <td><b>Despesa Paga</b></td>
+        <td><b>Despesa A Pagar</b></td>
+        <td><b>Total</b></td>
+      </tr>
+     ";
+    $totalfinalcat = 0;
+    $sqlCategorias = "SELECT * FROM lc_cat ORDER BY id ASC";
+    $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias);
+
     foreach ($dataTableCategorias as $resultadocategorias) {
       $idcat = $resultadocategorias['id'];
       $nomecat = $resultadocategorias['nome'];
-      $sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE mes = $mes AND ano = $ano AND cat = $idcat ORDER BY id ASC");
-      // Exibe todos os valores encontrados
-      $totalfinaldiacat = 0;
-      while ($dividadia = mysqli_fetch_object($sqlDividasDia)) {
-        $cod = $dividadia->id;
-        $pontos = ',';
-        $result = str_replace($pontos, "", $dividadia->valor);
-        $valor_total = (float) $result;
-        $total = $valor_total;
 
-        $TOTALFINALCATEGORIAS = $TOTALFINALCATEGORIAS + $total;
-        $totalfinaldiacat = $totalfinaldiacat + $total;
+      $totalpago = 0;
+      $totalapagar = 0;
+      $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+      $paramFinEmpresa = array(
+        ":categoria" => $idcat,
+        ":mes_hoje" => $mes_hoje,
+        ":ano_hoje" => $ano_hoje
+      );
+      $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
+      foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+        $status = $resultadofimempresa['status'];
+        $cod = $resultadofimempresa['id'];
+        $valor_total = (float) $resultadofimempresa['valor'];
+
+
+
+
+        $totalfinaldiacat = $totalfinaldiacat + $valor_total;
+        $totalfinalcat = $totalfinalcat + $valor_total;
+
+        if ($status == 1) {
+          $totalapagar = $totalapagar + $valor_total;
+        } else {
+          $totalpago = $totalpago + $valor_total;
+        }
       }
 
-      echo "<tr>
-                    <td>$nomecat</td>
-                    <td>R$ " . number_format($totalfinaldiacat, 2, ',', '.') . "</td>
-                  </tr> ";
+      echo "<tr><td>$nomecat</td>";
+      echo "<td>R$ " . number_format($totalpago, 2, ',', '.') . "</td>";
+      echo "<td>R$ " . number_format($totalapagar, 2, ',', '.') . "</td>";
+      echo "<td>R$ " . number_format($totalfinaldiacat, 2, ',', '.') . "</td></tr>";
+      $totalpago = 0;
+      $totalapagar = 0;
       $totalfinaldiacat = 0;
     }
-    echo "
-    <tr><th>Total Final:</th><th>R$ " . number_format($TOTALFINALCATEGORIAS, 2, ',', '.') . "</th></tr>
-  </table>";
+    echo "<tr>
+          <td colspan='3'><B>TOTAL FINAL</B></td>
+          <td>R$ " . number_format($totalfinalcat, 2, ',', '.') . "</td>
+      </tr>";
+    echo "</table></div>";
+
 
 
     break;
@@ -7773,7 +10626,7 @@ switch ($tipo) {
                                                                     <select Onchange='validacaorelatorios(53, 0, 0, 0, this.value, 0, 0, 53)' href='javascript: func' style='height: 82px; font-size: 15pt; width: 100%; ' class='form-control' id='txtBairrosFiltros' name='txtBairrosFiltros' onchange=''>
                                                                     <option value='0'>Todas Categorias</option>
                                                                     ";
-    $cod_orgao = $_SESSION['cod_orgaoF'];
+    //$cod_orgao = $_SESSION['cod_orgaoF'];
     // $sqlFor2 = mysqli_query($conn, "SELECT * FROM categoria_produto WHERE cod_orgao = $cod_orgao ORDER BY cod ASC");
     $sqlFor = "SELECT * FROM categoriaserfin ORDER BY cod ASC";
 
@@ -7810,6 +10663,22 @@ switch ($tipo) {
     $param4 = $_GET['param4'];
 
     $categoria = $param4;
+    $nomecategoria = "";
+    if ($categoria == 0) {
+      $nomecategoria = "Todas Categorias";
+    } else {
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $categoria
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+    }
 
     $ordem = 0;
 
@@ -7818,7 +10687,53 @@ switch ($tipo) {
     $codfornecedor2 = 0;
 
 
-    echo "<table class='table table-light table-bordered'>
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão Saldo de Produtos</br>
+                
+                Categoria: $nomecategoria
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
+
+    echo "<table class='table table-bordered' style='width:99%; font-size:9pt;'>
 
     <tr style='text-align:center;'>
         <td><b>Ordem</b></td>
@@ -7886,7 +10801,7 @@ switch ($tipo) {
       if ($qtd <= 0) {
         $qtd = 0;
       }
-      $valorunt = $resultadoprodutos['valor'];
+      $valorunt = (float) $resultadoprodutos['valor'];
       $categoria = $resultadoprodutos['categoria'];
       $est_min = $resultadoprodutos['est_mim'];
       $est_max = $resultadoprodutos['est_max'];
@@ -7994,7 +10909,7 @@ switch ($tipo) {
     $saldoqtdfinal = $qtdtotalentfinal - $qtdtotalsaifinal;
 
 
-    echo "</table>";
+    echo "</table></div>";
 
     break;
   //FILTRO PARA LISTAR ENTRADAS 
@@ -8005,118 +10920,27 @@ switch ($tipo) {
     $ano_hoje = date('Y');
     echo "
           <div class='row' style='background-color:#fff; margin-bottom:10px;'>
-            <div class='col-sm-12 col-xl-12'>
+            <div class='col-sm-12 col-xl-6'>
               <label>Deseja consultar qual período</label>
-              <select onchange='validacaorelatorios(55, this.value, 0, 0, 0, 0, 0, 55)' name='txtConsultaPeriodo' id='txtConsultaPeriodo' class='form-control' style='font-size:12pt; padding:20px;'>
+              <select onchange='validacaorelatorios(55, this.value, txtDataParaPesquisa123.value, 0, 0, 0, 0, 55)' name='txtConsultaPeriodo123' id='txtConsultaPeriodo123' class='form-control' style='font-size:12pt; padding:20px;'>
                   <option value='1'>Dia</option>
                   <option value='2'>Mes</option>
                   <option value='3'>Ano</option>
               </select>
             </div>  
         
-
+            <div class='col-sm-12 col-xl-6'>
+              <div id='ResultadoValidacao55'>
+                <label>Data</label>
+                <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo123.value, this.value, 0, 0, 0, 0, 56)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa123' name'txtDataParaPesquisa123' value='" . date('Y-m-d') . "' />
+              </div>  
+            </div>
+                        
           </div>  
-          <div id='ResultadoValidacao55'>
-            <div class='col-sm-12 col-xl-12'>
-                          <label>Data</label>
-                          <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo.value, 0, 0, this.value, 0, 0, 56)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
-                        </div>  
                         <div id='ResultadoValidacao56'> 
-                        ";
-
-
-    echo "<h3 style='width: 100%;'>Lista de Entradas: $dia_hoje/$mes_hoje/$ano_hoje</h3>
-            <table class='table table-bordered' style='width:100%; font-size:14pt;'>
-                                                                <tr style='text-align:center;'>
-                                                                    <td><b>Cod. Nota</b></td>
-                                                                    <td colspan=''><b>nº Nota Fiscal</b></td>
-                                                                    <td colspan=''><b>Funcionário</b></td>
-                                                                    <td colspan=''><b>Qtd</b></td>
-                                                                    <td colspan=''><b>Valor Total</b></td>
-                                                                    <td colspan=''><b></b></td>
-                                                                    
-                                                                </tr>
-
-                                                                ";
-    $cod_orgao = $_SESSION['cod_orgaoF'];
-    $qtdtotalentfinal = 0;
-    $qtdtotalsaifinal = 0;
-    $valortotalentfinal = 0;
-    $valortotalsaifinal = 0;
-
-    $saldoqtd = 0;
-    $qtdtotalent = 0;
-    $qtdtotalsai = 0;
-    $valortotalent = 0;
-    $qtdtotalentfinal = 0;
-    $valortotalentfinal = 0;
-    $valortotalsaifinal = 0;
-    $saldoqtdfinal = 0;
-    //  $sqlEntradas = mysqli_query($conn, "SELECT * FROM entradas WHERE dia = $dia_hoje AND mes = $mes_hoje AND ano = $ano_hoje AND ata_pregao = $codentrada ORDER BY cod ASC");
-    $sqlEntradas = "SELECT * FROM entradas WHERE dia = :dia AND mes = :mes AND ano = :ano  ORDER BY cod ASC";
-    $paramEntradas = array(
-      ":dia" => $dia_hoje,
-      ":mes" => $mes_hoje,
-      ":ano" => $ano_hoje
-    );
-    $dataTableEntradas = $banco->ExecuteQuery($sqlEntradas, $paramEntradas);
-    foreach ($dataTableEntradas as $resultadoentradas) {
-      $codentrada2 = $resultadoentradas['cod'];
-      $notafiscal = $resultadoentradas['n_notafiscal'];
-      $fornecedor = $resultadoentradas['fornecedor'];
-      $cod_funcionario = $resultadoentradas['cod_funcionario'];
-      //$sqlFornecedor = mysqli_query($conn, "SELECT * FROM fornecedores WHERE cod = $fornecedor ORDER BY cod ASC LIMIT 1");
-      $nomefornecedor = "";
-      $sqlFornecedores = "SELECT * FROM fornecedores WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-      $paramFornecedores = array(
-        ":cod" => $fornecedor
-      );
-      $dataTableFornecedores = $banco->ExecuteQuery($sqlFornecedores, $paramFornecedores);
-      foreach ($dataTableFornecedores as $resultadofornecedores) {
-        $codfornecedor = $resultadofornecedores['cod'];
-        $nomefornecedor = $resultadofornecedores['descricao'];
-      }
-
-      //$sqlFuncionario = mysqli_query($conn, "SELECT * FROM usuarios WHERE cod = $cod_funcionario ORDER BY cod ASC LIMIT 1");
-      $nomefuncionario = "";
-      $sqlUsu = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-      $paramUsu = array(
-        ":cod" => $cod_funcionario
-      );
-      $dataTableUsu = $banco->ExecuteQuery($sqlUsu, $paramUsu);
-      foreach ($dataTableUsu as $resultadousu) {
-        $nomefuncionario = $resultadousu['nome'];
-      }
-      $qtdtotalent = 0;
-      $valortotalent = 0;
-      $sqlListaEntradas = mysqli_query($conn, "SELECT * FROM lista_entradas WHERE cod_entrada = $codentrada2 ORDER BY cod ASC");
-      while ($listent = mysqli_fetch_object($sqlListaEntradas)) {
-        $qtdtotalent = $qtdtotalent + $listent->qtd;
-        $qtdtotalentfinal = $qtdtotalentfinal + $listent->qtd;
-        $valortotalent = $valortotalent + $listent->valor_total;
-        $valortotalentfinal = $valortotalentfinal + $listent->valor_total;
-      }
-      echo "                       <tr id='ResultadoValidacao888' style='text-align:center;'>
-                                                                                            <td style='width:5%;'><b>$codentrada2</b>.</td>
-                                                                                             <td>$notafiscal</td>
-                                                                                                 
-                                                                                             <td style='width:40%;'>$nomefuncionario</td>
-                                                                                             <td>$qtdtotalent</td>
-                                                                                             <td>R$ " . number_format($valortotalent, 2, ',', '.') . "</td>
-                                                                                             <td><a style='font-size:14pt;' target='_BLANK' href='?pagina=entradas&cod=$codentrada2' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-play'></span>Ver Tudo</a></td>
-                                                                              </tr>";
-    }
-    echo "<tr id='ResultadoValidacao888' style='text-align:center;'>
-                                                                                            <td colspan='3' style='width:5%; text-align:rigth;'><b>Total Final</b>.</td>
-                                                                                             <td>$qtdtotalentfinal</td>
-                                                                                             <td>R$ " . number_format($valortotalentfinal, 2, ',', '.') . "</td>
-                                                                                            <td></td>
-                                                                                            </tr></table>";
-
-    echo " 
+                       
                         </div>
-          </div>
-      ";
+                    ";
 
     break;
 
@@ -8132,126 +10956,24 @@ switch ($tipo) {
       $mes_hoje = date("m");
       $ano_hoje = date("Y");
       echo "
-                <div class='col-sm-12 col-xl-12'>
                         <label>Data</label>
-                        <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo.value, 0, 0, this.value, 0, 0, 56)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
-                      </div>  
-                       <div id='ResultadoValidacao56'> ";
-
-
-      echo "<h3 style='width: 100%;'>Lista de Entradas: $dia_hoje/$mes_hoje/$ano_hoje</h3>
-            <table class='table table-bordered' style='width:100%; font-size:14pt;'>
-                                                                <tr style='text-align:center;'>
-                                                                    <td><b>Cod. Nota</b></td>
-                                                                    <td colspan=''><b>nº Nota Fiscal</b></td>
-                                                                    <td colspan=''><b>Funcionário</b></td>
-                                                                    <td colspan=''><b>Qtd</b></td>
-                                                                    <td colspan=''><b>Valor Total</b></td>
-                                                                    <td colspan=''><b></b></td>
-                                                                    
-                                                                </tr>
-
-                                                                ";
-      $cod_orgao = $_SESSION['cod_orgaoF'];
-      $qtdtotalentfinal = 0;
-      $qtdtotalsaifinal = 0;
-      $valortotalentfinal = 0;
-      $valortotalsaifinal = 0;
-
-      $saldoqtd = 0;
-      $qtdtotalent = 0;
-      $qtdtotalsai = 0;
-      $valortotalent = 0;
-      $qtdtotalentfinal = 0;
-      $valortotalentfinal = 0;
-      $valortotalsaifinal = 0;
-      $saldoqtdfinal = 0;
-      //  $sqlEntradas = mysqli_query($conn, "SELECT * FROM entradas WHERE dia = $dia_hoje AND mes = $mes_hoje AND ano = $ano_hoje AND ata_pregao = $codentrada ORDER BY cod ASC");
-      $sqlEntradas = "SELECT * FROM entradas WHERE dia = :dia AND mes = :mes AND ano = :ano  ORDER BY cod ASC";
-      $paramEntradas = array(
-        ":dia" => $dia_hoje,
-        ":mes" => $mes_hoje,
-        ":ano" => $ano_hoje
-      );
-      $dataTableEntradas = $banco->ExecuteQuery($sqlEntradas, $paramEntradas);
-      foreach ($dataTableEntradas as $resultadoentradas) {
-        $codentrada2 = $resultadoentradas['cod'];
-        $notafiscal = $resultadoentradas['n_notafiscal'];
-        $fornecedor = $resultadoentradas['fornecedor'];
-        $cod_funcionario = $resultadoentradas['cod_funcionario'];
-        //$sqlFornecedor = mysqli_query($conn, "SELECT * FROM fornecedores WHERE cod = $fornecedor ORDER BY cod ASC LIMIT 1");
-        $nomefornecedor = "";
-        $sqlFornecedores = "SELECT * FROM fornecedores WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-        $paramFornecedores = array(
-          ":cod" => $fornecedor
-        );
-        $dataTableFornecedores = $banco->ExecuteQuery($sqlFornecedores, $paramFornecedores);
-        foreach ($dataTableFornecedores as $resultadofornecedores) {
-          $codfornecedor = $resultadofornecedores['cod'];
-          $nomefornecedor = $resultadofornecedores['descricao'];
-        }
-
-        //$sqlFuncionario = mysqli_query($conn, "SELECT * FROM usuarios WHERE cod = $cod_funcionario ORDER BY cod ASC LIMIT 1");
-        $nomefuncionario = "";
-        $sqlUsu = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
-        $paramUsu = array(
-          ":cod" => $cod_funcionario
-        );
-        $dataTableUsu = $banco->ExecuteQuery($sqlUsu, $paramUsu);
-        foreach ($dataTableUsu as $resultadousu) {
-          $nomefuncionario = $resultadousu['nome'];
-        }
-        $qtdtotalent = 0;
-        $valortotalent = 0;
-        $sqlListaEntradas = mysqli_query($conn, "SELECT * FROM lista_entradas WHERE cod_entrada = $codentrada2 ORDER BY cod ASC");
-        while ($listent = mysqli_fetch_object($sqlListaEntradas)) {
-          $qtdtotalent = $qtdtotalent + $listent->qtd;
-          $qtdtotalentfinal = $qtdtotalentfinal + $listent->qtd;
-          $valortotalent = $valortotalent + $listent->valor_total;
-          $valortotalentfinal = $valortotalentfinal + $listent->valor_total;
-        }
-        echo "                       <tr id='ResultadoValidacao888' style='text-align:center;'>
-                                                                                            <td style='width:5%;'><b>$codentrada2</b>.</td>
-                                                                                             <td>$notafiscal</td>
-                                                                                                 
-                                                                                             <td style='width:40%;'>$nomefuncionario</td>
-                                                                                             <td>$qtdtotalent</td>
-                                                                                             <td>R$ " . number_format($valortotalent, 2, ',', '.') . "</td>
-                                                                                             <td><a style='font-size:14pt;' target='_BLANK' href='?pagina=entradas&cod=$codentrada2' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-play'></span>Ver Tudo</a></td>
-                                                                              </tr>";
-      }
-      echo "<tr id='ResultadoValidacao888' style='text-align:center;'>
-                                                                                            <td colspan='3' style='width:5%; text-align:rigth;'><b>Total Final</b>.</td>
-                                                                                             <td>$qtdtotalentfinal</td>
-                                                                                             <td>R$ " . number_format($valortotalentfinal, 2, ',', '.') . "</td>
-                                                                                            <td></td>
-                                                                                            </tr></table>";
-      echo " 
-                       </div>
-              ";
+                        <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo123.value, this.value, 0, 0, 0, 0, 56)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa123' name'txtDataParaPesquisa123' value='" . date('Y-m-d') . "' />
+                ";
     }
 
     if ($param1 == 2) {
       echo "
-      <div class='col-sm-12 col-xl-12'>
               <label>Mês/Ano</label>
-              <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo.value, 0, 0, this.value, 0, 0, 56)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
-            </div>  
-  
-                       <div id='ResultadoValidacao56'> 
-                       </div>
+              <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo123.value, this.value, 0, 0, 0, 0, 56)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa123' name'txtDataParaPesquisa123' value='" . date('Y-m') . "' />
+      
               ";
     }
 
     if ($param1 == 3) {
       echo "
-                    <div class='col-sm-12 col-xl-12'>
               <label>Ano</label>
-              <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo.value, 0, 0, this.value, 0, 0, 56)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y') . "' />
-            </div>  
-  
-                       <div id='ResultadoValidacao56'> 
-                       </div>
+              <input onkeyup='validacaorelatorios(56, txtConsultaPeriodo123.value, this.value, 0, 0, 0, 0, 56)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa123' name'txtDataParaPesquisa123' value='" . date('Y') . "' />
+            
               ";
     }
     break;
@@ -8263,7 +10985,68 @@ switch ($tipo) {
     $param3 = $_GET['param3'];
     $param4 = $_GET['param4'];
 
-    $partes = explode('-', $param4);
+    $partes = explode('-', $param2);
+
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+
+    if ($param1 == 1) {
+      $tipoconsulta = "Por Dia";
+      $dataconsulta = date("d/m/Y", strtotime($param2));
+
+    } else if ($param1 == 2) {
+      $tipoconsulta = "Por Mês";
+      $dataconsulta = date("m/Y", strtotime($param2));
+
+    } else if ($param1 == 3) {
+      $tipoconsulta = "Por Ano";
+      $dataconsulta = date("Y", strtotime($param2));
+
+    }
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão Entradas de Notas</br>
+                Tipo Consulta: $tipoconsulta </br>
+                Data: $dataconsulta
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
 
 
 
@@ -8273,8 +11056,8 @@ switch ($tipo) {
       $ano_hoje = $partes['0'];
 
 
-      echo "<h3 style='width: 100%;'>Lista de Entradas: $dia_hoje/$mes_hoje/$ano_hoje</h3>
-            <table class='table table-bordered' style='width:100%; font-size:14pt;'>
+      echo "<h5 style='width: 100%;'>Lista de Entradas: $dia_hoje/$mes_hoje/$ano_hoje</h5>
+            <table class='table table-bordered' style='width:99%; font-size:9pt;'>
                                                                 <tr style='text-align:center;'>
                                                                     <td><b>Cod. Nota</b></td>
                                                                     <td colspan=''><b>nº Nota Fiscal</b></td>
@@ -8286,7 +11069,7 @@ switch ($tipo) {
                                                                 </tr>
 
                                                                 ";
-      $cod_orgao = $_SESSION['cod_orgaoF'];
+      //   $cod_orgao = $_SESSION['cod_orgaoF'];
       $qtdtotalentfinal = 0;
       $qtdtotalsaifinal = 0;
       $valortotalentfinal = 0;
@@ -8376,10 +11159,10 @@ switch ($tipo) {
 
 
 
-      echo "<h3 style='width: 100%; text-align:center;'><span></span>Mês " . mostraMes($mes_hoje) . "</h3>
+      echo "<h5 style='width: 100%; text-align:center;'><span></span>Mês " . mostraMes($mes_hoje) . "</h5>
                 ";
 
-      echo "<table class='table table-bordered' style='width:100%; font-size:14pt;'>
+      echo "<table class='table table-bordered' style='width:99%; font-size:9pt;'>
                                                                 <tr style='text-align:center;'>
                                                                     <td colspan='3'><b>Entradas</b></td>
                                                                 </tr>
@@ -8391,7 +11174,7 @@ switch ($tipo) {
                                                                 </tr>
 
                                                                 ";
-      $cod_orgao = $_SESSION['cod_orgaoF'];
+      //  $cod_orgao = $_SESSION['cod_orgaoF'];
       $qtdtotalentfinal = 0;
       $qtdtotalsaifinal = 0;
       $valortotalentfinal = 0;
@@ -8404,6 +11187,7 @@ switch ($tipo) {
         $trueorfalsecat = 0;
         $trueorfalsecat = 1;
 
+        $data_agora = $ano_hoje . '-' . $mes_hoje . '-' . $i;
         $sqlListaEntradas = mysqli_query($conn, "SELECT * FROM lista_entradas WHERE dia = $i AND mes = $mes_hoje AND ano = $ano_hoje ORDER BY cod ASC");
         while ($listent = mysqli_fetch_object($sqlListaEntradas)) {
           $cod_entrada = $listent->cod_entrada;
@@ -8421,7 +11205,7 @@ switch ($tipo) {
         if ($saldoqtd != 0) {
           echo "
                                                                                                                                                                 <tr id='ResultadoValidacao888' style='text-align:center;'>
-                                                                                            <td style='width:50%;'><a style='width:100%;font-size:14pt;' class='btn btn-primary btn-sm' href='javascript: func' onclick='VerPesquisarDia(45, 0, 5, $i, $mes_hoje , parampaganoFIN.value, 0)'>Dia " . $i . ".</a></td>
+                                                                                            <td style='width:50%;'>Dia " . $i . ".</td>
                                                                                              <td>$qtdtotalent</td>
                                                                                              <td>R$ " . number_format($valortotalent, 2, ',', '.') . "</td>
                                                                                              </tr>    ";
@@ -8443,7 +11227,7 @@ switch ($tipo) {
       $ano_hoje = $partes['0'];
 
       echo " 
-       <table class='table table-bordered' style='width:100%;font-size:14pt;'>
+       <table class='table table-bordered' style='width:99%;font-size:9pt;'>
                                                                 <tr style='text-align:center;'>
                                                                     <td colspan='3'><b>Entradas</b></td>
                                                                 </tr>
@@ -8454,7 +11238,7 @@ switch ($tipo) {
                                                                 </tr>
 
                                                                 ";
-      $cod_orgao = $_SESSION['cod_orgaoF'];
+      //  $cod_orgao = $_SESSION['cod_orgaoF'];
       $qtdtotalentfinal = 0;
       $qtdtotalsaifinal = 0;
       $valortotalentfinal = 0;
@@ -8485,7 +11269,7 @@ switch ($tipo) {
 
           echo "
                                                                                                                                                                 <tr id='ResultadoValidacao888' style='text-align:center;'>
-                                                                                            <td style='width:50%;'><a href='javascript: func' style='width:100%;font-size:14pt;' class='btn btn-primary btn-sm' onclick='VerPesquisarDia(44, 0, 5, 0, $i, $ano_hoje, 0)'>" . mostraMes($i) . ".</a></td>
+                                                                                            <td style='width:50%;'>" . mostraMes($i) . "</td>
                                                                                              <td>$qtdtotalent</td>
                                                                                              <td>R$ " . number_format($valortotalent, 2, ',', '.') . "</td>
                                                                                             </tr>    ";
@@ -8499,7 +11283,7 @@ switch ($tipo) {
                                                                                              <td>R$ " . number_format($valortotalentfinal, 2, ',', '.') . "</td>
                                                                                             </tr></table>";
     }
-
+    echo "</div>";
     break;
   //validacao para produtos mais vendidos, filtro
   case 57:
@@ -8561,6 +11345,70 @@ switch ($tipo) {
     $mes_hoje = $partes['1'];
     $ano_hoje = $partes['0'];
 
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+    $dataconsulta = date("m/Y", strtotime($mesano));
+
+    $nomecategoria = "";
+    if ($categoria == 0) {
+      $nomecategoria = "Todas Categorias";
+    } else {
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $categoria
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão Itens Mais Vendidos</br>
+                Categoria: $nomecategoria </br>
+                Data: $dataconsulta
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
 
 
 
@@ -8574,13 +11422,7 @@ switch ($tipo) {
     }
 
 
-    echo "
-            <h3 style='padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; '>Produtos mais vendidos " . ($mes) . "/$ano
-              - <a style='font-size:16pt;' target='_blank' href='Imprimir.php?pagina=10&mes=$mes&ano=$ano&categoria=$categoria' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-print' ></span> Imprimir</a>
-          
-            </h3>
-            
-            ";
+
     $valor_total = 0;
 
 
@@ -8597,7 +11439,7 @@ switch ($tipo) {
     foreach ($dataTableServicos as $resultadoservicos) {
       $codservico = $resultadoservicos['cod'];
       $nomeservico = $resultadoservicos['nome'];
-      $valorservico = $resultadoservicos['valor'];
+      $valorservico = (float) $resultadoservicos['valor'];
       // $valorservico = number_format($valorservico, 2, ',', '.');
       $qtd_total = 0;
       $valor_total = 0;
@@ -8629,8 +11471,8 @@ switch ($tipo) {
 
     //  var_dump($arraynovo);
 
-    echo "<div class='table-responsive' style='font-size:14pt;'>
-        <table class='table table-striped table-sm '>
+    echo "<div class='table-responsive' >
+        <table class='table table-bordered' style='font-size:9pt; width:99%;'>
           <thead>
                     <tr>
                         <td><b>Nome Serviço/Produto</b></td>
@@ -8652,7 +11494,8 @@ switch ($tipo) {
         $nomeservico = $resultadoservicos[2];
         $valorservico = (float) $resultadoservicos[3];
         $qtd_total = $resultadoservicos[4];
-        echo "
+        if ($qtd_total != 0) {
+          echo "
                         <tr>
                         <td>$nomeservico</td>
                         <td>" . number_format($valorservico, 2, ',', '.') . "</td>
@@ -8661,11 +11504,12 @@ switch ($tipo) {
                     </tr>
             
                         ";
+        }
       }
     }
 
 
-    echo "</table></div>";
+    echo "</table></div></div>";
 
 
     break;
@@ -8679,7 +11523,7 @@ switch ($tipo) {
                                                                     <select onchange='validacaorelatorios(60, this.value, 0, 0, 0, 0, 0, 60)' href='javascript: func' style='height: 82px; font-size: 15pt; width: 100%; ' class='form-control' id='txtBairrosFiltros' name='txtBairrosFiltros' onchange=''>
                                                                     <option value='0'>Todas Categorias</option>
                                                                     ";
-    $cod_orgao = $_SESSION['cod_orgaoF'];
+    //$cod_orgao = $_SESSION['cod_orgaoF'];
     // $sqlFor2 = mysqli_query($conn, "SELECT * FROM categoria_produto WHERE cod_orgao = $cod_orgao ORDER BY cod ASC");
     $sqlFor = "SELECT * FROM categoriaserfin ORDER BY cod ASC";
 
@@ -8697,96 +11541,7 @@ switch ($tipo) {
                                                                 		
                                                       
                                     <div class='col-12 col-md-12' id='ResultadoValidacao60'>
-                                                           
-                                                     
-							
-							
-                                       ";
-
-    echo "
-            <h3 style='margin-left: 10px; padding:5px;  width: 100%; '>Produtos em Estado Crítico
-              - <a style='font-size:14pt;' target='_blank' href='Imprimir.php?pagina=11&codcat=0' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-print' ></span> Imprimir</a>
-          
-            </h3>
-            <table class='table' style='font-size:14pt;'>
-            <tr style='text-align:center;'>
-                <td><b>Cod</b></td>
-                <td><b>Apresentação</b></td>
-                <td><b>Produto</b></td>
-                <td><b>Categoria</b></td>
-                <td><b>Est. Máx</b></td>
-                <td><b>Qtd</b></td>
-                <td><b>Est. min.</b></td>
-                
-            </tr>
-            ";
-    //$sql = mysqli_query($conn, "SELECT * FROM produtos ORDER BY cod ASC");
-    $sqlProdutos = "SELECT * FROM servicos WHERE tipo = 1 ORDER BY qtd ASC";
-
-    $apresentacao = "";
-    $textoapresentacao = "";
-    $dataTableProdutos = $banco->ExecuteQuery($sqlProdutos);
-    foreach ($dataTableProdutos as $resultadoprodutos) {
-
-      $codproduto = $resultadoprodutos['cod'];
-      $nomeproduto = $resultadoprodutos['nome'];
-      $apresentacao = $resultadoprodutos['apresentacao'];
-      $qtd = $resultadoprodutos['qtd'];
-      if ($qtd == null || $qtd < 0) {
-        $qtd = 0;
-      }
-
-      $categoria = $resultadoprodutos['categoria'];
-      $est_min = $resultadoprodutos['est_mim'];
-      $est_max = $resultadoprodutos['est_max'];
-
-      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
-      $paramCat = array(
-        ":categoria" => $categoria
-      );
-
-      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
-      foreach ($dataTableCat as $resultadocat) {
-        $nomecategoria = $resultadocat['nome'];
-      }
-
-      if ($apresentacao == 1) {
-        $textoapresentacao = "Unidade";
-      } else if ($apresentacao == 2) {
-        $textoapresentacao = "Comprimido";
-      } else if ($apresentacao == 3) {
-        $textoapresentacao = "Ampola";
-      } else if ($apresentacao == 4) {
-        $textoapresentacao = "Frasco Ampola";
-      } else if ($apresentacao == 5) {
-        $textoapresentacao = "Frasco";
-      } else if ($apresentacao == 6) {
-        $textoapresentacao = "Caixa";
-      } else if ($apresentacao == 7) {
-        $textoapresentacao = "Pacote";
-      } else if ($apresentacao == 8) {
-        $textoapresentacao = "Kit";
-      } else if ($apresentacao == 9) {
-        $textoapresentacao = "Outros";
-      }
-
-
-      if ($qtd < $est_min) {
-        echo " <tr style='text-align:center;'>
-                <td>$codproduto</td>
-                <td>$textoapresentacao</td>
-                <td>$nomeproduto</td>
-                <td>$nomecategoria</td>
-                <td>$est_max</td>
-                    <td>$qtd</td>
-                <td>$est_min</td>
-                
-            </tr>
-            ";
-      }
-    }
-    echo "</table>
-               </div>                 
+                    </div>                 
 							
             ";
 
@@ -8795,12 +11550,76 @@ switch ($tipo) {
   //funcao para validar pesquisa de estoque critico por categoria
   case 60:
     $param1 = $_GET['param1'];
-    echo "
-            <h3 style='margin-left: 10px; padding:5px; color:337AB7; border-bottom: 2px solid #337AB7; width: 100%; '>Produtos em Estado Crítico
-              - <a style='font-size:14pt;' target='_blank' href='Imprimir.php?pagina=11&codcat=$param1' class='btn btn-primary btn-sm'><span class='glyphicon glyphicon-print' ></span> Imprimir</a>
-          
-            </h3>
-            <table class='table' style='font-size:14pt;'>
+
+
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    $nomecategoria = "";
+    if ($param1 == 0) {
+      $nomecategoria = "Todas Categorias";
+    } else {
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $param1
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table style='width: 99%; font-size: 9pt;' class=''>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão Estoque Crítico</br>
+                Categoria: $nomecategoria </br>
+                Data: " . date('d/m/Y') . "
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
+
+
+
+    echo " 
+            <table class='table table-bordered' style='font-size:9pt;'>
             <tr style='text-align:center;'>
                 <td><b>Cod</b></td>
                 <td><b>Apresentação</b></td>
@@ -8887,7 +11706,7 @@ switch ($tipo) {
       }
     }
     echo "</table>
-        
+        </div>
         ";
 
     break;
@@ -8901,7 +11720,7 @@ switch ($tipo) {
                                                                     <select onchange='validacaorelatorios(62, this.value, 0, 0, 0, 0, 0, 62)' href='javascript: func' style='height: 82px; font-size: 15pt; width: 100%; ' class='form-control' id='txtBairrosFiltros' name='txtBairrosFiltros' onchange=''>
                                                                     <option value='0'>Todas Categorias</option>
                                                                     ";
-    $cod_orgao = $_SESSION['cod_orgaoF'];
+    //$cod_orgao = $_SESSION['cod_orgaoF'];
     // $sqlFor2 = mysqli_query($conn, "SELECT * FROM categoria_produto WHERE cod_orgao = $cod_orgao ORDER BY cod ASC");
     $sqlFor = "SELECT * FROM categoriaserfin ORDER BY cod ASC";
 
@@ -8933,9 +11752,73 @@ switch ($tipo) {
   case 62:
 
     $param1 = $_GET['param1'];
-    echo "    <a target='_BLANK' href='Imprimir.php?pagina=16&codcat=$param1' style='margin:10px; font-size: 15pt; width: 98%;'  class='btn btn-primary btn-lg btn-block active'><span class='glyphicon glyphicon-plus'></span>Imprimir </a>
-                                                        ";
-    echo "<table class='table table-bordered' style='font-size:14pt;'>
+
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    $nomecategoria = "";
+    if ($param1 == 0) {
+      $nomecategoria = "Todas Categorias";
+    } else {
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $param1
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão - Solicitação de Estoque</br>
+                Categoria: $nomecategoria </br>
+                Data: " . date('d/m/Y') . "
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
+
+
+    echo "<table class='table table-bordered' style='font-size:9pt; width:99%;'>
                 <tr style='text-align:center;'>
                     <td><b>Produto</b></td>";
 
@@ -8965,7 +11848,7 @@ switch ($tipo) {
       $apresentacao = $resultadoprodutos['apresentacao'];
       $descricao = $resultadoprodutos['nome'];
       $qtd = $resultadoprodutos['qtd'];
-      $valor = $resultadoprodutos['valor'];
+      $valor = (float) $resultadoprodutos['valor'];
       $categoria = $resultadoprodutos['categoria'];
       $fornecedor = $resultadoprodutos['fornecedor'];
       $est_min = $resultadoprodutos['est_mim'];
@@ -8994,7 +11877,7 @@ switch ($tipo) {
       }
 
       echo "<tr style='text-align:center;' id='ResultadoValidacao11$codproduto'>
-                    <td style='width:20%;'>" . $descricao . '-' . $textoapresentacao . "</td>";
+                    <td style='width:40%;'>" . $descricao . '-' . $textoapresentacao . "</td>";
       $mediasemanal = 0;
       $contadormedia = 0;
       $totalfinal = 0;
@@ -9008,7 +11891,9 @@ switch ($tipo) {
       $qtdsolic = $est_max - $qtd;
 
       if ($qtdsolic < 0) {
-        $qtdsolic = "NÃO SOLICITADO";
+        $qtdsolic = "<input onchange='validacaorelatorios(63, this.value, $param1, $codproduto, 0, 0, 0, 11$codproduto)' name='qtdsolic$codproduto' style='padding:20px; font-size: 10pt; width: 100%; text-align:center;' type='text' class='form-control' id='qtdsolic$codproduto' placeholder='' value='0'>
+			";
+
       } else {
         $qtdsolic = "<input onchange='validacaorelatorios(63, this.value, $param1, $codproduto, 0, 0, 0, 11$codproduto)' name='qtdsolic$codproduto' style='padding:20px; font-size: 10pt; width: 100%; text-align:center;' type='text' class='form-control' id='qtdsolic$codproduto' placeholder='' value='$qtdsolic'>
 			";
@@ -9027,7 +11912,7 @@ switch ($tipo) {
                 </tr>
                     ";
     }
-    echo "</table>";
+    echo "</table></div>";
 
     break;
   //validacao para atualizar estoque maximo e gerar novo valor para pedido automatico
@@ -9070,7 +11955,7 @@ switch ($tipo) {
         $apresentacao = $resultadoprodutos['apresentacao'];
         $descricao = $resultadoprodutos['nome'];
         $qtd = $resultadoprodutos['qtd'];
-        $valor = $resultadoprodutos['valor'];
+        $valor = (float) $resultadoprodutos['valor'];
         $categoria = $resultadoprodutos['categoria'];
         $fornecedor = $resultadoprodutos['fornecedor'];
         $est_min = $resultadoprodutos['est_mim'];
@@ -9135,18 +12020,18 @@ switch ($tipo) {
 
     echo "
           <div class='row' style='background-color:#fff; margin-bottom:10px;'>
-            <div class='col-sm-12 col-xl-6'>
+            <div class='col-sm-12 col-xl-4'>
               <label>Deseja consultar qual período</label>
-              <select onchange='validacaorelatorios(65, this.value, txtCategoriaEd.value, txtDataParaPesquisa.value, 0, 0, 0, 65)' name='txtConsultaPeriodo' id='txtConsultaPeriodo' class='form-control' style='font-size:12pt; padding:20px;'>
+              <select onchange='validacaorelatorios(65, this.value, txtCategoriaEd2.value, txtDataParaPesquisa2.value, 0, 0, 0, 65)' name='txtConsultaPeriodo2' id='txtConsultaPeriodo2' class='form-control' style='font-size:12pt; padding:20px;'>
                   <option value='1'>Dia</option>
                   <option value='2'>Mes</option>
                   <option value='3'>Ano</option>
               </select>
             </div>  
-            <div class='col-12 col-md-6' style='text-align: left;'>
+            <div class='col-12 col-md-4' style='text-align: left;'>
                         <div class='form-group label-floating'>
                             <label style='width: 100%; ' for='txtCategoriaEd' class='control-label'>Selecione Categoria</label>
-                             <select href='javascript: func' onchange='validacaorelatorios(66, txtConsultaPeriodo.value, this.value, txtDataParaPesquisa.value, 0, 0, 0, 66)'  style='height: 65px;px; font-size: 15pt; width: 100%; ' type='text' id='txtCategoriaEd' name='txtCategoriaEd' class='form-control' value='0' >
+                             <select href='javascript: func' onchange='validacaorelatorios(66, txtConsultaPeriodo2.value, this.value, txtDataParaPesquisa2.value, 0, 0, 0, 66)'  style='height: 65px;px; font-size: 15pt; width: 100%; ' type='text' id='txtCategoriaEd2' name='txtCategoriaEd2' class='form-control'>
 								<option value='0'>Todas Categorias</option>";
     // $sqlCategorias = mysqli_query($conn, "SELECT * FROM categoriaserfin ORDER BY cod ASC");
     $sqlCat = "SELECT * FROM categoriaserfin ORDER BY cod ASC";
@@ -9169,15 +12054,17 @@ switch ($tipo) {
                         </div>
                         </div>
         
-          </div>  
-          <div id='ResultadoValidacao65'>
-            <div class='col-sm-12 col-xl-12'>
-                         <label>Data</label>
-                        <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo.value, txtCategoriaEd.value, this.value, 0, 0, 0, 66)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
-                     </div>  
+           
+                <div class='col-sm-12 col-xl-4'>
+                    <div id='ResultadoValidacao65'>
+                                  <label>Data</label>
+                                  <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo2.value, txtCategoriaEd2.value, this.value, 0, 0, 0, 66)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa2' name'txtDataParaPesquisa2' value='" . date('Y-m-d') . "' />
+                              </div>  
+                </div> 
+     </div> 
                        <div id='ResultadoValidacao66'> 
                       </div>    
-          </div>
+          
       ";
     break;
   //validacao para mostrar formulario de data para pesquisar historico
@@ -9189,56 +12076,25 @@ switch ($tipo) {
 
     if ($param1 == 1) {
       echo "
-                <div class='col-sm-12 col-xl-12'>
                         <label>Data</label>
-                        <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo.value, txtCategoriaEd.value, this.value, 0, 0, 0, 66)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
-                      </div>  
-                       <div id='ResultadoValidacao66'> 
+                        <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo2.value, txtCategoriaEd2.value, this.value, 0, 0, 0, 66)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa2' name'txtDataParaPesquisa2' value='" . date('Y-m-d') . "' />
               ";
 
 
-
-      echo "</div>";
     }
     if ($param1 == 2) {
       echo "
-      <div class='col-sm-12 col-xl-12'>
               <label>Mês/Ano</label>
-              <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo.value, txtCategoriaEd.value, this.value, 0, 0, 0, 66)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
-            </div>  
+              <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo2.value, txtCategoriaEd2.value, this.value, 0, 0, 0, 66)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa2' name'txtDataParaPesquisa2' value='" . date('Y-m') . "' />
+        
     ";
-      echo "
-               
-                       <div id='ResultadoValidacao66'> 
-              ";
-
-
-      $dia_hoje = date("d");
-      $mes_hoje = (float) date("m");
-      $ano_hoje = date("Y");
-
-      echo "</div>";
 
     }
     if ($param1 == 3) {
       echo "
-      <div class='col-sm-12 col-xl-12'>
               <label>Data</label>
-              <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo.value, txtCategoriaEd.value, this.value, 0, 0, 0, 66)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y') . "' />
-            </div>  
-    ";
-
-      echo "
-               
-    <div id='ResultadoValidacao66'> 
-";
-
-
-      $dia_hoje = date("d");
-      $mes_hoje = (float) date("m");
-      $ano_hoje = date("Y");
-
-      echo "</div>";
+              <input onkeyup='validacaorelatorios(66, txtConsultaPeriodo2.value, txtCategoriaEd2.value, this.value, 0, 0, 0, 66)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa2' name'txtDataParaPesquisa2' value='" . date('Y') . "' />
+      ";
 
     }
 
@@ -9256,14 +12112,106 @@ switch ($tipo) {
 
     $categoria = $param2;
 
+
+
+
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    $nomecategoria = "";
+    if ($categoria == 0) {
+      $nomecategoria = "Todas Categorias";
+    } else {
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $categoria
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+    }
+
+
+
+    if ($param1 == 1) {
+      $tipoconsulta = "Por Dia";
+      $dataconsulta = date("d/m/Y", strtotime($param3));
+
+    } else if ($param1 == 2) {
+      $tipoconsulta = "Por Mês";
+      $dataconsulta = date("m/Y", strtotime($param3));
+
+    } else if ($param1 == 3) {
+      $tipoconsulta = "Por Ano";
+      $dataconsulta = date("Y", strtotime($param3));
+
+    }
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão Saídas de Produtos</br>
+                Categoria: $nomecategoria </br>
+                Tipo Consulta: $tipoconsulta </br>
+                Data: $dataconsulta
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
+
+
+
+
+
+
     $ordem = 0;
 
     $valortotalfinalporatasai = 0;
     $valortotalfinalporataqtd = 0;
     $codfornecedor2 = 0;
 
+
+
+
     if ($param1 == 1) {
-      echo "<h3>Lista de Saídas Por Dia: $param3</h3>";
+      $param3 = strtotime($param3);
+      $param3 = date("d/m/y", $param3);
       $dia_hoje = $partes['2'];
       $mes_hoje = $partes['1'];
       $ano_hoje = $partes['0'];
@@ -9271,18 +12219,17 @@ switch ($tipo) {
     } else if ($param1 == 2) {
 
       $mes_hoje = $partes['1'];
-      echo "<h3>Lista de Saídas Por Mês: " . mostraMes($mes_hoje) . "</h3>";
+      $ano_hoje = $partes['0'];
 
       $mes_hoje = $partes['1'];
       $ano_hoje = $partes['0'];
 
     } else if ($param1 == 3) {
-      echo "<h3>Lista de Saídas Por Ano: $param3</h3>";
 
       $ano_hoje = $partes['0'];
 
     }
-    echo "<table class='table table-light table-bordered'>
+    echo "<table class='table table-bordered' style='font-size:9pt; width:99%;'>
 
     <tr style='text-align:center;'>
         <td><b>Ordem</b></td>
@@ -9397,7 +12344,891 @@ switch ($tipo) {
       $codbarraproduto = $resultadoprodutos['codbarra'];
       $apresentacao = $resultadoprodutos['apresentacao'];
 
-      $valorunt = $resultadoprodutos['valor'];
+      $valorunt = (float) $resultadoprodutos['valor'];
+      $categoria = $resultadoprodutos['categoria'];
+      $est_min = $resultadoprodutos['est_mim'];
+      $est_max = $resultadoprodutos['est_max'];
+
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :categoria ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $categoria
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+
+      if ($apresentacao == 1) {
+        $textoapresentacao = "Unidade";
+      } else if ($apresentacao == 2) {
+        $textoapresentacao = "Comprimido";
+      } else if ($apresentacao == 3) {
+        $textoapresentacao = "Ampola";
+      } else if ($apresentacao == 4) {
+        $textoapresentacao = "Frasco Ampola";
+      } else if ($apresentacao == 5) {
+        $textoapresentacao = "Frasco";
+      } else if ($apresentacao == 6) {
+        $textoapresentacao = "Caixa";
+      } else if ($apresentacao == 7) {
+        $textoapresentacao = "Pacote";
+      } else if ($apresentacao == 8) {
+        $textoapresentacao = "Kit";
+      } else if ($apresentacao == 9) {
+        $textoapresentacao = "Outros";
+      }
+
+
+
+      $totalporprodutoent = 0;
+      $totalporprodutosaid = 0;
+      $valortotalporprodutoent = 0;
+
+      $saldoqtd = $qtdtotalent - $qtdtotalsai;
+
+      $saldoqtd2 = 0;
+      $saldovalor2 = 0;
+
+
+      $saldoqtd2 = $totalporprodutoent - $totalporprodutosaid;
+      $saldovalor2 = ($totalporprodutoent * $valorprod) - ($totalporprodutosaid * $valorprod);
+
+
+      $valortotalporcat = $valorunt * $qtdtotal;
+      $valortotalfinal = $valortotalfinal + $valortotalporcat;
+      if ($qtd == null || $qtd < 0) {
+        $qtd = 0;
+      }
+
+      $totalporproduto = 0;
+      $totalporproduto = $qtdtotal * $valorunt;
+      if ($qtdtotal > 0) {
+        echo " 
+                        <tr style='text-align:center;'>
+                            <td>$ordem</td>
+			     
+                            <td>$nomeproduto </br>
+                                <B>Cod. Busca:</b> $codbuscaproduto / <B>Cod. Barra:</b> $codbarraproduto
+                                </td>
+
+                                
+                            <td>$nomecategoria </br>
+                            
+                            <td>R$ " . number_format($valorunt, 2, ',', '.') . " </br>
+                            
+                            
+                            <td>$qtdtotal </br>
+                            
+                            
+                            
+                            <td>R$ " . number_format($totalporproduto, 2, ',', '.') . " </br>
+                             ";
+        $totalporproduto = 0;
+        $qtdtotal = 0;
+      }
+    }
+    $valortotalporcat = 0;
+    echo " 
+                        <tr>
+                          
+                            <td colspan='5' style='text-align:rigth;'>Total Final</td>
+                            <td>R$ " . number_format($valortotalfinal, 2, ',', '.') . "</td>
+                                   </tr>
+
+                                            ";
+
+    $totalporprodutoent = 0;
+    $totalporprodutosaid = 0;
+
+
+
+    $valortotalfinalporata = 0;
+    $totalfinalporata = 0;
+    $valortotalfinalporatasai = 0;
+    $valortotalfinalporataqtd = 0;
+
+
+
+    $saldoqtdfinal = $qtdtotalentfinal - $qtdtotalsaifinal;
+
+
+    echo "</table>";
+
+
+
+    break;
+  //FUNCOES RELACIONADAS A GERAÇÃO DE RELATÓRIO DE DESPESAS
+  case 67:
+
+    $param1 = $_GET['param1'];
+    $param2 = $_GET['param2'];
+    $param3 = $_GET['param3'];
+
+    if ($param1 == 1) {
+      echo "
+                        <label>Data</label>
+                        <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, txtTipoRelatorio.value, 0, 68)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
+                      
+              ";
+
+
+      $dia_hoje = date("d");
+      $mes_hoje = date("m");
+      $ano_hoje = date("Y");
+    }
+    if ($param1 == 2) {
+      echo "
+                
+              <label>Mês/Ano</label>
+              <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, txtTipoRelatorio.value, 0, 68)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
+           
+              ";
+
+
+      $dia_hoje = date("d");
+      $mes_hoje = date("m");
+      $ano_hoje = date("Y");
+    }
+    if ($param1 == 3) {
+      echo "
+              <label>Ano</label>
+              <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, txtTipoRelatorio.value, 0, 68)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y') . "' />
+              ";
+
+
+      $dia_hoje = date("d");
+      $mes_hoje = date("m");
+      $ano_hoje = date("Y");
+    }
+    break;
+  //RESULTADO PESQUISA PARA DESPESAS
+  case 68:
+
+
+    $param1 = $_GET['param1'];
+    $param2 = $_GET['param2'];
+    $categoria = $_GET['param2'];
+    $param3 = $_GET['param3'];
+    $param4 = $_GET['param4'];
+    $param5 = $_GET['param5'];
+
+    $partes = explode('-', $param4);
+    $tipoconsulta = "";
+    $tipopagamento = "";
+    $tipopagamento2 = "";
+    $tiporelatório = "";
+    $dataconsulta = "";
+    $dataconsulta = $param4;
+
+
+
+    if ($param1 == 1) {
+      $tipoconsulta = "Por Dia";
+      $dataconsulta = date("d/m/Y", strtotime($param4));
+
+    } else if ($param1 == 2) {
+      $tipoconsulta = "Por Mês";
+      $dataconsulta = date("m/Y", strtotime($param4));
+
+    } else if ($param1 == 3) {
+      $tipoconsulta = "Por Ano";
+      $dataconsulta = date("Y", strtotime($param4));
+
+    }
+    $nomecategoria = "";
+
+    if ($categoria == 0) {
+      $nomecategoria = "Todas Categorias";
+    } else {
+      $sqlCat = "SELECT * FROM lc_cat WHERE id = :categoria ORDER BY id ASC LIMIT 1";
+      $paramCat = array(
+        ":categoria" => $categoria
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+
+
+    }
+
+
+
+    if ($param3 == 0) {
+      $tipopagamento2 = "Todos";
+    } else if ($param3 == 1) {
+      $tipopagamento2 = "A pagar";
+    } else if ($param3 == 2) {
+      $tipopagamento2 = "Despesa Paga";
+    }
+
+    if ($param5 == 0) {
+      $tiporelatório = "Resumido";
+    } else {
+      $tiporelatório = "Completo";
+    }
+
+    $partes = explode('-', $param4);
+    $sqlServicos = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => 1
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $permissao = $resultadoservicos['permissao'];
+      $nome = $resultadoservicos['nome'];
+      $foto = $resultadoservicos['foto'];
+      $usuario = $resultadoservicos['usuario'];
+      $email = $resultadoservicos['email'];
+      $CNPJ = $resultadoservicos['cpf'];
+      $rua = $resultadoservicos['rua'];
+      $bairro = $resultadoservicos['bairro'];
+      $numero = $resultadoservicos['numero'];
+      $celular = $resultadoservicos['celular'];
+
+
+    }
+
+
+    echo "<div id='contentpdf' style='font-family: Arial, sans-serif; font-size: 7pt;'>
+        <table width='100%' style='border-bottom: 1px solid #000; font-size: 9pt;'>
+            <tr>
+              <td width='20%'>
+                <img src='Interface/img/Usuarios/$foto' style='width: 100px;'>
+              </td>
+              <td>
+                Relatório de Gestão de Despesas</br>
+                Tipo de Consulta: $tipoconsulta </br>
+                Categoria: $nomecategoria </br>
+                Tipo de Despesa:  $tipopagamento2 / $tiporelatório </br> 
+                Data: $dataconsulta
+              </td>
+              <td style='text-align: left;'>
+                <strong> $nome</strong><br>
+                CNPJ: $CNPJ<br>
+                Endereço: $rua , nº $numero - $bairro<br>
+                Email: $email | Tel: $celular
+              </td>
+            </tr>
+          </table>
+
+
+          ";
+
+
+    if ($param5 == 0) {
+      echo "<h5>INFORMAÇÕES RESUMIDAS</h5>";
+      if ($param2 == 0) {
+        $sqlCategorias = "SELECT * FROM lc_cat ORDER BY id ASC";
+        $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias);
+
+
+      } else {
+        $sqlCategorias = "SELECT * FROM lc_cat WHERE id = :cat ORDER BY id ASC";
+        $paramCategorias = array(
+          ":cat" => $param2
+        );
+        $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+
+      }
+
+      echo "<table class='table table-borbored' style='width: 99%; font-size:9pt;'>
+      <tr>
+        <td><b>Categoria</b></td>
+        <td><b>Despesa Paga</b></td>
+        <td><b>Despesa A Pagar</b></td>
+        <td><b>Total</b></td>
+      </tr>
+     ";
+      $totalfinalcat = 0;
+
+      foreach ($dataTableCategorias as $resultadocategorias) {
+        $idcat = $resultadocategorias['id'];
+        $nomecat = $resultadocategorias['nome'];
+
+        if ($param1 == 1) {
+
+          $dia_hoje = $partes['2'];
+          $mes_hoje = $partes['1'];
+          $ano_hoje = $partes['0'];
+          //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+          $totalfinaldiacat = 0;
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $idcat,
+              ":dia_hoje" => $dia_hoje,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje
+            );
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje AND status= :status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $idcat,
+              ":dia_hoje" => $dia_hoje,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+          }
+        }
+        if ($param1 == 2) {
+
+          $mes_hoje = $partes['1'];
+          $ano_hoje = $partes['0'];
+          //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+          $totalfinaldiacat = 0;
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $idcat,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje
+            );
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND mes = :mes_hoje AND  ano = :ano_hoje AND status=:status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $idcat,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+          }
+        }
+        if ($param1 == 3) {
+
+          $ano_hoje = $partes['0'];
+          //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+          $totalfinaldiacat = 0;
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $idcat,
+              ":ano_hoje" => $ano_hoje
+            );
+
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND ano = :ano_hoje AND status =:status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $idcat,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+          }
+        }
+
+        $totalpago = 0;
+        $totalapagar = 0;
+        $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
+        foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+          $status = $resultadofimempresa['status'];
+          $cod = $resultadofimempresa['id'];
+          $valor_total = (float) $resultadofimempresa['valor'];
+
+
+
+
+          $totalfinaldiacat = $totalfinaldiacat + $valor_total;
+          $totalfinalcat = $totalfinalcat + $valor_total;
+
+          if ($status == 1) {
+            $totalapagar = $totalapagar + $valor_total;
+          } else {
+            $totalpago = $totalpago + $valor_total;
+          }
+        }
+
+        echo "<tr><td>$nomecat</td>";
+        echo "<td>R$ " . number_format($totalpago, 2, ',', '.') . "</td>";
+        echo "<td>R$ " . number_format($totalapagar, 2, ',', '.') . "</td>";
+        echo "<td>R$ " . number_format($totalfinaldiacat, 2, ',', '.') . "</td></tr>";
+        $totalpago = 0;
+        $totalapagar = 0;
+        $totalfinaldiacat = 0;
+      }
+      echo "<tr>
+          <td colspan='3'><B>TOTAL FINAL</B></td>
+          <td>R$ " . number_format($totalfinalcat, 2, ',', '.') . "</td>
+      </tr>";
+      echo "</table>";
+
+    } else {
+
+      if ($param1 == 1) {
+        $dia_hoje = $partes['2'];
+        $mes_hoje = $partes['1'];
+        $ano_hoje = $partes['0'];
+        //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+        $totalfinaldiacat = 0;
+        if ($param2 == 0) {
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":dia_hoje" => $dia_hoje,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje
+            );
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje AND status= :status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":dia_hoje" => $dia_hoje,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3,
+            );
+          }
+
+
+        } else {
+
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $param2,
+              ":dia_hoje" => $dia_hoje,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje
+            );
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje AND status= :status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $param2,
+              ":dia_hoje" => $dia_hoje,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+          }
+        }
+      }
+      if ($param1 == 2) {
+
+        $mes_hoje = $partes['1'];
+        $ano_hoje = $partes['0'];
+        //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+        $totalfinaldiacat = 0;
+        if ($param2 == 0) {
+          if ($param3 == 0) {
+
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE  mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje
+            );
+
+          } else {
+
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE  mes = :mes_hoje AND  ano = :ano_hoje AND status = :status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+
+          }
+
+        } else {
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $param2,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje
+            );
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND mes = :mes_hoje AND  ano = :ano_hoje AND status=:status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $param2,
+              ":mes_hoje" => $mes_hoje,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+          }
+
+        }
+      }
+      if ($param1 == 3) {
+
+        $ano_hoje = $partes['0'];
+        //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+        $totalfinaldiacat = 0;
+        if ($param2 == 0) {
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE  ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":ano_hoje" => $ano_hoje
+            );
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE  ano = :ano_hoje AND status=:status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3,
+            );
+          }
+
+
+
+        } else {
+          if ($param3 == 0) {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND ano = :ano_hoje ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $param2,
+              ":ano_hoje" => $ano_hoje
+            );
+
+          } else {
+            $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND ano = :ano_hoje AND status =:status ORDER BY id ASC";
+            $paramFinEmpresa = array(
+              ":categoria" => $param2,
+              ":ano_hoje" => $ano_hoje,
+              ":status" => $param3
+            );
+          }
+
+        }
+      }
+
+      echo "<h5>INFORMAÇÕES COMPLETAS</h5>";
+
+      echo "          <table class='table' style='width:99% font-size:9pt;'>
+                    <tr style='text-align:center;'>
+                        <td><b>Descrição</b></td>
+                        <td><b>Valor</b></td>
+                        <td><b>Categoria</b></td>
+                        <td></td>
+                    </tr> 
+		";
+      //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+      $totalfinaldiacat = 0;
+
+
+      $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
+      foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+        $status = $resultadofimempresa['status'];
+        $cod = $resultadofimempresa['id'];
+        $cat = $resultadofimempresa['cat'];
+        $descricao = $resultadofimempresa['descricao'];
+        $datapagamento = $resultadofimempresa['datapagamento'];
+        $datapagamento = date('d/m/y', strtotime($datapagamento));
+        $diad = $resultadofimempresa['dia'];
+        $mesd = $resultadofimempresa['mes'];
+        $anod = $resultadofimempresa['ano'];
+        $pontos = ',';
+        $result = str_replace($pontos, "", $resultadofimempresa['valor']);
+        $valor_total = (float) $result;
+        $total = $valor_total;
+        //$sqlCategorias = mysqli_query($conn, "SELECT * FROM lc_cat WHERE id = $cat ORDER BY id ASC");
+        $sqlCategorias = "SELECT * FROM lc_cat WHERE id = :cat ORDER BY id ASC";
+        $paramCategorias = array(
+          ":cat" => $cat
+        );
+
+        $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+        foreach ($dataTableCategorias as $resultadocategorias) {
+          $idcat = $resultadocategorias['id'];
+          $nomecat = $resultadocategorias['nome'];
+        }
+        $totalfinaldiacat = $totalfinaldiacat + $total;
+        echo "
+                                    <tr style='text-align:center;' id='ResultadoValidacao83$cod'>
+                                        <td>" . $descricao . " </td>
+                                        <td>R$ " . number_format($total, 2, ',', '.') . "</td>
+                                        <td>$nomecat</td>
+                                            <td>
+                                            ";
+        if ($status == 1) {
+          echo "
+                                            <a  style='width:100%; padding:10px;' class='btn btn-success btn-sm'  href='javascript: func' onclick='validacao(83, $cod, 0, 83$cod)' style='color:#fff;'><span class='glyphicon glyphicon-retweet'></span> Validar Pagamento</a>";
+        } else {
+          echo "<a style='width:100%; padding: 10px; ' class='btn btn-success'>Pago - $datapagamento</a>";
+        }
+        echo "
+                                            <a style='width:100%; padding:10px; margin-top:10px;' class='btn btn-danger btn-sm' onclick='validacao(85, $cod, 0, 83$cod)' style='color:#fff;'><span class='glyphicon glyphicon-retweet'></span> Apagar</a> </br>
+                                            
+                    </td>
+                                    </tr>
+                                        ";
+      }
+      echo "</div>";
+      echo "<tr><td><b>Valor Total</b></td><td style='color:green;'>R$ " . number_format($totalfinaldiacat, 2, ',', '.') . "</td></tr>";
+
+    }
+
+    echo "</div>";
+    break;
+  //VALIDACAO PARA MOSTRAR VENDAS DO CAIXA
+  case 69:
+    $param = $_GET['param'];
+
+    echo "</br><table class='table' style='font-size:16pt;'>
+            <tr style='text-align:center;'>
+                <td><b>COD. NOTA</b></td>
+                <td><b>INFORMAÇÕES DO PEDIDO</b></td>
+                <td><b>INFORMAÇÕES DO PAGAMENTO</b></td>
+                <td><b>CLIENTE</b></td>
+                <td><b>FUNCIONÁRIO</b></td>
+                <td></td>
+            </tr>
+            ";
+
+    //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 3 AND dia = $dia AND mes = $mes AND ano = $ano ORDER BY cod ASC");
+    $sqlNota = "SELECT * FROM notas WHERE cod_caixa = :codcaixa ORDER BY cod DESC";
+    $paramNota = array(
+      ":codcaixa" => $param
+    );
+
+    $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+    foreach ($dataTableNota as $resultadonota) {
+      $qtdTotalFinal = 0;
+      $valorTotalFinal = 0;
+      $nomecli = "";
+      $textotipopag = "";
+      $codnota = $resultadonota['cod'];
+      $codnota2 = $resultadonota['cod'];
+      $hora = $resultadonota['hora'];
+      $cod_usuarionota = $resultadonota['usuario'];
+      $datadia_nota = $resultadonota['dia'];
+      $datames_nota = $resultadonota['mes'];
+      $dataano_nota = $resultadonota['ano'];
+      $codfuncionario_nota = $resultadonota['func'];
+      $codnota = $resultadonota['cod'];
+      $tipopedido = $resultadonota['tipo_pedido'];
+      $ordem = $resultadonota['ordem'];
+
+      if ($tipopedido == 1) {
+        $ordem = $resultadonota['ordem'];
+      } else {
+        $ordem = 'E' . $codnota;
+      }
+
+
+      if ($cod_usuarionota == 0) {
+        $nomecli = $resultadonota['nomeCli'];
+      } else {
+        $sqlCli = "SELECT * FROM clientes WHERE id = :id ORDER BY id ASC LIMIT 1";
+        $paramCli = array(
+          ":id" => $cod_usuarionota
+        );
+
+        $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
+        foreach ($dataTableCli as $resultadocli) {
+          $nomecli = $resultadocli['nome'];
+          $enderecocli = $resultadocli['endereco'];
+          $numerocli = $resultadocli['numero'];
+          $complementocli = $resultadocli['complemento'];
+          $celularcli = $resultadocli['celular'];
+        }
+      }
+      //$sqlFunc = mysqli_query($conn, "SELECT * FROM usuarios WHERE cod = $codfuncionario_nota ORDER BY cod ASC LIMIT 1");
+      $sqlFunc = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramFunc = array(
+        ":cod" => $codfuncionario_nota
+      );
+
+      $dataTableFunc = $banco->ExecuteQuery($sqlFunc, $paramFunc);
+      foreach ($dataTableFunc as $resultadofunc) {
+        $nomefunc = $resultadofunc['nome'];
+      }
+      $textopedidos = "";
+      $sqlPedidos = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = $codnota ORDER BY cod ASC");
+      while ($pedidos = mysqli_fetch_object($sqlPedidos)) {
+        $qtdTotalFinal = $qtdTotalFinal + (int) $pedidos->qtd;
+        $valorTotalFinal = $valorTotalFinal + (float) $pedidos->valor;
+        $cod_servi2 = $pedidos->servico;
+
+        $sqlCli = "SELECT * FROM servicos WHERE cod = :id ORDER BY cod ASC";
+        $paramCli = array(
+          ":id" => $cod_servi2
+        );
+
+        $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
+        foreach ($dataTableCli as $resultadocli) {
+          $codproduto = $resultadocli['nome'];
+
+          $textopedidos = $textopedidos . $codproduto . " | ";
+        }
+      }
+
+
+      $sqlPagCli = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_orcamento = $codnota2 ORDER BY cod ASC LIMIT 1");
+      while ($pag = mysqli_fetch_object($sqlPagCli)) {
+        $valorTotalFinal = (float) $pag->total;
+
+
+        $total = (float) $pag->total;
+        $subtotal = (float) $pag->subtotal;
+
+        $gorjeta = (float) $pag->gorjeta;
+        $dinheiro = (float) $pag->dinheiro;
+        $debito = (float) $pag->debito;
+        $credito = (float) $pag->credito;
+        $pix = (float) $pag->pix;
+        $desconto = (float) $pag->desconto;
+        if ($dinheiro != 0) {
+          $textotipopag = $textotipopag . "<b>Dinheiro:</b>R$ " . number_format($dinheiro, 2, ',', '.') . "   </br>
+        ";
+        }
+        if ($debito != 0) {
+          $textotipopag = $textotipopag . "<b>Débito: </b>R$ " . number_format($debito, 2, ',', '.') . "   </br>
+        ";
+        }
+        if ($credito != 0) {
+          $textotipopag = $textotipopag . "<b>Crédito: </b>R$ " . number_format($credito, 2, ',', '.') . "    </br>
+        ";
+        }
+        if ($pix != 0) {
+          $textotipopag = $textotipopag . "<b>Pix:</b> R$ " . number_format($pix, 2, ',', '.') . "  </br>
+        ";
+        }
+        if ($desconto != 0) {
+          $textotipopag = $textotipopag . "<b>Desconto:</b> R$ " . number_format($desconto, 2, ',', '.') . "
+        ________________";
+        }
+        $textotipopag = $textotipopag . "________________";
+
+
+        if ($pag->tipo == 2 && $pag->tipopag == 2) {
+
+          $textotipopag = "Pagamento no Crediário";
+        }
+      }
+
+      echo "
+            <tr style='text-align:justify;'>
+            <td>$ordem </br> $hora</td>
+            <td style='font-size:9pt;'>$textopedidos</td>
+            <td>
+            $textotipopag </BR>
+            VALOR TOTAL:</br><b> R$ " . number_format($valorTotalFinal, 2, ',', '.') . "</br></td>
+         
+            <td>$nomecli</td>
+            <td>$nomefunc</td>
+                <td>
+                      <a class='btn btn-outline-primary' onclick='validacao(17, $codnota, 0, 17)' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                              <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder-plus' viewBox='0 0 16 16'>
+                              <path d='m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z'/>
+                              <path d='M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5'/>
+                            </svg>
+                        </a>
+                        <a class='btn btn-outline-primary' href='?pagina=carinhocompras&cod=$codnota' type='button' >
+                            <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-arrow-right-square-fill' viewBox='0 0 16 16'>
+                              <path d='M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1'/>
+                            </svg>
+                        </a>
+                </td>
+            </tr>";
+    }
+    echo "</table>";
+    break;
+  //VALIDACAO PARA MOSTRAR SAÍDAS POR FECHAR CAIXA
+  case 70:
+
+    $ordem = 0;
+
+    $valortotalfinalporatasai = 0;
+    $valortotalfinalporataqtd = 0;
+    $codfornecedor2 = 0;
+
+    echo "<table class='table table-light table-bordered'>
+
+    <tr style='text-align:center;'>
+        <td><b>Ordem</b></td>
+        <td style='width: 40%;'><b>Produto</b></td>
+        <td><b>Categoria</b></td>
+        <td><b>Valor Unt</b></td>
+        <td><b>Qtd</b></td>
+        <td><b>Valor Total</b></td>
+        
+    </tr>";
+
+
+
+    $valorunt = 0;
+    $valortotalporcat = 0;
+    $valortotalfinal = 0;
+
+    $truorfalsevalorfornecedor = 0;
+
+    $qtdtotalentfinal = 0;
+    $qtdtotalsaifinal = 0;
+    $valortotalentfinal = 0;
+    $valortotalsaifinal = 0;
+    $saldoqtd = 0;
+
+    $qtdtotalent = 0;
+    $valortotalent = 0;
+    $qtdtotalsai = 0;
+    $valortotalsai = 0;
+    $trueorfalsecat = 0;
+    $totalfinalporata = 0;
+    $valortotalfinalporata = 0;
+
+    $valortotalfinalporatasai = 0;
+
+    $valortotalfinalporataqtd = 0;
+    $disponivel = 0;
+
+
+    $dia_hoje = date('d');
+    $mes_hoje = date('m');
+    $ano_hoje = date('Y');
+
+
+    $sqlProdutos = "SELECT * FROM servicos ORDER BY cod ASC";
+    $dataTableProdutos = $banco->ExecuteQuery($sqlProdutos);
+
+    foreach ($dataTableProdutos as $resultadoprodutos) {
+      $disponivel = 0;
+      $valorprod = 0;
+      $trueorfalsecat = 1;
+      $codproduto = $resultadoprodutos['cod'];
+
+      $qtdtotal = 0;
+      $qtd = 0;
+
+
+
+      $sqlPedidos = "SELECT * FROM pedidos WHERE servico = :cod AND dia = :dia AND mes = :mes AND ano = :ano ORDER BY cod DESC";
+      $paramPedidos = array(
+        ":cod" => $codproduto,
+        ":dia" => $dia_hoje,
+        ":mes" => $mes_hoje,
+        ":ano" => $ano_hoje,
+      );
+
+
+      $nomecategoria = "Avulso";
+      $dataTablePedidos = $banco->ExecuteQuery($sqlPedidos, $paramPedidos);
+      foreach ($dataTablePedidos as $resultadopedidos) {
+
+        $codnota = $resultadopedidos['usuario'];
+
+        $sqlNotasDia = mysqli_query($conn, "SELECT * FROM notas WHERE cod = $codnota AND status = 3 ORDER BY cod ASC");
+        // Exibe todos os valores encontrados
+        while ($notasdia = mysqli_fetch_object($sqlNotasDia)) {
+          $qtd = $resultadopedidos['qtd'];
+          if ($qtd <= 0) {
+            $qtd = 0;
+          }
+          $qtdtotal = $qtdtotal + $qtd;
+
+        }
+      }
+
+      $ordem++;
+
+      $codproduto = $resultadoprodutos['cod'];
+      $nomeproduto = $resultadoprodutos['nome'];
+      $codbuscaproduto = $resultadoprodutos['codbusca'];
+      $codbarraproduto = $resultadoprodutos['codbarra'];
+      $apresentacao = $resultadoprodutos['apresentacao'];
+
+      $valorunt = (float) $resultadoprodutos['valor'];
       $categoria = $resultadoprodutos['categoria'];
       $est_min = $resultadoprodutos['est_mim'];
       $est_max = $resultadoprodutos['est_max'];
@@ -9510,158 +13341,1708 @@ switch ($tipo) {
 
     echo "</table>";
 
-
-
     break;
-  //FUNCOES RELACIONADAS A GERAÇÃO DE RELATÓRIO DE DESPESAS
-  case 67:
-
-    $param1 = $_GET['param1'];
-    $param2 = $_GET['param2'];
-    $param3 = $_GET['param3'];
-
-    if ($param1 == 1) {
-      echo "
-                <div class='col-sm-12 col-xl-12'>
-                        <label>Data</label>
-                        <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 68)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m-d') . "' />
-                      </div>  
-                       <div id='ResultadoValidacao68'> 
-                       </div>
-              ";
+  //VALIDACAO PARA PESQUISAR PRODUTO E SERVIÇOS EM ENTRADAS
+  case 71:
 
 
-      $dia_hoje = date("d");
-      $mes_hoje = date("m");
-      $ano_hoje = date("Y");
+    $param = $_GET['param'];
+    $codnota = $_GET['param'];
+    $valor = $_GET['valor'];
+
+    $sqlServicoscont = "SELECT count(*) as total from servicos WHERE nome LIKE :nome";
+    $paramServicoscount = array(
+      ":nome" => "%{$valor}%"
+    );
+
+    $dataTableServicos222 = $banco->ExecuteQuery($sqlServicoscont, $paramServicoscount);
+
+    foreach ($dataTableServicos222 as $resultado22) {
+      $totalderegistros = $resultado22['total'];
     }
-    if ($param1 == 2) {
-      echo "
-                 <div class='col-sm-12 col-xl-12'>
-              <label>Mês/Ano</label>
-              <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 68)' class='form-control' style='font-size:12pt; padding:20px;' type='month' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y-m') . "' />
-            </div> 
-             <div id='ResultadoValidacao68'> 
+
+
+    //PRIMEIRA PESQUISA PARA VERIFICAR SE HÁ PRODUTO COM MESMO CODIGO DE BARRA OU CODIGO DE BUSCA
+
+    $sqlServicosCodBarra = "SELECT * FROM servicos WHERE  codbarra = :codbarra AND codbarra != '' || codbusca = :codbusca AND codbusca != 0 ORDER BY cod ASC LIMIT 1";
+    $paramServicosCodBarra = array(
+      ":codbarra" => $valor,
+      ":codbusca" => $valor,
+    );
+
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicosCodBarra, $paramServicosCodBarra);
+
+
+
+    //SE NÃO FOR LOCALIZADO NENHUM ITEM COM O CODIGO DE BARRA OU COD BUSCA - O SISTEMA IRA PESQUISA NOS ITENS POR NOME
+    if ($dataTableServicos == null) {
+
+
+      $sqlServicos = "SELECT * FROM servicos WHERE nome LIKE :nome AND tipo = 1 ORDER BY cod ASC LIMIT 10";
+      $paramServicos = array(
+        ":nome" => "%{$valor}%"
+      );
+
+      $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+
+
+    }
+
+    $codindex = 2;
+
+    foreach ($dataTableServicos as $resultadoservicos) {
+
+      $codservico = $resultadoservicos['cod'];
+      $descricaoservico = $resultadoservicos['descricao'];
+      $nomeservico = $resultadoservicos['nome'];
+      $categoriaservico = $resultadoservicos['categoria'];
+      $img = $resultadoservicos['img'];
+      $imgservico = $resultadoservicos['img'];
+      $tiposervico = 1;
+      $qtdservico = $resultadoservicos['qtd'];
+      $valorservico = (float) $resultadoservicos['valor'];
+      $tiposervico = (float) $resultadoservicos['tipo'];
+
+
+      if ($imgservico == null) {
+        $imgservico = "logo.ico";
+      }
+
+      $valorformatado = number_format($resultadoservicos['valor'], 2, ',', '.');
+      //FUNCAO PARA CONTAR ITEM QUE JÁ ESTÃO EM PROCESSO DE VENDA
+      $qtdreservada = 0;
+      $sqlPedidos23 = "SELECT * FROM pedidos WHERE servico = :cod AND status != 3 ORDER BY cod ASC";
+      $paramPedidos23 = array(
+        ":cod" => $codservico
+      );
+
+      $dataTablePedidos23 = $banco->ExecuteQuery($sqlPedidos23, $paramPedidos23);
+      foreach ($dataTablePedidos23 as $resultadopedidos23) {
+        $qtdreservada = $qtdreservada + $resultadopedidos23['qtd'];
+      }
+      //FIM DA FUNCAO PARA CONTAGEM
+
+      //FUNCAO PARA CHAMAR NOME DA CATEGORIA DO ITEM
+      $categoriaservico = (float) $resultadoservicos['categoria'];
+      $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramCategorias = array(
+        ":cod" => $categoriaservico
+      );
+      $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+      foreach ($dataTableCategorias as $resultadocategorias) {
+        $nomecategoria = $resultadocategorias['nome'];
+      }
+
+
+      //EQUAÇÃO PARA ESTOQUE DISPONIVEL
+      $qtdservico = $qtdservico - $qtdreservada;
+
+
+      if ($tiposervico == 0) {
+        $textotipo = "SERVIÇO";
+      } else {
+        $textotipo = "PRODUTO";
+      }
+
+      if ($tiposervico == 0) {
+
+        echo "<div class='card-header py-3' id='ResultadoValidacao77$codservico'>
+      <h5 class='mb-0'>$nomeservico</h5>
+    
+      <div class='card-body'>
+      <div class='row'>
+        <div class='col-lg-3 col-md-12 mb-4 mb-lg-0'>
+          <div class='bg-image hover-overlay hover-zoom ripple rounded' data-mdb-ripple-color='light'>
+            <img style='  ' src='Interface/img/Servicos/logo.ico' class='w-100' />
+            <a href='#!'>
+              <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div>
+            </a>
+          </div>
+        </div>
+        <div class='col-lg-5 col-md-6 mb-4 mb-lg-0'>
+          <p><strong>Categoria: $nomecategoria</strong></p>
+          <p>Tipo: $textotipo</p>
+          ";
+        if ($tiposervico == 0) {
+          echo "";
+        } else {
+          if ($qtdservico > 0) {
+            echo "
+          <p>Qtd: $qtdservico</p>
+          <p>Qtd reservada: $qtdreservada</p>
+         ";
+          }
+        }
+
+        echo " </button>
+          <!-- Data -->
+        </div>
+        
+        <div class='col-lg-4 col-md-6 mb-4 mb-lg-0'>
+          <p class='text-start text-md-center' style='font-size:14pt;'>Valor Unt.
+            <strong>R$ $valorformatado</strong></br>
+            ";
+        if ($tiposervico == 1) {
+          if ($qtdservico > 0) {
+            echo " 
+                <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+                 <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                    <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                    <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                  </svg>
+                  </a>";
+          } else {
+            echo "<div id='ResultadoValidacao76$codservico' style='text-align:justify'><a href='javascript: func()' onclick='validacao(76, $codnota, $codservico, 76$codservico)' class='btn btn-danger'>Clique Aqui</a>para atualizar o estoque de emergência</div>";
+          }
+        } else {
+          echo " 
+              <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+               <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                  <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                  <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                </svg>
+                </a>";
+        }
+
+        echo " 
+            </p>
+        </div>
+        </div>
+      </div>
+    </div>";
+        $codindex++;
+      } else if ($tiposervico == 1) {
+
+        echo "<div class='card-header py-3' id='ResultadoValidacao77$codservico'>
+            <h5 class='mb-0'>$nomeservico</h5>
+          
+            <div class='card-body'>
+            <div class='row'>
+              <div class='col-lg-3 col-md-12 mb-4 mb-lg-0'>
+                <div class='bg-image hover-overlay hover-zoom ripple rounded' data-mdb-ripple-color='light'>
+                  <img style='  ' src='Interface/img/Servicos/logo.ico' class='w-100' />
+                  <a href='#!'>
+                    <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div>
+                  </a>
+                </div>
               </div>
-              ";
+              <div class='col-lg-5 col-md-6 mb-4 mb-lg-0'>
+                <p><strong>Categoria: $nomecategoria</strong></p>
+                <p>Tipo: $textotipo</p>
+                ";
+        if ($tiposervico == 0) {
+          echo "";
+        } else {
+          if ($qtdservico > 0) {
+            echo "
+                <p>Qtd: $qtdservico</p>
+                <p>Qtd reservada: $qtdreservada</p>
+               ";
+          }
+        }
 
+        echo " </button>
+                <!-- Data -->
+              </div>
+              
+              <div class='col-lg-4 col-md-6 mb-4 mb-lg-0'>
+                <p class='text-start text-md-center' style='font-size:14pt;'>Valor Unt.
+                  <strong>R$ $valorformatado</strong></br>
+                  ";
 
-      $dia_hoje = date("d");
-      $mes_hoje = date("m");
-      $ano_hoje = date("Y");
-    }
-    if ($param1 == 3) {
-      echo "
-                <div class='col-sm-12 col-xl-12'>
-              <label>Ano</label>
-              <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 68)'  min='2025' max='2050' class='form-control' style='font-size:12pt; padding:20px;' type='number' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='" . date('Y') . "' />
+        echo " 
+                      <a type='button' data-bs-toggle='modal' data-bs-target='#exampleModalItemAvulso' href='javascript:func()' onclick='validacao(72, $codnota, $codservico, 72)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+                       <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                          <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                          <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                        </svg>
+                        </a>";
+        echo " 
+                  </p>
+              </div>
+              </div>
             </div>
-                       <div id='ResultadoValidacao68'> 
-                       </div>
-              ";
+          </div>";
+        $codindex++;
+
+      }
+    }
 
 
-      $dia_hoje = date("d");
-      $mes_hoje = date("m");
-      $ano_hoje = date("Y");
+    break;
+  //FUNCAO PARA GERAR COD DO PRODUTO PARA CADASTRAR NOVO ITEM
+  case 72:
+    $param = $_GET['param'];
+    $param = $_GET['valor'];
+    echo "<input type='hidden' value='$param' id='txtCodproduto' name='txtCodproduto' />
+       ";
+    break;
+  //FUNCAO PARA CHAMAR DE LISTA DE ITENS NOTA DE ENTRADA
+  case 73:
+
+    $codentrada = $_GET['param'];
+    $total = 0;
+    $contador = 0;
+    $cont = 0;
+    echo "
+             <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>";
+    echo "
+			<tr>
+				<td style='width:50%;'><b>Produto</b></td>
+				<td><b>Qtd</b></td>
+				<td><b>Valor Unt.</b></td>
+				<td><b>Valor Total</b></td>
+				<td><b>Lote</b></td>
+				<td><b>Validade</b></td>
+				<td><b></b></td>
+			</tr>
+			";
+    //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+    $sqlPedidos2 = "SELECT * FROM lista_entradas WHERE cod_entrada = :cod ORDER BY cod DESC";
+    $paramPedidos2 = array(
+      ":cod" => $codentrada
+    );
+
+    $dataTablePedidos2 = $banco->ExecuteQuery($sqlPedidos2, $paramPedidos2);
+    foreach ($dataTablePedidos2 as $resultadopedidos2) {
+
+      $codpedido = $resultadopedidos2['cod'];
+      $codservico = $resultadopedidos2['cod_produto'];
+      $lote = $resultadopedidos2['lote'];
+      $mes_validade = $resultadopedidos2['mes_validade'];
+      $ano_validade = $resultadopedidos2['ano_validade'];
+      $dia = $resultadopedidos2['dia'];
+      $mes = $resultadopedidos2['mes'];
+      $ano = $resultadopedidos2['ano'];
+
+      $data = $dia . "/" . $mes . "/" . $ano;
+
+      //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
+      $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
+      $paramServicos = array(
+        ":cod" => $codservico
+      );
+
+      $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+      foreach ($dataTableServicos as $resultadoservicos) {
+        $nomeservico = $resultadoservicos['nome'];
+
+      }
+      $valor = (float) $resultadopedidos2['valor_total'];
+      $qtd = (float) $resultadopedidos2['qtd'];
+      $valorunt = $valor / $qtd;
+      $total = $total + $valor;
+
+      $valorunt = number_format($valorunt, 2, ',', '.');
+      $valor = number_format($valor, 2, ',', '.');
+
+
+
+      $contador++;
+      echo "
+				
+					<tr>
+						<td>" . $nomeservico . "</td>
+						<td>$qtd</td>
+						<td>R$ " . $valorunt . "</td>
+						<td>R$ " . $valor . "</td>
+						<td>$lote</td>
+						<td>$mes_validade" . "/" . "$ano_validade</td>
+
+						<td>
+						  <a style='font-size:10pt;' tabindex='$contador' id='primeirobotao' href='javascript: func()' onclick='validacao(74, $codentrada, $codpedido, 73)'    class='btn btn-danger'><span class='glyphicon glyphicon-trash'></span> <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-trash3-fill' viewBox='0 0 16 16'>
+                  <path d='M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5'/>
+                </svg></a>   
+						</td>
+							
+					</tr>
+		   ";
+      $contador++;
+    }
+    $total = number_format($total, 2, ',', '.');
+    echo "
+			<tr>
+				<td colspan='3' style='text-align:right;'>Total:</td>
+				<td colspan='4'><b>R$ " . $total . "</b></td>
+        
+			</tr>
+			";
+    echo "</table>";
+
+    break;
+  //GERAR PÁGINA PARA APAGAR ite   m em nota de entrada
+  case 74:
+    $contador = 0;
+    $codentrada = $_GET['param'];
+    $codpedido = $_GET['valor'];
+    $total = 0;
+    $query = mysqli_query($conn, "DELETE FROM `lista_entradas` WHERE cod = $codpedido");
+    // Se inserido com scesso
+    if ($query) {
+      echo "
+             <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>";
+      echo "
+			<tr>
+				<td style='width:50%;'><b>Produto</b></td>
+				<td><b>Qtd</b></td>
+				<td><b>Valor Unt.</b></td>
+				<td><b>Valor Total</b></td>
+				<td><b>Lote</b></td>
+				<td><b>Validade</b></td>
+				<td><b></b></td>
+			</tr>
+			";
+      //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $sqlPedidos2 = "SELECT * FROM lista_entradas WHERE cod_entrada = :cod ORDER BY cod DESC";
+      $paramPedidos2 = array(
+        ":cod" => $codentrada
+      );
+
+      $dataTablePedidos2 = $banco->ExecuteQuery($sqlPedidos2, $paramPedidos2);
+      foreach ($dataTablePedidos2 as $resultadopedidos2) {
+
+        $codpedido = $resultadopedidos2['cod'];
+        $codservico = $resultadopedidos2['cod_produto'];
+        $lote = $resultadopedidos2['lote'];
+        $mes_validade = $resultadopedidos2['mes_validade'];
+        $ano_validade = $resultadopedidos2['ano_validade'];
+        $dia = $resultadopedidos2['dia'];
+        $mes = $resultadopedidos2['mes'];
+        $ano = $resultadopedidos2['ano'];
+
+        $data = $dia . "/" . $mes . "/" . $ano;
+
+        //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
+        $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
+        $paramServicos = array(
+          ":cod" => $codservico
+        );
+
+        $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+        foreach ($dataTableServicos as $resultadoservicos) {
+          $nomeservico = $resultadoservicos['nome'];
+
+        }
+        $valor = (float) $resultadopedidos2['valor_total'];
+        $qtd = (float) $resultadopedidos2['qtd'];
+        $valorunt = $valor / $qtd;
+        $total = $total + $valor;
+
+        $valorunt = number_format($valorunt, 2, ',', '.');
+        $valor = number_format($valor, 2, ',', '.');
+
+
+
+        $contador++;
+        echo "
+				
+					<tr>
+						<td>" . $nomeservico . "</td>
+						<td>$qtd</td>
+						<td>R$ " . $valorunt . "</td>
+						<td>R$ " . $valor . "</td>
+						<td>$lote</td>
+						<td>$mes_validade" . "/" . "$ano_validade</td>
+
+						<td>
+						  <a style='font-size:10pt;' tabindex='$contador' id='primeirobotao' href='javascript: func()' onclick='validacao(74, $codentrada, $codpedido, 73)'    class='btn btn-danger'><span class='glyphicon glyphicon-trash'></span> <svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-trash3-fill' viewBox='0 0 16 16'>
+                  <path d='M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5'/>
+                </svg></a>   
+						</td>
+							
+					</tr>
+		   ";
+        $contador++;
+      }
+      $total = number_format($total, 2, ',', '.');
+      echo "
+			<tr>
+				<td colspan='3' style='text-align:right;'>Total:</td>
+				<td colspan='4'><b>R$ " . $total . "</b></td>
+        
+			</tr>
+			";
+      echo "</table>";
+
     }
     break;
-  //RESULTADO PESQUISA PARA DESPESAS
-  case 68:
+  //FUNCAO PARA GERAR PAGAMENTO DE PARCELA 
+  case 75:
+    $param = $_GET['param'];
+    $codnota = $_GET['param'];
+    $valor = $_GET['valor'];
+
+    $valorpag = $_GET['valorpag'];
+    $tipopag = $_GET['tipopag'];
+
+    $pontos = '.';
+    $result = str_replace($pontos, "", $valorpag);
+    $result = str_replace(",", ".", $result);
+    $valorpag = $result;
+
+    $dia = date('d');
+    $mes = date('m');
+    $ano = date('Y');
 
 
-    $param1 = $_GET['param1'];
-    $param2 = $_GET['param2'];
-    $param3 = $_GET['param3'];
-    $param4 = $_GET['param4'];
+    $cod_funcionario = $_SESSION['codF'];
+    $sqlNotaCaixa = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+    $paramNotaCaixa = array(
+      ":status" => 1
+    );
 
-    $partes = explode('-', $param4);
+    $dataTableNotaCaixa = $banco->ExecuteQuery($sqlNotaCaixa, $paramNotaCaixa);
+    if ($dataTableNotaCaixa == null) {
 
-    if ($param1 == 1) {
-      $dia_hoje = $partes['2'];
-      $mes_hoje = $partes['1'];
-      $ano_hoje = $partes['0'];
-      //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
-      $totalfinaldiacat = 0;
-      if ($param2 == 0) {
-        $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
-        $paramFinEmpresa = array(
-          ":dia_hoje" => $dia_hoje,
-          ":mes_hoje" => $mes_hoje,
-          ":ano_hoje" => $ano_hoje
-        );
+      //        header("Location: index.php?msgget=15");
+    } else {
+      foreach ($dataTableNotaCaixa as $resultadonotaCaixa) {
+        $codcaixa = $resultadonotaCaixa['cod'];
 
-
-      } else {
-        $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND dia = :dia_hoje AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
-        $paramFinEmpresa = array(
-          ":categoria" => $param2,
-          ":dia_hoje" => $dia_hoje,
-          ":mes_hoje" => $mes_hoje,
-          ":ano_hoje" => $ano_hoje
-        );
-      }
-    }
-    if ($param1 == 2) {
-
-      $mes_hoje = $partes['1'];
-      $ano_hoje = $partes['0'];
-      //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
-      $totalfinaldiacat = 0;
-      if ($param2 == 0) {
-        $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE  mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
-        $paramFinEmpresa = array(
-          ":mes_hoje" => $mes_hoje,
-          ":ano_hoje" => $ano_hoje
-        );
-
-
-      } else {
-        $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND mes = :mes_hoje AND  ano = :ano_hoje ORDER BY id ASC";
-        $paramFinEmpresa = array(
-          ":categoria" => $param2,
-          ":mes_hoje" => $mes_hoje,
-          ":ano_hoje" => $ano_hoje
-        );
-      }
-    }
-    if ($param1 == 3) {
-      $ano_hoje = $partes['0'];
-      //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
-      $totalfinaldiacat = 0;
-      if ($param2 == 0) {
-        $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE  ano = :ano_hoje ORDER BY id ASC";
-        $paramFinEmpresa = array(
-          ":ano_hoje" => $ano_hoje
-        );
-
-
-      } else {
-        $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE cat = :categoria AND ano = :ano_hoje ORDER BY id ASC";
-        $paramFinEmpresa = array(
-          ":categoria" => $param2,
-          ":ano_hoje" => $ano_hoje
-        );
       }
     }
 
 
-    echo "          <table class='table'>
-                    <tr style='text-align:center;'>
-                        <td><b>Descrição</b></td>
-                        <td><b>Valor</b></td>
-                        <td><b>Categoria</b></td>
-                        <td></td>
+    $query2 = mysqli_query($conn, "UPDATE `pag_par_pro` SET `status` = '2', `valor` = '$valorpag', `tipopag` = '$tipopag', dia = $dia, mes = $mes, ano = $ano, cod_caixa = $codcaixa  WHERE `pag_par_pro`.`cod` = $valor;");
+
+    if ($query2) {
+
+
+      echo "
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                      
+                       ";
+
+      $valortotalpago = 0;
+
+      //SQL PARA VALIDAR SE A VENDA JÁ FOI REALIZADO O PAGAMENTO
+      $sqlTestePag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod ORDER BY cod ASC";
+      $paramTestePag = array(
+        ":cod" => $codnota
+      );
+      $nomecategoria = "Avulso";
+      $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+
+
+      if ($dataTableTestePag != null) {
+
+        foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+          $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+          $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+        }
+
+        $total = 0;
+        $contador = 0;
+
+        $contadorparcelaspagas = 0;
+
+
+        $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod ORDER BY cod ASC LIMIT 1";
+        $paramPedidos222 = array(
+          ":cod" => $codnota
+        );
+
+        $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+        if ($dataTablePedidos222 != null) {
+
+          echo " <tr>
+                        <td colspan='6' style='text-align:center; font-size:14pt;'>PARCELAS PAGAS</td>
+                       </tr>";
+
+
+          echo "
+                  
+                <tr>
+                  <td style='width:20%;'><b>Descrição</b></td>
+                  <td style='width:20%;'><b>Tipo Pagamento</b></td>
+                  <td><b>Valor da Parcela</b></td>
+             
+                 
+                  <td style=''><b>Data de Pagamento</b></td>
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                  <td style=''><b>Status</b></td>
+                  <td style=''><b></b></td>
+                </tr>
+                ";
+          $valortotalpago = 0;
+          //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+          $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+          $paramPedidos22 = array(
+            ":cod" => $codnota
+          );
+
+          $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+
+          foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+            $contadorparcelaspagas++;
+
+            $codpedido = $resultadopedidos22['cod'];
+            $descricao = $resultadopedidos22['descricao'];
+            $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+            $tipopag = $resultadopedidos22['tipopag'];
+
+
+            if ($tipopag == 1) {
+              $Textopagamento = "Dinheiro";
+
+            } else if ($tipopag == 2) {
+              $Textopagamento = "Pix";
+            } else if ($tipopag == 3) {
+              $Textopagamento = "Débito";
+            } else if ($tipopag == 4) {
+              $Textopagamento = "Crédito";
+            }
+
+
+
+            $dia = $resultadopedidos22['dia'];
+            $mes = $resultadopedidos22['mes'];
+            $ano = $resultadopedidos22['ano'];
+            $data_vencimento = $resultadopedidos22['data_vencimento'];
+            $status = $resultadopedidos22['status'];
+            if ($status == 1) {
+              $textostatus = "A PAGAR";
+            } else {
+              $textostatus = "PAGO";
+            }
+
+            $valor = (float) $resultadopedidos22['valor'];
+
+            $valortotalpago = $valortotalpago + $valor;
+
+
+            $valor = number_format($valor, 2, ',', '.');
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                  <td style='width:30%;'><b>$descricao</b></td>
+                  <td style=''><b>$Textopagamento</b></td>
+                  <td><b>R$ $valor</b></td>
+                
+                      <td><b>$dia/$mes/$ano</b></td>
+                  <td style=''><b>$data_vencimento</b></td>
+                  <td style=''><b>$textostatus</b></td>
+                  <td style=''>        
+                  ";
+            if ($status == 1) {
+
+
+            } else {
+              echo "  <a style='width:100%;' target='_blank' class='btn btn-outline-primary' href='Imprimir.php?pagina=23&codrecibo=$codpedido&codnota=$codnota'>
+                                Recibo</a>";
+            }
+            echo "</td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          $total = number_format($total, 2, ',', '.');
+          $restante = $valorfinalpagamento - $valortotalpago;
+
+
+
+          echo "<tr style='font-weight: bold;'>
+                <td style='color:orange;' colspan='1'>Valor Total a Pagar: R$ " .
+            number_format($valorfinalpagamento, 2, ',', '.') . "
+                </td>
+                <td colspan='2' style='color:green;'>
+                Valor Total Pago: R$ " .
+            number_format($valortotalpago, 2, ',', '.') . "                
+                
+                </td>
+                <td style='color:red;' colspan='3'>
+                Restante: R$ " .
+            number_format($valorfinalpagamento - $valortotalpago, 2, ',', '.') . "
+                </td>
+                
+                </tr>";
+        }
+
+        $proximaparcela = 0;
+
+        $total = 0;
+        $contador = 0;
+
+
+        $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod ORDER BY cod ASC LIMIT 1";
+        $paramPedidos222 = array(
+          ":cod" => $codnota
+        );
+
+        $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+        if ($dataTablePedidos222 != null) {
+
+
+          echo "
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                       <tr>
+                        <td colspan='6' style='text-align:center; font-size:14pt;'>PARCELAS A PAGAR</td>
+                       </tr>
+                       ";
+
+          echo "
+                <tr>
+                  <td style='width:20%;'><b>Descrição</b></td>
+                  <td><b>Valor da Parcela</b></td>
+             
+                  <td><b>Data do Parcelamento</b></td>
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                
+                  <td style=''><b></b></td>
+                </tr>
+                ";
+          //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+          $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 1 ORDER BY cod ASC limit 1";
+          $paramPedidos22 = array(
+            ":cod" => $codnota
+          );
+
+          $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+          foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+            $codpedido = $resultadopedidos22['cod'];
+            $descricao = $resultadopedidos22['descricao'];
+            $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+            $tipopag = $resultadopedidos22['tipopag'];
+            $dia = $resultadopedidos22['dia'];
+            $mes = $resultadopedidos22['mes'];
+            $ano = $resultadopedidos22['ano'];
+            $data_vencimento = $resultadopedidos22['data_vencimento'];
+            $status = $resultadopedidos22['status'];
+            if ($status == 1) {
+              $textostatus = "A PAGAR";
+            } else {
+              $textostatus = "PAGO";
+            }
+
+            $valor = (float) $resultadopedidos22['valor'];
+
+
+            $valor = number_format($valor, 2, ',', '.');
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                  <td style='width:30%;'><b>$descricao</b></td>
+                  <td style=''>
+                
+                  <select class='form-control' name='tipopag222$codpedido' id='tipopag222$codpedido'>
+                  <option value='1'>Dinheiro</option>
+                  <option value='2'>Pix</option>
+                  <option value='3'>Débito</option>
+                  <option value='4'>Crédito</option>
+                  </select>
+                 
+                  <b><input href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='$valor' class='form-control' ></b></td>
+                
+                  
+                  <td style=''><b>$data_vencimento</b></td>
+                 
+                  <td style='' id='ResultadoValidacao77$codpedido'>        
+                  ";
+            if ($status == 1) {
+              $valorpag = 0;
+              $tipopag = 1;
+
+              $valor = round((float) $valor, 2);
+              $restante = round((float) $restante, 2);
+
+              echo "           
+                    
+                 
+                    ";
+              $proximaparcela = $contadorparcelaspagas + 1;
+              if ($numparcelas != $proximaparcela) {
+                if ($valor <= $restante) {
+                  echo "           
+                    
+                <a class='btn btn-outline-primary' onclick='ConfirmarParcelamento(75, $codnota, valorpag2$codpedido.value, tipopag222$codpedido.value, $codpedido, 76) ' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                        Pagar Parcela   
+                        </a>
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        VALOR DA PARCELA não pode ser maior que valor restante a ser pago!
+        </div>";
+                }
+              } else {
+                if ($valor == $restante) {
+                  echo "           
+                    
+                  <a class='btn btn-outline-primary' onclick='ConfirmarParcelamento(75, $codnota, valorpag2$codpedido.value, tipopag222$codpedido.value, $codpedido, 76) ' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                        Pagar Parcela   
+                        </a>
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        O usuário está na última parcela do Crediário, o valor da parcela DEVE ser igual ao restante a ser pago!
+        </div>";
+                }
+              }
+
+
+            }
+            echo "</td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          $total = number_format($total, 2, ',', '.');
+
+
+
+
+        }
+      }
+      echo "</table>";
+
+
+      $total = 0;
+      $contador = 0;
+      echo "<h3>Lista de Itens</h3>
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>";
+      echo "
+                <tr>
+                  <td style='width:50%;'><b>Produto</b></td>
+                  <td><b>Qtd</b></td>
+                  <td><b>Valor Unt.</b></td>
+                  <td><b>Valor Total</b></td>
+                  <td style=''><b>Obs</b></td>
+                </tr>
+                ";
+      //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $sqlPedidos2 = "SELECT * FROM pedidos WHERE usuario = :cod ORDER BY cod DESC";
+      $paramPedidos2 = array(
+        ":cod" => $codnota
+      );
+
+      $dataTablePedidos2 = $banco->ExecuteQuery($sqlPedidos2, $paramPedidos2);
+      foreach ($dataTablePedidos2 as $resultadopedidos2) {
+
+        $codpedido = $resultadopedidos2['cod'];
+        $codservico = $resultadopedidos2['servico'];
+
+        if ($codservico == 0) {
+          $nomeservico = $resultadopedidos2['obs'] . "<b><small>(Avulso)</small>" . "<b>";
+          $obs = "";
+        } else {
+          $categoria = $resultadopedidos2['categoria'];
+          //$sql3 = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod=$categoria LIMIT 1");
+          $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod=  :cod LIMIT 1";
+          $paramCategorias = array(
+            ":cod" => $categoria
+          );
+          $nomecategoria = "Avulso";
+          $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+          foreach ($dataTableCategorias as $resultadocategorias) {
+            $nomecategoria = $resultadocategorias['nome'];
+          }
+          //$sql2 = mysqli_query($conn, "SELECT * FROM servicos WHERE cod=" . $codservico . " LIMIT 1");
+          $sqlServicos = "SELECT * FROM servicos WHERE cod= :cod LIMIT 1";
+          $paramServicos = array(
+            ":cod" => $codservico
+          );
+
+          $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+          foreach ($dataTableServicos as $resultadoservicos) {
+            $nomeservico = $resultadoservicos['nome'] . "<b><small>(" . $nomecategoria . ")</small>" . "<b>";
+            $obs = $resultadopedidos2['obs'];
+          }
+        }
+        $valor = (float) $resultadopedidos2['valor'];
+        $qtd = (float) $resultadopedidos2['qtd'];
+        $valorunt = $valor / $qtd;
+        $total = $total + $valor;
+        $codpedido = $resultadopedidos2['cod'];
+        $nomecategoria = "";
+        $valorunt = number_format($valorunt, 2, ',', '.');
+        $valor = number_format($valor, 2, ',', '.');
+
+        echo "
+                  
+                    <tr>
+                      <td>" . $nomeservico . "</td>
+                      <td>$qtd</td>
+                      <td>R$ " . $valorunt . "</td>
+                      <td>R$ " . $valor . "</td>
+                      <td>$obs</td>
+                        
                     </tr>
-		";
-    //$sqlDividasDia = mysqli_query($conn, "SELECT * FROM financeiro_empresa WHERE dia = $dia_hoje AND mes = $mes_hoje AND  ano = $ano_hoje ORDER BY id ASC");
+                 ";
+        $contador++;
+      }
+      $total = number_format($total, 2, ',', '.');
+      echo "
+                <tr>
+                  <td colspan='3' style='text-align:right;'>Total:</td>
+                  <td colspan='3'><b>R$ " . $total . "</b></td>
+                  
+                </tr>
+                ";
+      echo "</table>";
+
+
+
+
+    }
+
+    break;
+  //funcao para chamar formulario de atualização de quantidade de produto em saida do carrinho
+  case 76:
+    $param = $_GET['param'];
+    $valor = $_GET['valor'];
+    echo " 
+      <div class='card-body'>
+       
+        <form id='form-atualizar-qtd'>
+          <div class='mb-3'>
+            <label for='novaQuantidade' class='form-label'>Nova quantidade:</label>
+            <input type='number' class='form-control' id='novaQuantidade' name='novaQuantidade' min='0' required>
+          </div>
+          <button href='javascript: func()' onclick='validacaorelatorios(77, novaQuantidade.value, $param, $valor, 0, 0, 0, 77$valor)' style='width:100%;' type='button' class='btn btn-primary' id='btnAtualizar'>Atualizar</button>
+        </form>
+      </div>
+    
+";
+    break;
+  //FUNCAO PARA ATUALIZAR ESTOQUE EM CARRINHO DE COMPRAS
+  case 77:
+    $novaqtd = $_GET['param1']; //qtd 
+    $codnota = $_GET['param2']; //cod nota
+    $codservico = $_GET['param3']; //cod servico
+
+    $sql = "UPDATE servicos SET qtd = :qtd WHERE cod= :cod";
+    $param = array(
+      ":qtd" => $novaqtd,
+      ":cod" => $codservico,
+    );
+
+    $banco->ExecuteNonQuery($sql, $param);
+
+
+
+    $sqlServicoscont = "SELECT count(*) as total from servicos WHERE cod = :cod";
+    $paramServicoscount = array(
+      ":cod" => $codservico
+    );
+
+    $dataTableServicos222 = $banco->ExecuteQuery($sqlServicoscont, $paramServicoscount);
+
+    foreach ($dataTableServicos222 as $resultado22) {
+      $totalderegistros = $resultado22['total'];
+    }
+
+
+    //PRIMEIRA PESQUISA PARA VERIFICAR SE HÁ PRODUTO COM MESMO CODIGO DE BARRA OU CODIGO DE BUSCA
+
+    $sqlServicosCodBarra = "SELECT * FROM servicos WHERE  codbarra = :codbarra AND codbarra != '' || codbusca = :codbusca AND codbusca != 0 ORDER BY cod ASC LIMIT 1";
+    $paramServicosCodBarra = array(
+      ":codbarra" => $codservico,
+      ":codbusca" => $codservico,
+    );
+
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicosCodBarra, $paramServicosCodBarra);
+
+
+
+    //SE NÃO FOR LOCALIZADO NENHUM ITEM COM O CODIGO DE BARRA OU COD BUSCA - O SISTEMA IRA PESQUISA NOS ITENS POR NOME
+    if ($dataTableServicos == null) {
+
+
+      $sqlServicos = "SELECT * FROM servicos WHERE cod = :nome ORDER BY cod ASC LIMIT 1";
+      $paramServicos = array(
+        ":nome" => $codservico
+      );
+
+      $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+
+
+    }
+
+    $codindex = 2;
+
+    foreach ($dataTableServicos as $resultadoservicos) {
+
+      $codservico = $resultadoservicos['cod'];
+      $descricaoservico = $resultadoservicos['descricao'];
+      $nomeservico = $resultadoservicos['nome'];
+      $categoriaservico = $resultadoservicos['categoria'];
+      $img = $resultadoservicos['img'];
+      $imgservico = $resultadoservicos['img'];
+      $tiposervico = 1;
+      $qtdservico = $resultadoservicos['qtd'];
+      $valorservico = (float) $resultadoservicos['valor'];
+      $tiposervico = (float) $resultadoservicos['tipo'];
+
+
+      if ($imgservico == null) {
+        $imgservico = "logo.ico";
+      }
+
+      $valorformatado = number_format($resultadoservicos['valor'], 2, ',', '.');
+      //FUNCAO PARA CONTAR ITEM QUE JÁ ESTÃO EM PROCESSO DE VENDA
+      $qtdreservada = 0;
+      $sqlPedidos23 = "SELECT * FROM pedidos WHERE servico = :cod AND status != 3 ORDER BY cod ASC";
+      $paramPedidos23 = array(
+        ":cod" => $codservico
+      );
+
+      $dataTablePedidos23 = $banco->ExecuteQuery($sqlPedidos23, $paramPedidos23);
+      foreach ($dataTablePedidos23 as $resultadopedidos23) {
+        $qtdreservada = $qtdreservada + $resultadopedidos23['qtd'];
+      }
+      //FIM DA FUNCAO PARA CONTAGEM
+
+      //FUNCAO PARA CHAMAR NOME DA CATEGORIA DO ITEM
+      $categoriaservico = (float) $resultadoservicos['categoria'];
+      $sqlCategorias = "SELECT * FROM categoriaserfin WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramCategorias = array(
+        ":cod" => $categoriaservico
+      );
+      $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+      foreach ($dataTableCategorias as $resultadocategorias) {
+        $nomecategoria = $resultadocategorias['nome'];
+      }
+
+
+      //EQUAÇÃO PARA ESTOQUE DISPONIVEL
+      $qtdservico = $qtdservico - $qtdreservada;
+
+
+      if ($tiposervico == 0) {
+        $textotipo = "SERVIÇO";
+      } else {
+        $textotipo = "PRODUTO";
+      }
+
+      if ($tiposervico == 0) {
+
+        echo "<div class='card-header py-3' id='ResultadoValidacao77$codservico'>
+      <h5 class='mb-0'>$nomeservico</h5>
+    <div class='card-body'>
+      <div class='row'>
+        <div class='col-lg-3 col-md-12 mb-4 mb-lg-0'>
+          <div class='bg-image hover-overlay hover-zoom ripple rounded' data-mdb-ripple-color='light'>
+            <img style='  ' src='Interface/img/Servicos/logo.ico' class='w-100' />
+            <a href='#!'>
+              <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div>
+            </a>
+          </div>
+        </div>
+        <div class='col-lg-5 col-md-6 mb-4 mb-lg-0'>
+          <p><strong>Categoria: $nomecategoria</strong></p>
+          <p>Tipo: $textotipo</p>
+          ";
+        if ($tiposervico == 0) {
+          echo "";
+        } else {
+          if ($qtdservico > 0) {
+            echo "
+          <p>Qtd: $qtdservico</p>
+          <p>Qtd reservada: $qtdreservada</p>
+         ";
+          } else {
+            echo "<div class='alert alert-warning'>Ñ Disponível</div>";
+          }
+        }
+
+        echo " </button>
+          <!-- Data -->
+        </div>
+        
+        <div class='col-lg-4 col-md-6 mb-4 mb-lg-0'>
+          <p class='text-start text-md-center' style='font-size:14pt;'>Valor Unt.
+            <strong>R$ $valorformatado</strong></br>
+            ";
+        if ($tiposervico == 1) {
+          if ($qtdservico > 0) {
+            echo " 
+                <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+                 <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                    <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                    <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                  </svg>
+                  </a>";
+          } else {
+            echo "<div id='ResultadoValidacao76$codservico' style='text-align:justify'><a href='javascript: func()' onclick='validacao(76, $codnota, $codservico, 76$codservico)' class='btn-danger'>Clique Aqui</a> para atualizar o estoque de emergência</div>";
+          }
+        } else {
+          echo " 
+              <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+               <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                  <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                  <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                </svg>
+                </a>";
+        }
+
+        echo " 
+            </p>
+        </div>
+        </div>
+      </div>
+    </div>";
+        $codindex++;
+      } else if ($tiposervico == 1) {
+
+        echo "<div class='card-header py-3' id='ResultadoValidacao77$codservico'>
+            <h5 class='mb-0'>$nomeservico</h5>
+          
+          <div class='card-body'>
+            <div class='row'>
+              <div class='col-lg-3 col-md-12 mb-4 mb-lg-0'>
+                <div class='bg-image hover-overlay hover-zoom ripple rounded' data-mdb-ripple-color='light'>
+                  <img style='  ' src='Interface/img/Servicos/logo.ico' class='w-100' />
+                  <a href='#!'>
+                    <div class='mask' style='background-color: rgba(251, 251, 251, 0.2)'></div> 
+                  </a>
+                </div>
+              </div>
+              <div class='col-lg-5 col-md-6 mb-4 mb-lg-0'>
+                <p><strong>Categoria: $nomecategoria</strong></p>
+                <p>Tipo: $textotipo</p>
+                ";
+        if ($tiposervico == 0) {
+          echo "";
+        } else {
+          if ($qtdservico > 0) {
+            echo "
+                <p>Qtd: $qtdservico</p>
+                <p>Qtd reservada: $qtdreservada</p>
+               ";
+          } else {
+            echo "<div class='alert alert-warning'>Ñ Disponível</div>";
+          }
+        }
+
+        echo " </button>
+                <!-- Data -->
+              </div>
+              
+              <div class='col-lg-4 col-md-6 mb-4 mb-lg-0'>
+                <p class='text-start text-md-center' style='font-size:14pt;'>Valor Unt.
+                  <strong>R$ $valorformatado</strong></br>
+                  ";
+        if ($tiposervico == 1) {
+          if ($qtdservico > 0) {
+            echo " 
+                      <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+                       <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                          <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                          <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                        </svg>
+                        </a>";
+          } else {
+            echo "<div id='ResultadoValidacao76$codservico' style='text-align:justify'><a href='javascript: func()' onclick='validacao(76, $codnota, $codservico, 76$codservico)' class='btn btn-danger'>Clique Aqui</a>para atualizar o estoque de emergência</div>";
+          }
+        } else {
+          echo " 
+                    <a href='javascript:func()' onclick='CadastrarPedido(1, $codservico, $codnota, $valorservico, $categoriaservico, 1)' type='button' id='liveToastBtn' tabindex='$codindex' data-mdb-button-init data-mdb-ripple-init class='btn btn-outline-success px-2 me-1' onclick='this.parentNode.querySelector('input[type=number]').stepUp()'>
+                     <svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' fill='currentColor' class='bi bi-cart-plus' viewBox='0 0 16 16'>
+                        <path d='M9 5.5a.5.5 0 0 0-1 0V7H6.5a.5.5 0 0 0 0 1H8v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H9z'/>
+                        <path d='M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1zm3.915 10L3.102 4h10.796l-1.313 7zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0m7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0'/>
+                      </svg>
+                      </a>";
+        }
+
+        echo " 
+                  </p>
+              </div>
+            </div>
+          </div>
+          </div>";
+        $codindex++;
+
+      }
+    }
+
+    break;
+  //VALIDACAO PARA ATUALIZAR DADOS DO CLIENTE 
+  case 78:
+    $codcliente = $_GET['param'];
+    $valor = $_GET['valor'];
+    $id = $_GET['id'];
+    $mes_hoje = date('m');
+    $ano_hoje = date('Y');
+
+    //$sql = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $codcliente ORDER BY nome ASC LIMIT 1");
+
+    $sqlClientes = "SELECT * FROM clientes WHERE id = :id ORDER BY nome ASC LIMIT 1";
+    $paramClientes = array(
+      ":id" => $codcliente
+    );
+
+    $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+    foreach ($dataTableClientes as $resultadoclientes) {
+      $codcliente = $resultadoclientes['id'];
+      $nomecliente = $resultadoclientes['nome'];
+
+      $datanascimento = $resultadoclientes['nascimento'];
+      $cpf = $resultadoclientes['cpf'];
+      $enderecocliente = $resultadoclientes['endereco'];
+      $bairrocliente = $resultadoclientes['bairro'];
+      $numerocliente = $resultadoclientes['numero'];
+      $complementocliente = $resultadoclientes['complemento'];
+      $celular = $resultadoclientes['celular'];
+      $whatsapp = $resultadoclientes['residencial'];
+      $status = $resultadoclientes['status'];
+    }
+
+    echo '
+<h3 class="pb-2 mb-4 text-primary border-bottom border-primary">Editar Dados</h3>
+
+<form onsubmit="return ConfirmarIsso();" method="post" name="frmCadastroAlterCli" id="frmCadastroAlterCli" class="needs-validation" novalidate enctype="multipart/form-data">
+  <div class="row g-3">
+  
+    <div class="col-md-8">
+      <label  for="txtNome1" class="form-label text-primary">Nome</label>
+      <input tabindex="8" type="text" class="form-control form-control-lg" id="txtNome1" name="txtNome1" value="' . $nomecliente . '">
+    </div>
+
+    <div class="col-md-4">
+      <label for="txtCpf1" class="form-label text-primary">CPF</label>
+      <input tabindex="9" type="text" class="form-control form-control-lg" id="txtCpf1" name="txtCpf1" value="' . $cpf . '">
+    </div>
+
+    <div class="col-md-12">
+      <label for="txtNascimento" class="form-label text-primary">Nascimento</label>
+      <input tabindex="10" type="text" class="form-control form-control-lg" id="txtNascimento" name="txtNascimento" value="' . $datanascimento . '">
+    </div>
+
+    <div class="col-md-12">
+      <label for="txtEndereco" class="form-label text-primary">Endereço</label>
+      <input tabindex="11" type="text" class="form-control form-control-lg" id="txtEndereco" name="txtEndereco" value="' . $enderecocliente . '">
+    </div>
+        <div class="col-md-12">
+      <label for="txtBairro" class="form-label text-primary">Bairro</label>
+      
+    ';
+    echo '  <select class="form-select" id="txtBairro" name="txtBairro" required>';
+
+    $sqlPedidos = "SELECT * FROM bairros ORDER BY cod ASC";
+    $dataTablePedidos = $banco->ExecuteQuery($sqlPedidos);
+    foreach ($dataTablePedidos as $resultadopedidos) {
+
+      $codbairro = $resultadopedidos['cod'];
+      $nomebairro = $resultadopedidos['descricao_bairro'];
+
+      echo "<option value='$codbairro'" .
+        ($codbairro == $bairrocliente ? " selected" : "") .
+        ">$nomebairro</option>";
+    }
+
+    echo '</select>';
+    echo ' 
+                    </div>
+    
+    <div class="col-md-6">
+      <label for="txtNumero" class="form-label text-primary">Número</label>
+      <input tabindex="13" type="text" class="form-control form-control-lg" id="txtNumero" name="txtNumero" value="' . $numerocliente . '">
+    </div>
+
+    <div class="col-md-12">
+      <label for="txtComplemento" class="form-label text-primary">Complemento</label>
+      <input tabindex="14" type="text" class="form-control form-control-lg" id="txtComplemento" name="txtComplemento" value="' . $complementocliente . '">
+    </div>
+
+    <div class="col-md-6">
+      <label for="txtCelular1" class="form-label text-primary">Celular</label>
+      <input tabindex="15" type="text" class="form-control form-control-lg" id="txtCelular1" name="txtCelular1" value="' . $celular . '">
+    </div>
+
+    <div class="col-md-6">
+      <label for="txtWhatsapp" class="form-label text-primary">Whatsapp</label>
+      <input tabindex="16" type="text" class="form-control form-control-lg" id="txtWhatsapp" name="txtWhatsapp" value="' . $whatsapp . '">
+    </div>
+
+    <div class="col-md-12">
+      <label for="txtStatus" class="form-label text-primary">Status</label>
+      <select tabindex="17" class="form-select form-select-lg" id="txtStatus" name="txtStatus">
+        <option value="1" ' . ($status == 1 ? "selected" : "") . '>Ativo</option>
+        <option value="0" ' . ($status == 0 ? "selected" : "") . '>Inativo</option>
+      </select>
+    </div>
+
+    <input type="hidden" id="txtCodCli" name="txtCodCli" value="' . $codcliente . '">
+
+    <div class="col-12">
+      <input tabindex="17" type="submit" class="btn btn-success btn-lg w-100 mt-3" id="btnSubmitEdCliente" name="btnSubmitEdCliente" value="Editar Dados" />
+    </div>
+  </div>
+</form>
+';
+    break;
+  //funcao para trazer crediario do cliente
+  case 79:
+    $codcli = $_GET['param'];
+
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid; width: 100%; '>Lista de Pendências Crediário</h3>
+           ";
+    echo " 
+       <table class='table' style='font-size:12pt; width:100%;'>
+         <tr style='text-align:center;'>
+           <td><b>Cod. Nota</b></td>
+           <td><b>Cliente</b></td>
+           <td><b>Valor Total</b></td>
+           <td><b>Recebido</b></td>
+           <td><b>A receber</b></td>
+           <td><b>Pagamento</b></td>
+           <td><b>Status</b></td>
+           <td><b></b></td>
+           <td><b></b></td>
+         </tr>
+       ";
+    $textotipocrediario = "";
+    $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE categoria = $codcli AND tipo = 2 ORDER BY cod ASC");
+    // wExibe todos os valores encontrados
+    $valortotalfinanceiro2 = 0;
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+      //var_dump($financeirocli);
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codfin2 = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $codnota2 = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $valortotalfinanceiro2 = (float) $financeirocli->total;
+
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $valortotalparcelas = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $valorparcela = $pagamentototal / $numparcelas;
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      if ($financeirocli->tipo == 1) {// a vista
+        if ($financeirocli->tipopag == 1) {// dinheiro
+          $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+        } else {//debito
+          $textopagamentotipo = "Pagamento á Vista no Débito";
+        }
+      } else {//parcelado
+        if ($financeirocli->tipopag == 1) {// credito
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+        } else {//crediario
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+        }
+      }
+
+      //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+      $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramNotas = array(
+        ":cod" => $codnota
+      );
+
+      $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+      foreach ($dataTableNotas as $resultadonotas) {
+
+        $usuarionota = $resultadonotas['usuario'];
+        $nomecli = $resultadonotas['nomeCli'];
+        //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+        $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+        $paramClientes = array(
+          ":cod" => $usuarionota
+        );
+
+        $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+        foreach ($dataTableClientes as $resultadoclientes) {
+
+          $codcliente = $resultadoclientes['id'];
+          $nomecli = $resultadoclientes['nome'];
+          $celular = $resultadoclientes['celular'];
+        }
+      }
+
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $total = 0;
+      $codpedido = 0;
+      $qtdpedidos = 0;
+      $totalfinal = 0;
+      $valor = 0;
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+        $diapag = $finpar->dia;
+        $mespag = $finpar->mes;
+        $anopag = $finpar->ano;
+        $codparcela = $finpar->cod;
+        $contadorparcelas++;
+      }
+
+      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar22)) {
+        $diapag2 = $finpar->dia;
+        $mespag2 = $finpar->mes;
+        $anopag2 = $finpar->ano;
+      }
+
+
+      $areceber = 0;
+      $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+      $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+      $textostatus = "";
+      if ($diapag == 0) {
+        $textostatus = " Nenhuma Parcela Paga";
+      }
+
+      if ($numparcelas != $contadorparcelas) {
+        echo "
+                     <tr style='text-align:center;'>
+                       <td>$codnota</td>
+                       <td>$nomecli</td>
+                       <td>$pagamentototal</td>
+                       <td>$valortotalparcelas</td>
+                       <td>$areceber</td>
+                       <td>$textopagamentotipo</td>
+                       <td><span style='color:red'>Crediário em Aberto.";
+        if ($diapag != 0) {
+          echo " 
+                                                                                       Ultimo Pagamento:$diapag2/$mespag2/$anopag2</span> ";
+        } else {
+          echo $textostatus;
+        }
+
+        $codcaixa = 0;
+        $cod_funcionario = $_SESSION['codF'];
+        $sqlNotaCaixa = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+        $paramNotaCaixa = array(
+          ":status" => 1
+        );
+
+        $dataTableNotaCaixa = $banco->ExecuteQuery($sqlNotaCaixa, $paramNotaCaixa);
+        if ($dataTableNotaCaixa == null) {
+
+          //        header("Location: index.php?msgget=15");
+        } else {
+          foreach ($dataTableNotaCaixa as $resultadonotaCaixa) {
+            $codcaixa = $resultadonotaCaixa['cod'];
+
+          }
+        }
+
+        echo "      </td>
+                       <td> 
+                             <a class='btn btn-outline-primary' onclick='validacao(17, $codnota, 0, 17)' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                          <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder-plus' viewBox='0 0 16 16'>
+                          <path d='m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z'/>
+                          <path d='M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5'/>
+                        </svg>
+                    </a>
+                    <a class='btn btn-outline-primary' href='?pagina=carinhocompras&cod=$codnota' type='button' >
+                        <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-arrow-right-square-fill' viewBox='0 0 16 16'>
+                          <path d='M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1'/>
+                        </svg>
+                    </a>
+                       </td>
+                       
+                <td><div class='card' >
+          <div class='card-body'>
+            <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate enctype='multipart/form-data'>
+              <input name='txtCodCliente' id='txtCodCliente' value='$codcli' type='hidden' />
+              <input name='txtCod_caixa' id='txtCod_caixa' value='$codcaixa' type='hidden' />
+              <input name='txtCodnota' id='txtCodnota' value='$codnota' type='hidden' />
+              <input name='txtTipoEntrega' id='txtTipoEntrega' value='3' type='hidden' />
+              <input tabindex='3' style='padding:15px; font-size: 9pt; width: 100%;  font-weight: bold' class='btn btn-outline-primary' type='submit' name='btnSubmitRenegociar22' id='btnSubmitRenegociar22' style='' value='Encerrar Crediário - Renegociar'>
+            </form>
+          </div>
+        </div>
+</td>
+
+                     </tr>
+               ";
+      }
+    }
+    echo "</table>";
+    break;
+  //funcao para gerar notas de vendas para o cliente
+  case 80:
+    $param = $_GET['param'];
+    $valor = $_GET['valor'];
+
+
+    echo "<table class='table table-hover' style='font-size:14pt; width:100%;'>
+            <tr style='text-align:left;'>
+                <td><b>Cod. Nota</b></td>
+                <td><b>Cliente</b></td>
+                <td><b>Valor Total</b></td>
+                <td><b>Funcionário</b></td>
+                <td><b>Data e Hora</b></td>
+                <td><b>Tipo</b></td>
+                <td></td>
+                
+            </tr>
+            ";
+
+    $qtdTotalFinal = 0;
+    $valorTotalFinal = 0;
+    //$sql = mysqli_query($conn, "SELECT * FROM notas WHERE status = 2 ORDER BY cod ASC");
+// Exibe todos os valores encontrados
+    $sqlNota = "SELECT * FROM notas WHERE usuario = :usuario ORDER BY cod DESC";
+    $paramNota = array(
+      ":usuario" => $param
+    );
+    $qtdTotalFinal = 0;
+    $valorTotalFinal = 0;
+    $nomecli = "";
+
+
+    $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+    foreach ($dataTableNota as $resultadonota) {
+      $codnota = $resultadonota['cod'];
+      $codcli = $resultadonota['usuario'];
+
+      $dia = $resultadonota['dia'];
+      $mes = $resultadonota['mes'];
+      $ano = $resultadonota['ano'];
+      $hora = $resultadonota['hora'];
+
+      $func = $resultadonota['func'];
+      $tipo = $resultadonota['tipo_pedido'];
+
+
+      if ($codcli != 0) {
+        $nomeCli = "";
+        $sqlCli = "SELECT * FROM clientes WHERE id = :id ORDER BY id ASC LIMIT 1";
+        $paramCli = array(
+          ":id" => $codcli
+        );
+        $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
+        foreach ($dataTableCli as $resultadocli) {
+          $nomecli = $resultadocli['nome'];
+        }
+      } else {
+        $nomeCli = $resultadonota['nomeCli'];
+      }
+      $sqlCli = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramCli = array(
+        ":cod" => $func
+      );
+      $dataTableCli = $banco->ExecuteQuery($sqlCli, $paramCli);
+      foreach ($dataTableCli as $resultadocli) {
+        $nomefunc = $resultadocli['nome'];
+      }
+      $textotipo = "";
+      if ($tipo == 1) {
+        $textotipo = "Venda Expressa";
+      } else if ($tipo == 2) {
+        $textotipo = "Retirada no Balcão";
+      } else if ($tipo == 3) {
+        $textotipo = "Entrega";
+      }
+
+      $validacaopagamento = 0;
+
+      $sqlPagCli = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_orcamento = $codnota ORDER BY cod ASC LIMIT 1");
+      while ($pag = mysqli_fetch_object($sqlPagCli)) {
+        $valorTotalFinal = (float) $pag->total;
+        $validacaopagamento = 1;
+      }
+
+      if ($validacaopagamento == 0) {
+        $sqlPedidos = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = $codnota ORDER BY cod ASC");
+        while ($pedidos = mysqli_fetch_object($sqlPedidos)) {
+          $qtdTotalFinal = $qtdTotalFinal + (int) $pedidos->qtd;
+          $valorTotalFinal = $valorTotalFinal + (float) $pedidos->valor;
+        }
+      }
+
+      $datahora = $dia . '/' . $mes . '/' . $ano . ' ' . $hora;
+
+
+
+      echo "
+          <tr style='text-align:left;'>
+                <td>$codnota</td>
+                <td>$nomeCli</td>
+                <td>" . number_format($valorTotalFinal, 2, ',', '.') . "</td>
+                <td>$nomefunc</td>
+                <td>$datahora</td>
+                <td>$textotipo</td>
+                <td>
+                        <a class='btn btn-outline-primary' onclick='validacao(17, $codnota, 0, 17)' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                              <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-folder-plus' viewBox='0 0 16 16'>
+                              <path d='m.5 3 .04.87a2 2 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09L14.54 8h1.005l.256-2.819A2 2 0 0 0 13.81 3H9.828a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 6.172 1H2.5a2 2 0 0 0-2 2m5.672-1a1 1 0 0 1 .707.293L7.586 3H2.19q-.362.002-.683.12L1.5 2.98a1 1 0 0 1 1-.98z'/>
+                              <path d='M13.5 9a.5.5 0 0 1 .5.5V11h1.5a.5.5 0 1 1 0 1H14v1.5a.5.5 0 1 1-1 0V12h-1.5a.5.5 0 0 1 0-1H13V9.5a.5.5 0 0 1 .5-.5'/>
+                            </svg>
+                        </a>
+                        <a class='btn btn-outline-primary' href='?pagina=carinhocompras&cod=$codnota' type='button' >
+                            <svg xmlns='http://www.w3.org/2000/svg' width='25' height='25' fill='currentColor' class='bi bi-arrow-right-square-fill' viewBox='0 0 16 16'>
+                              <path d='M0 14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2zm4.5-6.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5a.5.5 0 0 1 0-1'/>
+                            </svg>
+                        </a>
+                
+                </td>
+                </tr>";
+      $codnota = 0;
+      $nomeCli = "";
+      $valorTotalFinal = 0;
+      $nomefunc = 0;
+      $datahora = 0;
+      $textotipo = 0;
+    }
+
+    echo "</table>";
+    break;
+  //VALIDACAO PARA GERAR CLIENTES ATRASADOS
+  case 81:
+    echo "DEU AQUI";
+    $data_referencia = date('d-m-Y');
+
+    $sql = mysqli_query($conn, "SELECT * FROM pag_par_pro ORDER BY cod ASC");
+    // Exibe todos os valores encontrados
+
+    while ($parcelas = mysqli_fetch_object($sql)) {
+      echo $codparcela = $parcelas->data_vencimento;
+      echo "</br>";
+      echo $codparcela = $parcelas->cod;
+    }
+    break;
+  //verificacao de pesquisa de notas de entrada por mes e ano
+  case 82:
+
+    $param = $_GET['param'];
+    $valor = $_GET['valor'];
+
+
+
+    $partes = explode('-', $valor);
+
+    $mes_hoje = $partes['1'];
+    $ano_hoje = $partes['0'];
+
+
+    $valor = $_GET['param'];
+
+    $sqlEntradas = "SELECT * FROM entradas WHERE n_notafiscal LIKE :nota AND mes = $mes_hoje AND ano = $ano_hoje ORDER BY cod DESC";
+    $paramEntradas = array(
+      ":nota" => "%{$param}%"
+    );
+    $dataTableEntradas = $banco->ExecuteQuery($sqlEntradas, $paramEntradas);
+    // var_dump($dataTableEntradas)  ;
+    echo "
+            <table class='table' style='font-size:14pt;'>
+            <tr style='text-align:center;'>
+                <td><b>Cod. Entrada</b></td>
+                <td><b>Nº Nota Fiscal</b></td>
+                <td><b>Qtd Total</b></td>
+                <td><b>Valor Total</b></td>
+                <td><b>Data</b></td>
+                <td><b>Status</b></td>
+                <td></td>
+            </tr>
+                ";
+    // Exibe todos os valores encontrados
+    foreach ($dataTableEntradas as $resultadoent) {
+      $entradascod = $resultadoent['cod'];
+      $entradas_atapregao = $resultadoent['ata_pregao'];
+      $entradasfornecedor = $resultadoent['fornecedor'];
+      $entradasn_notafiscal = $resultadoent['n_notafiscal'];
+      $entradascod_funcionario = $resultadoent['cod_funcionario'];
+      $entradasdia = $resultadoent['dia'];
+      $entradasmes = $resultadoent['mes'];
+      $entradasano = $resultadoent['ano'];
+      $entradascod_orgao = $resultadoent['cod_orgao'];
+      $entradasimg = $resultadoent['img'];
+      $entradasstatus = $resultadoent['status'];
+      $textostatus = "";
+      if ($entradasstatus == 1) {
+        $textostatus = "Aberto";
+      } else {
+        $textostatus = "Finalizado";
+      }
+      //$sqlPregao = mysqli_query($conn, "SELECT * FROM pregao WHERE cod = $entradas_atapregao ORDER BY cod ASC LIMIT 1");
+// Exibe todos os valores encontrados
+      $sqlEntradasLista = mysqli_query($conn, "SELECT * FROM lista_entradas WHERE cod_entrada = $entradascod ORDER BY cod ASC");
+      $qtdfinal = 0;
+      $valorfinal = 0;
+      while ($entradaslista = mysqli_fetch_object($sqlEntradasLista)) {
+        $listaentradascod = $entradaslista->cod;
+        $listaentradascod_entrada = $entradaslista->cod_entrada;
+        $listaentradascod_produto = $entradaslista->cod_produto;
+        $listaentradaslote = $entradaslista->lote;
+        $listaentradasmes_validade = $entradaslista->mes_validade;
+        $listaentradasano_validade = $entradaslista->ano_validade;
+        $listaentradasqtd = $entradaslista->qtd;
+        $qtdfinal = $qtdfinal + $listaentradasqtd;
+        $listaentradasvalor_total = $entradaslista->valor_total;
+        $valorfinal = $valorfinal + $listaentradasvalor_total;
+        $listaentradasvalor_total = number_format($listaentradasvalor_total, 2, ',', '.');
+
+        $listaentradasdia = $entradaslista->dia;
+        $listaentradasmes = $entradaslista->mes;
+        $listaentradasano = $entradaslista->ano;
+      }
+      echo "
+                    <tr style='text-align:center;'>
+                        <td>$entradascod</td>
+                        <td style='width:10%;'>$entradasn_notafiscal</td>
+                        <td>$qtdfinal</td>
+                        <td>R$ " . number_format($valorfinal, 2, ',', '.') . " </td>
+                        <td>$entradasdia/$entradasmes/$entradasano</td>
+                        <td style='width:10%;'>$textostatus</td>
+                        <td><a style='width:100%; font-size:16pt;' class='btn btn-primary' href='?pagina=entradas&cod=$entradascod' onclick=''><span class='glyphicon glyphicon-play'></span> Ver Tudo</a></td>
+                    </tr>
+                    ";
+    }
+    echo "</table>";
+
+    break;
+  //VALIDACAO PARA REALIZAR PAGAMENTO DE DIVIDA 
+  case 83:
+    $coddespesa = $_GET['param'];
+    $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE id = :id ORDER BY id ASC";
+    $paramFinEmpresa = array(
+      ":id" => $coddespesa
+    );
     $totalfinaldiacat = 0;
 
     $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
     foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+      $status = $resultadofimempresa['status'];
       $cod = $resultadofimempresa['id'];
       $cat = $resultadofimempresa['cat'];
       $descricao = $resultadofimempresa['descricao'];
+      $datapagamento = $resultadofimempresa['datapagamento'];
+      $datapagamento = date('d/m/y', strtotime($datapagamento));
       $diad = $resultadofimempresa['dia'];
       $mesd = $resultadofimempresa['mes'];
       $anod = $resultadofimempresa['ano'];
@@ -9681,19 +15062,2295 @@ switch ($tipo) {
         $nomecat = $resultadocategorias['nome'];
       }
       $totalfinaldiacat = $totalfinaldiacat + $total;
-      echo "
-                                    <tr style='text-align:center;'>
+    }
+
+    echo "<td colspan='4' style='text-align:left;'>
+    <div class='card'>
+    <div class='card-body'>
+    <h1>Informações da Despesa</h1>
+    <p>
+    <b>Descrição:</b>$descricao</br>
+    <b>Categoria:</b>$nomecat</br>
+    <b>Valor:</b>R$ " . number_format($total, 2, ',', '.') . "</br>
+    <b>Data:</b>$diad/$mesd/$anod</br>
+    
+    </p>
+    <input style='padding:20px; width:100%;' class='form-control' value='" . date('Y-m-d') . "' id='txtDataPagamentoDivida' name='txtDataPagamentoDivida' type='date'/>
+                                       <a  style='width:100%; padding:20px;' class='btn btn-success btn-sm'  href='javascript: func' onclick='validacao(84, $cod, txtDataPagamentoDivida.value, 83$cod)' style='color:#fff;'><span class='glyphicon glyphicon-retweet'></span> Salvar Pagamento</a>
+       
+  </br>
+      </div>
+      </div>
+      </td>";
+
+    break;
+  //validacao para realizar update na divida 
+  case 84:
+    $coddespesa = $_GET['param'];
+    $datapagamento = $_GET['valor'];
+
+    $sql = "UPDATE financeiro_empresa SET status = :status, datapagamento = :datapagamento WHERE id= :id";
+    $param = array(
+      ":id" => $coddespesa,
+      ":status" => 2,
+      ":datapagamento" => $datapagamento
+    );
+
+    $banco->ExecuteNonQuery($sql, $param);
+
+
+    $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE id = :id ORDER BY id ASC";
+    $paramFinEmpresa = array(
+      ":id" => $coddespesa
+    );
+    $totalfinaldiacat = 0;
+
+    $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
+    foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+      $status = $resultadofimempresa['status'];
+      $cod = $resultadofimempresa['id'];
+      $cat = $resultadofimempresa['cat'];
+      $descricao = $resultadofimempresa['descricao'];
+      $datapagamento = $resultadofimempresa['datapagamento'];
+      $datapagamento = date('d/m/y', strtotime($datapagamento));
+      $diad = $resultadofimempresa['dia'];
+      $mesd = $resultadofimempresa['mes'];
+      $anod = $resultadofimempresa['ano'];
+      $pontos = ',';
+      $result = str_replace($pontos, "", $resultadofimempresa['valor']);
+      $valor_total = (float) $result;
+      $total = $valor_total;
+      //$sqlCategorias = mysqli_query($conn, "SELECT * FROM lc_cat WHERE id = $cat ORDER BY id ASC");
+      $sqlCategorias = "SELECT * FROM lc_cat WHERE id = :cat ORDER BY id ASC";
+      $paramCategorias = array(
+        ":cat" => $cat
+      );
+
+      $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+      foreach ($dataTableCategorias as $resultadocategorias) {
+        $idcat = $resultadocategorias['id'];
+        $nomecat = $resultadocategorias['nome'];
+      }
+      $totalfinaldiacat = $totalfinaldiacat + $total;
+    }
+
+    echo "
+                                    <tr style='text-align:center;' id='ResultadoValidacao83$cod'>
                                         <td>" . $descricao . " </td>
                                         <td>R$ " . number_format($total, 2, ',', '.') . "</td>
                                         <td>$nomecat</td>
-                                            <td><a class='btn btn-primary btn-sm' onclick='Validacao(46, 2, 2, 87)' style='color:#fff;'><span class='glyphicon glyphicon-retweet'></span> Editar Dados</a>
-                    </td>
-                                    </tr>
-                                        ";
+                                            <td>
+                                            ";
+    if ($status == 1) {
+      echo "  
+                                            <a  style='width:100%; padding:10px;' class='btn btn-success btn-sm'  href='javascript: func' onclick='validacao(83, $cod, 0, 83$cod)' style='color:#fff;'><span class='glyphicon glyphicon-retweet'></span> Validar Pagamento</a>";
+    } else {
+      echo "<a style='width:100%; padding: 10px; ' class='btn btn-success'>Pago - $datapagamento</a>";
     }
-    echo "</div>";
-    echo "<tr><td><b>Valor Total</b></td><td style='color:green;'>R$ " . number_format($totalfinaldiacat, 2, ',', '.') . "</td></tr>";
+    echo "
+                                            <a style='width:100%; padding:10px; margin-top:10px;' class='btn btn-danger btn-sm' onclick='validacao(85, $cod, 0, 83$cod)' style='color:#fff;'><span class='glyphicon glyphicon-retweet'></span> Apagar</a> </br>
+                                            
+                    </td>
+";
+
+    break;
+  //validacao para validar apagar da divida 
+  case 85:
+    $coddespesa = $_GET['param'];
+    $sqlFinEmpresa = "SELECT * FROM financeiro_empresa WHERE id = :id ORDER BY id ASC";
+    $paramFinEmpresa = array(
+      ":id" => $coddespesa
+    );
+    $totalfinaldiacat = 0;
+
+    $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
+    foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+      $status = $resultadofimempresa['status'];
+      $cod = $resultadofimempresa['id'];
+      $cat = $resultadofimempresa['cat'];
+      $descricao = $resultadofimempresa['descricao'];
+      $datapagamento = $resultadofimempresa['datapagamento'];
+      $datapagamento = date('d/m/y', strtotime($datapagamento));
+      $diad = $resultadofimempresa['dia'];
+      $mesd = $resultadofimempresa['mes'];
+      $anod = $resultadofimempresa['ano'];
+      $pontos = ',';
+      $result = str_replace($pontos, "", $resultadofimempresa['valor']);
+      $valor_total = (float) $result;
+      $total = $valor_total;
+      //$sqlCategorias = mysqli_query($conn, "SELECT * FROM lc_cat WHERE id = $cat ORDER BY id ASC");
+      $sqlCategorias = "SELECT * FROM lc_cat WHERE id = :cat ORDER BY id ASC";
+      $paramCategorias = array(
+        ":cat" => $cat
+      );
+
+      $dataTableCategorias = $banco->ExecuteQuery($sqlCategorias, $paramCategorias);
+      foreach ($dataTableCategorias as $resultadocategorias) {
+        $idcat = $resultadocategorias['id'];
+        $nomecat = $resultadocategorias['nome'];
+      }
+      $totalfinaldiacat = $totalfinaldiacat + $total;
+    }
+
+
+    echo "<td style='text-align:left; width:100%;' colspan='4'>
+              <div class='card'>
+              <div class='card-body'>
+              <h1>Informações da Despesa</h1>
+              <p>
+              <b>Descrição:</b>$descricao</br>
+              <b>Categoria:</b>$nomecat</br>
+              <b>Valor:</b>R$ " . number_format($total, 2, ',', '.') . "</br>
+              <b>Data:</b>$diad/$mesd/$anod</br>
+              </br></br>
+              <span class='alert alert-danger' style='width:100%;'>FAÇA LOGIN PARA EXCLUIR DIVÍDA</span>
+              
+              </p>
+              <label for='txtLoginUsu' class='form-label'>Login</label>
+              <input style='width:100%; padding:20px;' onkeyup='validacaorelatorios(86, $coddespesa, this.value, txtSenhaLogin2$coddespesa.value, 0, 0, 0, 86$coddespesa)'  type='text' class='form-control form-control-lg' id='txtLoginUsu2$coddespesa' name='txtLoginUsu2$coddespesa' value='' />
+              <label for='txtSenhaLogin' class='form-label'>Senha</label>
+              <input style='width:100%; padding:20px;' onkeyup='validacaorelatorios(86, $coddespesa, txtLoginUsu2$coddespesa.value, this.value, 0, 0, 0, 86$coddespesa)'   type='password' class='form-control form-control-lg' id='txtSenhaLogin2$coddespesa' name='txtSenhaLogin2$coddespesa' value='' />
+              <div id='ResultadoValidacao86$coddespesa' style='margin:20px; width:100%;'>
+                
+              </div>
+            </td>
+
+    ";
 
 
     break;
+
+  //validacao para apagar divida do banco
+  case 86:
+
+
+    $coddespesa = $_GET['param1'];
+    $login = $_GET['param2'];
+    $senha = $_GET['param3'];
+
+
+    $senha = md5($senha);
+    $trueorfalse = 0;
+    $sqlUsuario = mysqli_query($conn, "SELECT * FROM usuarios WHERE usuario = '$login' AND senha = '$senha'  ORDER BY cod ASC");
+    while ($loginusuario = mysqli_fetch_object($sqlUsuario)) {
+      $permissao = $loginusuario->permissao;
+      $trueorfalse = 1;
+    }
+    if ($trueorfalse == 1) {
+      if ($permissao == 1) {
+        echo "<a href='javascript:func()' onclick='validacaorelatorios(87, $coddespesa, this.value, txtSenhaLogin2$coddespesa.value, 0, 0, 0, 83$coddespesa)' class='btn btn-outline-danger' style='width:100%; padding:20px;'>DELETAR UM REGISTRO DE DESPESA</a>";
+      } else {
+        echo "<div class='alert alert-danger'>VOCÊ PRECISA DA PERMISSÃO DO ADMINSTRADOR PARA APAGAR UM REGISTRO DE DESPESA</div>";
+      }
+    }
+    break;
+  //VALIDACAO PARA APAGAR DESPESA DO BANCO DE DADOS
+  case 87:
+
+    $coddespesa = $_GET['param1'];
+    $query = mysqli_query($conn, "DELETE FROM `financeiro_empresa` WHERE id = $coddespesa");
+    // Se inserido com scesso
+    if ($query) {
+      echo "<TD colspan='4'><div class='alert alert-danger' style='width:100%;'>DESPESA APAGADA COM SUCESSO!</div></TD>";
+    }
+    break;
+
+  case 89:
+    $tipo_licenca = $_GET['param'];
+    $sqlFinEmpresa = "SELECT * FROM licencas WHERE tipo = :tipo AND ativado = 0 ORDER BY id ASC LIMIT 1";
+    $paramFinEmpresa = array(
+      ":tipo" => $tipo_licenca
+    );
+    $totalfinaldiacat = 0;
+
+
+    $serial = "";
+    $chave_ativacao = "";
+    $valor = "";
+    $valor = "";
+
+    $periodo = "";
+    $tipo = "";
+
+    $dataTableFinEmpresa = $banco->ExecuteQuery($sqlFinEmpresa, $paramFinEmpresa);
+    foreach ($dataTableFinEmpresa as $resultadofimempresa) {
+      $serial = $resultadofimempresa['serial'];
+      $chave_ativacao = $resultadofimempresa['chave_ativacao'];
+      $valor = (float) $resultadofimempresa['valor'];
+      $valor = number_format($valor, 2, ',', '.');
+
+      $periodo = $resultadofimempresa['periodo'];
+      $tipo = $resultadofimempresa['tipo'];
+      if ($tipo == 1) {
+        $tipo = "MENSAL SIMPLES";
+
+      } else if ($tipo == 2) {
+        $tipo = "MENSAL PREMIUN";
+      } else if ($tipo == 3) {
+        $tipo = "VITÁLICIO";
+      }
+    }
+    echo "<div class='card'><div class='card-body'>";
+    if ($tipo_licenca != 0) {
+
+
+      echo "<h5>CHAVE DE ATIVAÇÃO: $chave_ativacao</h5>";
+      echo "<h5>VALOR: R$ $valor</h5>";
+      echo "<h5>PERÍODO: $tipo</h5>";
+
+    } else {
+      echo "<h5>Selecione um Plano para a Ativação Por favor</h5>";
+    }
+
+    echo "</div></div>";
+    break;
+  //VALIDACAO PARA VERIFICAR VALOR EM PAGAMENTO DE PARCELA DE CRÉDIARIO
+  case 90:
+    $codnota = $_GET['param1'];
+    $valordigitado = $_GET['param2'];
+
+
+    $pontos = '.';
+    $result = str_replace($pontos, "", $valordigitado);
+    $result = str_replace(",", ".", $result);
+    $valordigitado = $result;
+
+
+    $tipopag = $_GET['param3'];
+    $codparcela = $_GET['param4'];
+
+
+    $sqlTestePag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod ORDER BY cod ASC";
+    $paramTestePag = array(
+      ":cod" => $codnota
+    );
+    $nomecategoria = "Avulso";
+    $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+
+    if ($dataTableTestePag != null) {
+
+      foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+        $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+        $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+
+
+      }
+    }
+
+    $valorpago = 0;
+    $restante = 0;
+    $contador = 0;
+    $proximaparcela = 0;
+    $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+    $paramPedidos22 = array(
+      ":cod" => $codnota
+    );
+
+    $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+    foreach ($dataTablePedidos222 as $resultadopedidos222) {
+
+      $contador++;
+      $valorpago = $valorpago + $resultadopedidos222['valor'];
+
+    }
+
+
+    $restante = ($valorfinalpagamento - $valorpago);
+
+    $valordigitado = (float) $valordigitado;
+
+    $restante = (float) $restante;
+    $proximaparcela = $contador + 1;
+
+    $valordigitado = round((float) $valordigitado, 2);
+    $restante = round((float) $restante, 2);
+
+
+
+
+    if ($numparcelas != $proximaparcela) {
+      if ($valordigitado <= $restante) {
+        echo "           
+                    
+                  <a class='btn btn-outline-primary' onclick='ConfirmarParcelamento(75, $codnota, valorpag2$codparcela.value, valorpag2$codparcela.value, $codparcela, 76) ' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                        Pagar Parcela   
+                        </a>
+                    ";
+      } else {
+        echo "<div class='alert alert-warning'>
+        VALOR DA PARCELA não pode ser maior que valor restante a ser pago!
+        </div>";
+      }
+    } else {
+      if ($valordigitado == $restante) {
+        echo "           
+                    
+                  <a class='btn btn-outline-primary' onclick='ConfirmarParcelamento(75, $codnota, valorpag2$codparcela.value, tipopag222$codparcela.value, $codparcela, 76) ' href='javascript: func' type='button' data-bs-toggle='modal' data-bs-target='#exampleModalDetalhesPedido' >
+                        Pagar Parcela   
+                        </a>
+                    ";
+      } else {
+        echo "<div class='alert alert-warning'>
+        O usuário está na última parcela do Crediário, o valor da parcela DEVE ser igual ao restante a ser pago!
+        </div>";
+      }
+    }
+
+    break;
+
+  //FUNCAO PARA LISTAR AVANCARD A SEREM PAGOS NESSE MES SELECIONADO
+  case 91:
+    $codnota = $_GET['codnota'];
+
+    $t = explode("-", $codnota);
+    $mes = $t[1];
+    $ano = $t[0];
+
+    $mes_vencimento = $mes . '/' . $ano;
+
+    $dataHOJE = date("m/Y");
+    $sqlTestePag = "SELECT * FROM debitos WHERE data LIKE :data ORDER BY cod ASC";
+    $paramTestePag = array(
+      ":data" => "%$mes_vencimento%"
+    );
+
+    $dataTableTestePagDEBITOS = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+    //   var_dump($dataTableTestePag);
+
+    if ($dataTableTestePagDEBITOS == null) {
+
+
+      // ── LISTA DO MÊS ─────────────────────────────────────────────
+      echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid #337AB7; width: 100%;'>
+        Lista de Pendências AVANCARD - " . mostraMes($mes) . " $ano -     <a style=''  onclick='PagVerTudo(92, txtDataFechaCaixa.value, 44)' class='btn  btn-outline-primary'>REALIZAR DÉBITO AUTOMÁTICO</a>
+                  
+        <span class='blog-post-meta'></span>
+    </h3>";
+
+      $proximaparcela = 0;
+
+      $total = 0;
+      $contador = 0;
+
+
+      $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC LIMIT 1";
+      $paramPedidos222 = array(
+        ":validade" => "%{$mes_vencimento}%"
+      );
+
+      $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+
+
+      if ($dataTablePedidos222 != null) {
+
+        echo "
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                     
+                       ";
+
+        echo "
+                <tr>
+                  <TD><b>Cod. Nota</b></td>
+                  <TD><b>Cliente</b></td>
+                  <TD><b>Valor Total</b></td>
+                  <TD><b>Recebido</b></td>
+                  <TD><b>A receber</b></td>
+                  <TD><b>Pagamento</b></td>
+                  <td ><b>Descrição</b></td>
+        
+                  
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                 
+                <td><b>Valor da Parcela</b></td>
+                </tr>
+                
+                ";
+
+
+        //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+        $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC";
+        $paramPedidos22 = array(
+          ":validade" => "%{$mes_vencimento}%"
+        );
+
+        $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+        $valortotalparcelas = 0;
+        $valorparcelaagora = 0;
+        foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+
+
+          $codpedido = $resultadopedidos22['cod'];
+          $descricao = $resultadopedidos22['descricao'];
+          $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+          $codnota = $resultadopedidos22['esp_proc'];
+          $tipopag = $resultadopedidos22['tipopag'];
+          $dia = $resultadopedidos22['dia'];
+          $mes = $resultadopedidos22['mes'];
+          $ano = $resultadopedidos22['ano'];
+          $data_vencimento = $resultadopedidos22['data_vencimento'];
+          $status = $resultadopedidos22['status'];
+          if ($status == 1) {
+            $textostatus = "A PAGAR";
+          } else {
+            $textostatus = "PAGO";
+          }
+
+          $valor = (int) $resultadopedidos22['valor'];
+          $valorparcelaagora = (int) $resultadopedidos22['valor'];
+
+
+          $valor = number_format($valor, 2, ',', '.');
+
+
+
+          $valortotalpago = 0;
+          $valorfinalpagamento = 0;
+
+          //SQL PARA VALIDAR SE A VENDA JÁ FOI REALIZADO O PAGAMENTO
+          $sqlTestePag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod AND tipo_crediario = 2 ORDER BY cod ASC";
+          $paramTestePag = array(
+            ":cod" => $codnota
+          );
+          $nomecategoria = "Avulso";
+          $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+
+          if ($dataTableTestePag != null) {
+
+            foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+              $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+              $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+            }
+
+
+
+            $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+            $paramPedidos22 = array(
+              ":cod" => $codnota
+            );
+
+            $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+            $contadorparcelaspagas = 0;
+            $valorparcela = 0;
+
+
+
+
+            foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+              $contadorparcelaspagas++;
+
+              $valorparcela = (float) $resultadopedidos22['valor'];
+
+              $valortotalpago = $valortotalpago + $valorparcela;
+
+            }
+
+            // $total = number_format($total, 2, ',', '.');
+            $restante = $valorfinalpagamento - $valortotalpago;
+
+
+
+            $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_orcamento = $codnota ORDER BY cod ASC");
+            // Exibe todos os valores encontrados
+            $valortotalfinanceiro2 = 0;
+            while ($financeirocli = mysqli_fetch_object($sql)) {
+              $contadorparcelas = 0;
+              $codfin = $financeirocli->cod;
+              $codfin2 = $financeirocli->cod;
+              $codnota = $financeirocli->cod_orcamento;
+              $codnota2 = $financeirocli->cod_orcamento;
+
+
+              $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+              if ($tipo_crediario == 1) {
+                $textotipocrediario = "DA LOJA";
+              } else {
+
+                $textotipocrediario = "AVANCARD";
+              }
+
+
+              $valortotalfinanceiro = (float) $financeirocli->total;
+              $valortotalfinanceiro2 = (float) $financeirocli->total;
+              $diaatual = date('d');
+              $anoatual = date('Y');
+              $mesatual = date('m');
+              $diapag = 0;
+              $mespag = 0;
+              $anopag = 0;
+              $valortotalparcelas = 0;
+              $codparcela = 0;
+
+              $troco = $financeirocli->gorjeta;
+              $pagamentototal = (float) $financeirocli->total;
+              $pagamentototal2 = $pagamentototal;
+              $numparcelas = (float) $financeirocli->numparcelas;
+              $valorparcela = $pagamentototal / $numparcelas;
+              $valorparcela = number_format($valorparcela, 2, ',', '.');
+              $valorparcela2 = $valorparcela;
+              $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+              $tipopag1 = $financeirocli->tipo;
+              $tipopag2 = $financeirocli->tipopag;
+
+              if ($financeirocli->tipo == 1) {// a vista
+                if ($financeirocli->tipopag == 1) {// dinheiro
+                  $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+                } else {//debito
+                  $textopagamentotipo = "Pagamento á Vista no Débito";
+                }
+              } else {//parcelado
+                if ($financeirocli->tipopag == 1) {// credito
+                  $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+                } else {//crediario
+                  $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+                }
+              }
+
+              //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+              $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+              $paramNotas = array(
+                ":cod" => $codnota
+              );
+
+              $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+              foreach ($dataTableNotas as $resultadonotas) {
+
+                $usuarionota = $resultadonotas['usuario'];
+                $nomecli = $resultadonotas['nomeCli'];
+                //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+                $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+                $paramClientes = array(
+                  ":cod" => $usuarionota
+                );
+
+                $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+                foreach ($dataTableClientes as $resultadoclientes) {
+
+                  $codcliente = $resultadoclientes['id'];
+                  $nomecli = $resultadoclientes['nome'];
+                  $celular = $resultadoclientes['celular'];
+                }
+              }
+
+              $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+              $total = 0;
+              $codpedido = 0;
+              $qtdpedidos = 0;
+              $totalfinal = 0;
+              $valor = 0;
+              while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+                $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+                $valor = (float) $pedidos->valor;
+                $totalfinal = $totalfinal + $valor;
+              }
+
+
+
+              $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+              // Exibe todos os valores encontrados
+              while ($finpar = mysqli_fetch_object($sqlPar)) {
+                $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+                $diapag = $finpar->dia;
+                $mespag = $finpar->mes;
+                $anopag = $finpar->ano;
+                $codparcela = $finpar->cod;
+                $contadorparcelas++;
+              }
+
+              $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+              // Exibe todos os valores encontrados
+              while ($finpar = mysqli_fetch_object($sqlPar22)) {
+                $diapag2 = $finpar->dia;
+                $mespag2 = $finpar->mes;
+                $anopag2 = $finpar->ano;
+              }
+
+
+              $areceber = 0;
+              $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+              $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+              $textostatus = "";
+              if ($diapag == 0) {
+                $textostatus = " Nenhuma Parcela Paga";
+              }
+
+            }
+
+            echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                     <Td>$codnota</td>
+                     <Td>$nomecli</td>
+                     <Td>" . number_format($pagamentototal2, 2, ',', '.') . "</td>
+                     <Td>$valortotalparcelas</td>
+                     <Td>$areceber</td>
+                     <Td>$textopagamentotipo</td>
+                  <td style=''><b>$descricao</b></td>
+                
+                
+               
+                  
+                  <td style=''><b>$data_vencimento</b></td>
+                 
+                  <td style='' id='ResultadoValidacao77$codpedido'>     
+                  
+                  
+
+
+                  
+                  ";
+            $valor = round((float) $valor, 2);
+            $restante = round((float) $restante, 2);
+
+            if ($status == 1) {
+              $valorpag = 0;
+              $tipopag = 1;
+
+              $proximaparcela = $contadorparcelaspagas + 1;
+              if ($numparcelas != $proximaparcela) {
+
+                $valor = (int) $valor;
+
+
+                if ($valorparcelaagora <= $restante) {
+                  $valorparcelaagora = number_format($valorparcelaagora, 2, ',', '.');
+                  echo "           
+            
+                           <input value='3' type='hidden' name='tipopag222$codpedido' id='tipopag222$codpedido' />
+                
+                  <b><input disabled href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='R$ $valorparcelaagora' class='form-control' ></b></td>
+                
+                    ";
+                } else {
+                  echo "<div class='alert alert-warning'>
+        VALOR DA PARCELA não pode ser maior que valor restante a ser pago!
+        </div>";
+                }
+              } else {
+
+                echo "           
+            
+                           <input value='3' type='hidden' name='tipopag222$codpedido' id='tipopag222$codpedido' />
+                
+                  <b><input disabled href='javascript: func' onkeyup='validacaopagamento(90, $codnota, this.value, tipopag222$codpedido.value, $codpedido, 0, 0, 77$codpedido)'  name='valorpag2$codpedido' id='valorpag2$codpedido' value='R$ $restante' class='form-control' ></b></td>
+                
+                    ";
+
+              }
+
+
+            }
+            echo "</td>
+                </tr>
+                 ";
+            $contador++;
+          }
+          //  $total = number_format($total, 2, ',', '.');
+
+
+
+
+        }
+      }
+      echo "</table>";
+
+
+
+
+
+
+    } else {
+      foreach ($dataTableTestePagDEBITOS as $resultadoPAGAMENTO) {
+        $data = $resultadoPAGAMENTO['data'];
+        $totalemdebitoparcelado = $resultadoPAGAMENTO['total'];
+        $totaldeparcelasnomes = $resultadoPAGAMENTO['qtd'];
+        $nomefunc = $resultadoPAGAMENTO['cod_func'];
+        $sqlFunc = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+        $paramFunc = array(
+          ":cod" => $nomefunc
+        );
+
+        $dataTableFunc = $banco->ExecuteQuery($sqlFunc, $paramFunc);
+        foreach ($dataTableFunc as $resultadofunc) {
+          $nomefunc = $resultadofunc['nome'];
+        }
+      }
+      echo "<h3>EXTRATO DE DÉBITOS AVANCARD DE $dataHOJE</h3>
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                     <tr>
+                      <td>Data e Hora do Débito</td>
+                      <td>Valor Total Recebidos</td>
+                      <td>Qtd de Parcelas</td>
+                      <td>Funcionário que Realizou o débito</td>
+                     </tr>
+                       ";
+
+      echo "
+                <tr>
+                  <TD><b>$data</b></td>
+                  <TD><b>" . number_format($totalemdebitoparcelado, 2, ',', '.') . "</b></td>
+                  <TD><b>$totaldeparcelasnomes</b></td>
+                  <TD><b>$nomefunc</b></td>
+                 
+        ";
+
+      echo "</tr></table>";
+    }
+    break;
+
+
+  //funcao para debitar automaticamente todas as parcelas do avancard com vencimento para dia 20.
+  case 92:
+
+    $codnota = $_GET['codnota'];
+
+    $t = explode("-", $codnota);
+    $mes = $t[1];
+    $ano = $t[0];
+
+    $mes_vencimento = $mes . '/' . $ano;
+
+
+    $cod_funcionario = $_SESSION['codF'];
+    $sqlNotaCaixa = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+    $paramNotaCaixa = array(
+      ":status" => 1
+    );
+
+    $dataTableNotaCaixa = $banco->ExecuteQuery($sqlNotaCaixa, $paramNotaCaixa);
+    if ($dataTableNotaCaixa == null) {
+
+      //        header("Location: index.php?msgget=15");
+    } else {
+      foreach ($dataTableNotaCaixa as $resultadonotaCaixa) {
+        $codcaixa = $resultadonotaCaixa['cod'];
+
+      }
+    }
+
+
+
+
+    $proximaparcela = 0;
+
+    $total = 0;
+    $contador = 0;
+
+    $totalemdebitoparcelado = 0;
+    $totaldeparcelasnomes = 0;
+    $sqlPedidos222 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC LIMIT 1";
+    $paramPedidos222 = array(
+      ":validade" => "%{$mes_vencimento}%"
+    );
+
+    $dataTablePedidos222 = $banco->ExecuteQuery($sqlPedidos222, $paramPedidos222);
+
+
+    if ($dataTablePedidos222 != null) {
+
+
+      //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE data_vencimento LIKE :validade AND status = 1 ORDER BY cod ASC";
+      $paramPedidos22 = array(
+        ":validade" => "%{$mes_vencimento}%"
+      );
+
+      $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+      $valortotalparcelas = 0;
+      $valorparcelaagora = 0;
+      foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+
+
+        $codpedido = $resultadopedidos22['cod'];
+        $descricao = $resultadopedidos22['descricao'];
+        $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+        $codnota = $resultadopedidos22['esp_proc'];
+        $tipopag = $resultadopedidos22['tipopag'];
+        $dia = $resultadopedidos22['dia'];
+        $mes = $resultadopedidos22['mes'];
+        $ano = $resultadopedidos22['ano'];
+        $data_vencimento = $resultadopedidos22['data_vencimento'];
+        $status = $resultadopedidos22['status'];
+        if ($status == 1) {
+          $textostatus = "A PAGAR";
+        } else {
+          $textostatus = "PAGO";
+        }
+
+        $valor = (int) $resultadopedidos22['valor'];
+        $valorparcelaagora = (int) $resultadopedidos22['valor'];
+
+
+        $valor = number_format($valor, 2, ',', '.');
+
+
+
+        $valortotalpago = 0;
+        $valorfinalpagamento = 0;
+
+        //SQL PARA VALIDAR SE A VENDA JÁ FOI REALIZADO O PAGAMENTO
+        $sqlTestePag = "SELECT * FROM financeiro_clientes WHERE cod_orcamento = :cod AND tipo_crediario = 2 ORDER BY cod ASC";
+        $paramTestePag = array(
+          ":cod" => $codnota
+        );
+        $nomecategoria = "Avulso";
+        $dataTableTestePag = $banco->ExecuteQuery($sqlTestePag, $paramTestePag);
+
+        if ($dataTableTestePag != null) {
+
+          foreach ($dataTableTestePag as $resultadoPAGAMENTO222) {
+
+            $valorfinalpagamento = $resultadoPAGAMENTO222['total'];
+            $numparcelas = $resultadoPAGAMENTO222['numparcelas'];
+          }
+
+
+
+          $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE esp_proc = :cod AND status = 2 ORDER BY cod ASC";
+          $paramPedidos22 = array(
+            ":cod" => $codnota
+          );
+
+          $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+          $contadorparcelaspagas = 0;
+          $valorparcela = 0;
+
+
+
+
+          foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+            $contadorparcelaspagas++;
+
+            $valorparcela = (float) $resultadopedidos22['valor'];
+
+            $valortotalpago = $valortotalpago + $valorparcela;
+
+          }
+
+          // $total = number_format($total, 2, ',', '.');
+          $restante = $valorfinalpagamento - $valortotalpago;
+
+
+
+          $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_orcamento = $codnota ORDER BY cod ASC");
+          // Exibe todos os valores encontrados
+          $valortotalfinanceiro2 = 0;
+          while ($financeirocli = mysqli_fetch_object($sql)) {
+            $contadorparcelas = 0;
+            $codfin = $financeirocli->cod;
+            $codfin2 = $financeirocli->cod;
+            $codnota = $financeirocli->cod_orcamento;
+            $codnota2 = $financeirocli->cod_orcamento;
+
+
+            $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+            if ($tipo_crediario == 1) {
+              $textotipocrediario = "DA LOJA";
+            } else {
+
+              $textotipocrediario = "AVANCARD";
+            }
+
+
+            $valortotalfinanceiro = (float) $financeirocli->total;
+            $valortotalfinanceiro2 = (float) $financeirocli->total;
+            $diaatual = date('d');
+            $anoatual = date('Y');
+            $mesatual = date('m');
+            $diapag = 0;
+            $mespag = 0;
+            $anopag = 0;
+            $valortotalparcelas = 0;
+            $codparcela = 0;
+
+            $troco = $financeirocli->gorjeta;
+            $pagamentototal = (float) $financeirocli->total;
+            $pagamentototal2 = $pagamentototal;
+            $numparcelas = (float) $financeirocli->numparcelas;
+            $valorparcela = $pagamentototal / $numparcelas;
+            $valorparcela = number_format($valorparcela, 2, ',', '.');
+            $valorparcela2 = $valorparcela;
+            $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+            $tipopag1 = $financeirocli->tipo;
+            $tipopag2 = $financeirocli->tipopag;
+
+            if ($financeirocli->tipo == 1) {// a vista
+              if ($financeirocli->tipopag == 1) {// dinheiro
+                $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+              } else {//debito
+                $textopagamentotipo = "Pagamento á Vista no Débito";
+              }
+            } else {//parcelado
+              if ($financeirocli->tipopag == 1) {// credito
+                $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+              } else {//crediario
+                $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+              }
+            }
+
+            //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+            $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+            $paramNotas = array(
+              ":cod" => $codnota
+            );
+
+            $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+            foreach ($dataTableNotas as $resultadonotas) {
+
+              $usuarionota = $resultadonotas['usuario'];
+              $nomecli = $resultadonotas['nomeCli'];
+              //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+              $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+              $paramClientes = array(
+                ":cod" => $usuarionota
+              );
+
+              $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+              foreach ($dataTableClientes as $resultadoclientes) {
+
+                $codcliente = $resultadoclientes['id'];
+                $nomecli = $resultadoclientes['nome'];
+                $celular = $resultadoclientes['celular'];
+              }
+            }
+
+            $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+            $total = 0;
+
+            $qtdpedidos = 0;
+            $totalfinal = 0;
+            $valor = 0;
+            while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+              $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+              $valor = (float) $pedidos->valor;
+              $totalfinal = $totalfinal + $valor;
+            }
+
+
+
+            $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+            // Exibe todos os valores encontrados
+            while ($finpar = mysqli_fetch_object($sqlPar)) {
+              $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+              $diapag = $finpar->dia;
+              $mespag = $finpar->mes;
+              $anopag = $finpar->ano;
+              $codparcela = $finpar->cod;
+              $contadorparcelas++;
+            }
+
+            $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+            // Exibe todos os valores encontrados
+            while ($finpar = mysqli_fetch_object($sqlPar22)) {
+              $diapag2 = $finpar->dia;
+              $mespag2 = $finpar->mes;
+              $anopag2 = $finpar->ano;
+            }
+
+
+            $areceber = 0;
+            $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+            $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+            $textostatus = "";
+            if ($diapag == 0) {
+              $textostatus = " Nenhuma Parcela Paga";
+            }
+
+          }
+
+
+          $valor = round((float) $valor, 2);
+          $restante = round((float) $restante, 2);
+
+          if ($status == 1) {
+            $valorpag = 0;
+            $tipopag = 1;
+
+            $proximaparcela = $contadorparcelaspagas + 1;
+            if ($numparcelas != $proximaparcela) {
+
+              $valor = (int) $valor;
+
+
+              if ($valorparcelaagora <= $restante) {
+                $valorparcelaagora = number_format($valorparcelaagora, 2, ',', '.');
+
+                $dia = date('d');
+                $mes = date('m');
+                $ano = date('Y');
+
+                $query2 = mysqli_query($conn, "UPDATE `pag_par_pro` SET `status` = '2', `valor` = '$valorparcelaagora', `tipopag` = 3, dia = $dia, mes = $mes, ano = $ano, cod_caixa = $codcaixa  WHERE `pag_par_pro`.`cod` = $codpedido;");
+
+                if ($query2) {
+                  $codpedido;
+                  $totalemdebitoparcelado = $totalemdebitoparcelado + (float) $valorparcelaagora;
+                  $totaldeparcelasnomes++;
+                }
+              }
+            } else {
+
+              $dia = date('d');
+              $mes = date('m');
+              $ano = date('Y');
+
+              $query2 = mysqli_query($conn, "UPDATE `pag_par_pro` SET `status` = '2', `valor` = '$restante', `tipopag` = 3, dia = $dia, mes = $mes, ano = $ano, cod_caixa = $codcaixa  WHERE `pag_par_pro`.`cod` = $codpedido;");
+
+              if ($query2) {
+                $totalemdebitoparcelado = $totalemdebitoparcelado + (float) $restante;
+                $totaldeparcelasnomes++;
+              }
+
+            }
+
+
+          }
+
+
+
+          $contador++;
+        }
+        //  $total = number_format($total, 2, ',', '.');
+
+
+
+
+      }
+    }
+
+    $data = date('d/m/Y H:s:i');
+    $nomefunc = '';
+    $cod_func = $_SESSION['codF'];
+
+    $sqlFunc = "SELECT * FROM usuarios WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramFunc = array(
+      ":cod" => $cod_func
+    );
+
+    $dataTableFunc = $banco->ExecuteQuery($sqlFunc, $paramFunc);
+    foreach ($dataTableFunc as $resultadofunc) {
+      $nomefunc = $resultadofunc['nome'];
+    }
+
+
+    $query = mysqli_query($conn, "INSERT INTO `debitos` (`data`, `total`, `status`, `qtd`, `cod_func`) VALUES ('" . $data . "', '" . $totalemdebitoparcelado . " ', 1, $totaldeparcelasnomes, $cod_func)");
+    // Se inserido com scesso
+    if ($query) {
+      echo "<h1>DÉBITO REALIZADO COM SUCESSO</h1>
+                       <table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+                     <tr>
+                      <td>Data e Hora do Débito</td>
+                      <td>Valor Total Recebidos</td>
+                      <td>Qtd de Parcelas</td>
+                      <td>Funcionário que Realizou o débito</td>
+                     </tr>
+                       ";
+
+      echo "
+                <tr>
+                  <TD><b>$data</b></td>
+                  <TD><b>" . number_format($totalemdebitoparcelado, 2, ',', '.') . "</b></td>
+                  <TD><b>$totaldeparcelasnomes</b></td>
+                  <TD><b>$nomefunc</b></td>
+                 
+        ";
+
+      echo "</tr></table>";
+
+
+
+
+    }
+
+
+    break;
+
+  //FUNCAO PARA TROCAR VENDEDOR 
+  case 93:
+    $codnota = $_GET['param'];
+    $codvendedor = $_GET['valor'];
+
+    $sql = "UPDATE notas SET vendedor_bonus = :vendedor_bonus WHERE cod= :cod";
+    $param = array(
+      ":cod" => $codnota,
+      ":vendedor_bonus" => $codvendedor
+
+    );
+
+    echo "<div class='alert alert-success'>VENDEDOR ATUALIZADO COM SUCESSO</div>";
+
+    $banco->ExecuteNonQuery($sql, $param);
+
+    break;
+  //funcao para gerar parcelas avancard E CREDIARIO DA LOJA
+  case 94:
+    $codnota = $_GET['codnota'];
+    $tipo_crediario = $_GET['novoparam'];
+    $numparcelasloja = (float) $_GET['valor'];
+    $valorentrada = (float) $_GET['entrada'];
+    $datavencimento = $_GET['novadata'];
+    $tipopagentrada = $_GET['tipopagentrada'];
+    $datehoje = date('d/m/Y');
+
+    $totalcomentrada = 0;
+
+    if ($tipo_crediario == 1) {
+
+      $dinheirooudebito = 0;
+
+      // Procura titulos no banco relacionados ao valor
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+
+      $totalfinal = 0;
+      $valor = 0;
+
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+      $totalcomentrada = $totalfinal - $valorentrada;
+
+
+      //   $totalcomentrada = number_format($totalcomentrada, 2, ',', '.');
+
+
+
+      for ($i = 1; $i <= $numparcelasloja; $i++) {
+        $dataAtual = new DateTime();
+
+        $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$numparcelasloja";
+
+        $valor_parcela = $totalcomentrada / $numparcelasloja;
+        $financeiro_pac = 0;
+        $tipopag = "PARCELADO";
+
+        $esp_proc = $codnota;
+
+
+        $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$numparcelasloja";
+        $valor_parcela = $totalcomentrada / $numparcelasloja;
+        $financeiro_pac = 0;
+        $tipopag = "PARCELADO";
+        $esp_proc = $codnota;
+        $status = 1;
+
+        // ── Lógica de vencimento ancorada no dia 20 ──────────────────
+        $dia_hoje = (int) date('d');
+        $mes_hoje = (int) date('m');
+        $ano_hoje = (int) date('Y');
+
+        if ($tipo_crediario == 1) {
+
+          // CREDIÁRIO LOJA — vence a cada mês a partir da compra
+          $data_venc = new DateTime();
+          $data_venc->modify("+$i month");
+
+        } elseif ($tipo_crediario == 2) {
+
+          // AVANCARD — sempre vence no dia 20, sincronizado
+          if ($dia_hoje < 20) {
+            // Compra antes do dia 20 → 1ª parcela no dia 20 deste mês
+            $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+            $data_venc->modify("+" . ($i - 1) . " month");
+          } else {
+            // Compra no dia 20 ou depois → 1ª parcela no dia 20 do próximo mês
+            $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+            $data_venc->modify("+$i month");
+          }
+
+        }
+
+        $data_vencimento = $data_venc->format("d/m/Y");
+
+
+
+        $status = 1;
+
+
+
+      }
+
+
+
+
+      echo "
+           <form onsubmit='return ConfirmarIsso();' name='form_cadastrarmovimento' method='post' action='' style='margin-top:5px; width:100%;' class='needs-validation' novalidate>
+             <div class='row' style=''>
+                  
+                  <input name='txtCodnota' id='txtCodnota' value='$codnota' type='hidden' />
+                  <input name='Tipocrediario2' id='Tipocrediario2' value='$tipo_crediario' type='hidden' />
+                  <input name='txtValorEntrada2' id='txtValorEntrada2' value='$valorentrada' type='hidden' />
+                  <input name='tipopagamentoentrada2' id='tipopagamentoentrada2' value='$tipopagentrada' type='hidden' />
+               
+
+                  <label for='valortotal'><h4>Parcelamento e Juros</h4></label>
+                  <div class='input-group' style='width:100%; margin-bottom:10px;'>
+                          <select onchange='ParcelamentoNovaInterface2(11, numparcelas.value, $codnota, this.value, juros2.value, valorentrada.value, txtDataVencimento.value, tipocrediario.value, tipopagamentoentrada.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='juros' name='juros'>
+                          <option value='1'>Sem Juros</option>
+                          <option value='2'>Juros Simples</option>
+                          <option value='3'>Juros Composto</option>
+                          </select>
+                          </div>
+                          
+                      <div class='input-group' style='width:50%;'>
+                          <select onchange='ParcelamentoNovaInterface2(11, this.value, $codnota, juros.value, juros2.value, valorentrada.value, txtDataVencimento.value, tipocrediario.value, tipopagamentoentrada.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='numparcelas' name='numparcelas'>
+                          <option value='1'>1x</option>
+                          <option value='2'>2x</option>
+                          <option value='3'>3x</option>
+                          <option value='4'>4x</option>
+                          <option value='5'>5x</option>
+                    			<option value='6'>6x</option>
+                          <option value='7'>7x</option>
+                          <option value='8'>8x</option>
+                          <option value='9'>9x</option>
+                          <option value='10'>10x</option>
+                          <option value='11'>11x</option>
+                          <option value='12'>12x</option>
+                          </select>
+                          </div>
+                          </br>
+                          <div class='input-group' style='width:45%;'>
+                          <select onchange='ParcelamentoNovaInterface2(11, numparcelas.value, $codnota, juros.value, this.value, valorentrada.value, txtDataVencimento.value, tipocrediario.value, tipopagamentoentrada.value)' style='font-size:18pt; padding:15px; height:60px;' class='form-control' id='juros2' name='juros2'>
+                          <option value='1'>1%</option>
+                          <option value='2'>2%</option>
+                          <option value='3'>3%</option>
+                          <option value='4'>4%</option>
+                          <option value='5'>5%</option>
+                          <option value='6'>6%</option>
+                          <option value='7'>7%</option>
+                          <option value='8'>8%</option>
+                          <option value='9'>9%</option>
+                          <option value='10' selected='selected'>10%</option>
+                          <option value='20'>20%</option>
+                          <option value='30'>30%</option>
+                          <option value='40'>40%</option>
+                          <option value='50'>50%</option>
+                          <option value='60'>60%</option>
+                          <option value='70'>70%</option>
+                          <option value='80'>80%</option>
+                          <option value='90'>90%</option>
+                          <option value='100'>100%</option>
+                          </select>
+                          </div>
+                          
+                  <label for='valortotal'><h4>Data de Parcelamento</h4></label>
+                  <input class='form-control' style='font-size:14pt; padding:25px; ' onkeyup='ParcelamentoNovaInterface2(11, numparcelas.value, $codnota, juros.value, juros2.value, valorentrada.value, this.value, tipocrediario.value, tipopagamentoentrada.value)' value='" . date('Y-m-d') . "' name='txtDataVencimento' id='txtDataVencimento' type='date' />
+                        <div id='resultadodoparcelamento2' class='row' style='margin-bottom:10px;'>
+
+                          <label for='valortotal'><h4>Valor da Parcela</h4></label>
+                          <div class='input-group'>
+                          <input style='font-size:14pt; padding:25px; ' disabled type='text' class='form-control' id='valorparcela' placeholder='' value='$totalcomentrada'>
+                          </div>
+                         
+                         
+                        </div>
+                        
+                      </div>
+
+                       <input style='width:95%; padding:20px; font-size:18pt;' class='btn btn-outline-success' type='submit' name='btnCadastrarFinalizarPagamentoCrediario2' id='btnCadastrarFinalizarPagamentoCrediario2' value='Finalizar Pagamento'>
+  
+             
+              </form>
+        ";
+
+    } else {
+      $dinheirooudebito = 0;
+
+
+      $valorparcelaavancard = 0;
+      $resultado = 0;
+      $numparcelas = 0;
+
+      $valortotalemparcelas = 0;
+      $totalfinalentrada = 0;
+
+      $valorrestante = 0;
+      // Procura titulos no banco relacionados ao valor
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+
+      $totalfinal = 0;
+      $valor = 0;
+
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+      $totalfinalentrada = $totalfinal - $valorentrada;
+
+      $valorparcelaavancard = 150;
+      $resultado = $totalfinalentrada / $valorparcelaavancard;
+
+      $numparcelas = intval($resultado);
+
+      $valortotalemparcelas = $valorparcelaavancard * $numparcelas;
+
+      $valorrestante = $totalfinalentrada - $valortotalemparcelas;
+
+      echo "<table class='table table-striped table-sm' style='font-size:10pt; width:100%'>
+      <tr>
+        <td style='width:50%;'>Descrição</td>
+        <td>Valor</td>
+        <td>Data de Vencimento</td>
+      </tr>";
+
+      if ($valorrestante == 0) {
+        for ($i = 1; $i <= $numparcelas; $i++) {
+          $dataAtual = new DateTime();
+
+          $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$numparcelas";
+
+          $valor_parcela = $totalfinalentrada / $numparcelas;
+          $financeiro_pac = 0;
+          $tipopag = "PARCELADO";
+
+          $esp_proc = $codnota;
+
+
+          $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$numparcelas";
+          $valor_parcela = $totalfinalentrada / $numparcelas;
+          $financeiro_pac = 0;
+          $tipopag = "PARCELADO";
+          $esp_proc = $codnota;
+          $status = 1;
+
+          // ── Lógica de vencimento ancorada no dia 20 ──────────────────
+          $dia_hoje = (int) date('d');
+          $mes_hoje = (int) date('m');
+          $ano_hoje = (int) date('Y');
+
+          if ($tipo_crediario == 1) {
+
+            // CREDIÁRIO LOJA — vence a cada mês a partir da compra
+            $data_venc = new DateTime();
+            $data_venc->modify("+$i month");
+
+          } elseif ($tipo_crediario == 2) {
+
+            // AVANCARD — sempre vence no dia 20, sincronizado
+            if ($dia_hoje < 20) {
+              // Compra antes do dia 20 → 1ª parcela no dia 20 deste mês
+              $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+              $data_venc->modify("+" . ($i - 1) . " month");
+            } else {
+              // Compra no dia 20 ou depois → 1ª parcela no dia 20 do próximo mês
+              $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+              $data_venc->modify("+$i month");
+            }
+
+          }
+
+          $data_vencimento = $data_venc->format("d/m/Y");
+
+          echo "<tr>
+                      <td>$descricao_parcelamento</td>
+                      <td>R$ " . number_format($valorparcelaavancard, 2, ',', '.') . "</td>
+                      <td>$data_vencimento</td>
+                </tr>";
+
+          $status = 1;
+
+
+
+        }
+
+        echo "</table>";
+        echo "
+           <form onsubmit='return ConfirmarIsso();' name='form_cadastrarmovimento' method='post' action='' style='margin-top:5px; width:100%;' class='needs-validation' novalidate>
+           
+                  
+                  <input name='txtCodnota' id='txtCodnota' value='$codnota' type='hidden' />
+                  <input name='Tipocrediario2' id='Tipocrediario2' value='$tipo_crediario' type='hidden' />
+                  <input name='txtValorEntrada2' id='txtValorEntrada2' value='$valorentrada' type='hidden' />
+                  <input name='numparcelas' id='numparcelas' value='$numparcelas' type='hidden' />
+                  <input name='juros' id='juros' value='0' type='hidden' />
+                  <input name='juros2' id='juros2' value='0' type='hidden' />
+                  <input name='txtDataVencimento' id='txtDataVencimento' value='" . date('Y-m-d') . "' type='hidden' />
+                  <input name='tipopagamentoentrada2' id='tipopagamentoentrada2' value='$tipopagentrada' type='hidden' />
+               
+                 
+                
+
+                       <input style='width:95%; padding:20px; font-size:18pt;' class='btn btn-outline-success' type='submit' name='btnCadastrarFinalizarPagamentoCrediario2' id='btnCadastrarFinalizarPagamentoCrediario2' value='Finalizar Pagamento'>
+  
+             
+              </form>
+        ";
+      } else {
+        $totalrealparcelas = 0;
+        for ($i = 1; $i <= $numparcelas; $i++) {
+          $dataAtual = new DateTime();
+          $totalrealparcelas = $numparcelas + 1;
+          $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$totalrealparcelas";
+
+          $valor_parcela = $totalfinalentrada / $numparcelas;
+          $financeiro_pac = 0;
+          $tipopag = "PARCELADO";
+
+          $esp_proc = $codnota;
+
+
+          $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$totalrealparcelas";
+          $valor_parcela = $totalfinalentrada / $numparcelas;
+          $financeiro_pac = 0;
+          $tipopag = "PARCELADO";
+          $esp_proc = $codnota;
+          $status = 1;
+
+          // ── Lógica de vencimento ancorada no dia 20 ──────────────────
+          $dia_hoje = (int) date('d');
+          $mes_hoje = (int) date('m');
+          $ano_hoje = (int) date('Y');
+
+          if ($tipo_crediario == 1) {
+
+            // CREDIÁRIO LOJA — vence a cada mês a partir da compra
+            $data_venc = new DateTime();
+            $data_venc->modify("+$i month");
+
+          } elseif ($tipo_crediario == 2) {
+
+            // AVANCARD — sempre vence no dia 20, sincronizado
+            if ($dia_hoje < 20) {
+              // Compra antes do dia 20 → 1ª parcela no dia 20 deste mês
+              $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+              $data_venc->modify("+" . ($i - 1) . " month");
+            } else {
+              // Compra no dia 20 ou depois → 1ª parcela no dia 20 do próximo mês
+              $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+              $data_venc->modify("+$i month");
+            }
+
+          }
+
+          $data_vencimento = $data_venc->format("d/m/Y");
+
+          echo "<tr>
+                      <td>$descricao_parcelamento</td>
+                      <td>R$ " . number_format($valorparcelaavancard, 2, ',', '.') . "</td>
+                      <td>$data_vencimento</td>
+                </tr>";
+
+          $status = 1;
+
+
+        }
+        $descricao_parcelamento = "PARCELA DE PAGAMENTO VENDA Nº $codnota. PARCELA $i/$totalrealparcelas";
+
+
+        $dia_hoje = (int) date('d');
+        $mes_hoje = (int) date('m');
+        $ano_hoje = (int) date('Y');
+
+
+        // AVANCARD — sempre vence no dia 20, sincronizado
+        if ($dia_hoje < 20) {
+          // Compra antes do dia 20 → 1ª parcela no dia 20 deste mês
+          $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+          $data_venc->modify("+" . ($i - 1) . " month");
+        } else {
+          // Compra no dia 20 ou depois → 1ª parcela no dia 20 do próximo mês
+          $data_venc = new DateTime("$ano_hoje-$mes_hoje-20");
+          $data_venc->modify("+$i month");
+        }
+        $data_vencimento = $data_venc->format("d/m/Y");
+
+        echo "<tr>
+                      <td>$descricao_parcelamento</td>
+                      <td>R$ " . number_format($valorrestante, 2, ',', '.') . "</td>
+                      <td>$data_vencimento</td>
+                </tr>";
+        echo "</table>";
+
+
+        echo "
+           <form onsubmit='return ConfirmarIsso();' name='form_cadastrarmovimento' method='post' action='' style='margin-top:5px; width:100%;' class='needs-validation' novalidate>
+           
+                  
+                  <input name='txtCodnota' id='txtCodnota' value='$codnota' type='hidden' />
+                  <input name='Tipocrediario2' id='Tipocrediario2' value='$tipo_crediario' type='hidden' />
+                  <input name='txtValorEntrada2' id='txtValorEntrada2' value='$valorentrada' type='hidden' />
+                  <input name='numparcelas' id='numparcelas' value='$totalrealparcelas' type='hidden' />
+                  <input name='juros' id='juros' value='0' type='hidden' />
+                  <input name='juros2' id='juros2' value='0' type='hidden' />
+                  <input name='tipopagamentoentrada2' id='tipopagamentoentrada2' value='$tipopagentrada' type='hidden' />
+               
+                 
+                
+
+                       <input style='width:95%; padding:20px; font-size:18pt;' class='btn btn-outline-success' type='submit' name='btnCadastrarFinalizarPagamentoCrediario2' id='btnCadastrarFinalizarPagamentoCrediario2' value='Finalizar Pagamento'>
+  
+             
+              </form>
+        ";
+
+      }
+
+
+    }
+
+
+    break;
+  //VALIDACAO PARA MOSTRAR INFORMAÇÕES DO CREDIARIO
+  case 95:
+    $cod_caixa = $_GET['param'];
+
+    $valortotalentrada = 0;
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid; width: 100%; '>Lista de Crediário DA LOJA</h3>
+           ";
+    echo " 
+       <table class='table' style='font-size:12pt; width:100%;'>
+         <tr style='text-align:center;'>
+           <td><b>Cod. Nota</b></td>
+           <td><b>Cliente</b></td>
+           <td><b>Entrada</b></td>
+           <td><b>Sub Total</b></td>
+           <td><b>Valor Total</b></td>
+           <td><b>Recebido</b></td>
+           <td><b>A receber</b></td>
+           <td><b>Pagamento</b></td>
+           <td><b>Status</b></td>
+          
+         </tr>
+       ";
+    $textotipocrediario = "";
+    $sql = mysqli_query($conn, "
+    SELECT 
+        fc.*,          -- todos os campos de financeiro_clientes
+        n.cod_caixa,   -- campo extra que veio da tabela notas
+        n.cod AS cod_nota_join  -- renomear para não conflitar com fc.cod
+    FROM financeiro_clientes fc
+    INNER JOIN notas n 
+        ON n.cod = fc.cod_orcamento
+    WHERE n.cod_caixa = $cod_caixa
+      AND fc.tipo = 2
+      AND fc.tipopag = 2
+      AND fc.tipo_crediario = 1
+    ORDER BY fc.cod ASC
+");
+    //   $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_caixa = $codcli AND tipo = 2 ORDER BY cod ASC");
+    // wExibe todos os valores encontrados
+    $valortotalfinanceiro2 = 0;
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+
+      // Campos de financeiro_clientes — exatamente igual ao que você já usa
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codfin2 = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $codnota2 = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $valorentrada = (float) $financeirocli->entrada;
+
+      $valortotalentrada = $valortotalentrada + $valorentrada;
+      $valortotalfinanceiro2 = (float) $financeirocli->total;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $pagamentototal = number_format((float) $financeirocli->total, 2, ',', '.');
+
+      // Campos que vieram da tabela notas via JOIN
+      // Acessa igual — só usar o nome do campo
+      $cod_caixa_nota = $financeirocli->cod_caixa;
+      // $codcli = $financeirocli->usuario;
+
+
+
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $valortotalparcelas = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $valorparcela = $pagamentototal / $numparcelas;
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      if ($financeirocli->tipo == 1) {// a vista
+        if ($financeirocli->tipopag == 1) {// dinheiro
+          $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+        } else {//debito
+          $textopagamentotipo = "Pagamento á Vista no Débito";
+        }
+      } else {//parcelado
+        if ($financeirocli->tipopag == 1) {// credito
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+        } else {//crediario
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+        }
+      }
+
+      //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+      $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramNotas = array(
+        ":cod" => $codnota
+      );
+
+      $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+      foreach ($dataTableNotas as $resultadonotas) {
+
+        $usuarionota = $resultadonotas['usuario'];
+        $codcli = $resultadonotas['usuario'];
+        $nomecli = $resultadonotas['nomeCli'];
+        //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+        $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+        $paramClientes = array(
+          ":cod" => $usuarionota
+        );
+
+        $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+        foreach ($dataTableClientes as $resultadoclientes) {
+
+          $codcliente = $resultadoclientes['id'];
+          $nomecli = $resultadoclientes['nome'];
+          $celular = $resultadoclientes['celular'];
+        }
+      }
+
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $total = 0;
+      $codpedido = 0;
+      $qtdpedidos = 0;
+      $totalfinal = 0;
+      $valor = 0;
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+        $diapag = $finpar->dia;
+        $mespag = $finpar->mes;
+        $anopag = $finpar->ano;
+        $codparcela = $finpar->cod;
+        $contadorparcelas++;
+      }
+
+      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar22)) {
+        $diapag2 = $finpar->dia;
+        $mespag2 = $finpar->mes;
+        $anopag2 = $finpar->ano;
+      }
+
+
+      $areceber = 0;
+      $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+      $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+      $textostatus = "";
+      if ($diapag == 0) {
+        $textostatus = " Nenhuma Parcela Paga";
+      }
+
+      if ($numparcelas != $contadorparcelas) {
+        echo "
+                     <tr style='text-align:center;'>
+                       <td>$codnota</td>
+                       <td>$nomecli</td>
+                       <td>" . number_format($valorentrada, 2, ',', '.') . "</td>
+                       <td>$pagamentototal</td>
+                       <td>" . number_format($pagamentototal2 + $valorentrada, 2, ',', '.') . "</td>
+                       <td>$valortotalparcelas</td>
+                       <td>$areceber</td>
+                       <td>$textopagamentotipo</td>
+                       <td><span style='color:red'>";
+        if ($diapag != 0) {
+          echo " 
+                                                                                       Ultimo Pagamento:$diapag2/$mespag2/$anopag2</span> ";
+        } else {
+          echo $textostatus;
+        }
+
+        $codcaixa = 0;
+        $cod_funcionario = $_SESSION['codF'];
+        $sqlNotaCaixa = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+        $paramNotaCaixa = array(
+          ":status" => 1
+        );
+
+        $dataTableNotaCaixa = $banco->ExecuteQuery($sqlNotaCaixa, $paramNotaCaixa);
+        if ($dataTableNotaCaixa == null) {
+
+          //        header("Location: index.php?msgget=15");
+        } else {
+          foreach ($dataTableNotaCaixa as $resultadonotaCaixa) {
+            $codcaixa = $resultadonotaCaixa['cod'];
+
+          }
+        }
+
+        echo "      
+
+                     </tr>
+               ";
+      }
+    }
+    echo "</table>";
+
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid; width: 100%; '>Lista de Crediário AVANCARD</h3>
+           ";
+    echo " 
+       <table class='table' style='font-size:12pt; width:100%;'>
+         <tr style='text-align:center;'>
+           <td><b>Cod. Nota</b></td>
+           <td><b>Cliente</b></td>
+           <td><b>Entrada</b></td>
+           <td><b>Sub Total</b></td>
+           <td><b>Valor Total</b></td>
+           <td><b>Recebido</b></td>
+           <td><b>A receber</b></td>
+           <td><b>Pagamento</b></td>
+           <td><b>Status</b></td>
+          
+         </tr>
+       ";
+    $textotipocrediario = "";
+    $sql = mysqli_query($conn, "
+    SELECT 
+        fc.*,          -- todos os campos de financeiro_clientes
+        n.cod_caixa,   -- campo extra que veio da tabela notas
+        n.cod AS cod_nota_join  -- renomear para não conflitar com fc.cod
+    FROM financeiro_clientes fc
+    INNER JOIN notas n 
+        ON n.cod = fc.cod_orcamento
+    WHERE n.cod_caixa = $cod_caixa
+      AND fc.tipo = 2
+      AND fc.tipopag = 2
+      AND fc.tipo_crediario = 2
+    ORDER BY fc.cod ASC
+");
+    //   $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE cod_caixa = $codcli AND tipo = 2 ORDER BY cod ASC");
+    // wExibe todos os valores encontrados
+    $valortotalfinanceiro2 = 0;
+    while ($financeirocli = mysqli_fetch_object($sql)) {
+
+      // Campos de financeiro_clientes — exatamente igual ao que você já usa
+      $contadorparcelas = 0;
+      $codfin = $financeirocli->cod;
+      $codfin2 = $financeirocli->cod;
+      $codnota = $financeirocli->cod_orcamento;
+      $codnota2 = $financeirocli->cod_orcamento;
+      $valortotalfinanceiro = (float) $financeirocli->total;
+      $valorentrada = (float) $financeirocli->entrada;
+
+      $valortotalentrada = $valortotalentrada + $valorentrada;
+      $valortotalfinanceiro2 = (float) $financeirocli->total;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $pagamentototal = number_format((float) $financeirocli->total, 2, ',', '.');
+
+      // Campos que vieram da tabela notas via JOIN
+      // Acessa igual — só usar o nome do campo
+      $cod_caixa_nota = $financeirocli->cod_caixa;
+      // $codcli = $financeirocli->usuario;
+
+
+
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+      $diaatual = date('d');
+      $anoatual = date('Y');
+      $mesatual = date('m');
+      $diapag = 0;
+      $mespag = 0;
+      $anopag = 0;
+      $valortotalparcelas = 0;
+      $codparcela = 0;
+
+      $troco = $financeirocli->gorjeta;
+      $pagamentototal = (float) $financeirocli->total;
+      $pagamentototal2 = $pagamentototal;
+      $numparcelas = (float) $financeirocli->numparcelas;
+      $valorparcela = $pagamentototal / $numparcelas;
+      $valorparcela = number_format($valorparcela, 2, ',', '.');
+      $valorparcela2 = $valorparcela;
+      $pagamentototal = number_format($pagamentototal, 2, ',', '.');
+      $tipopag1 = $financeirocli->tipo;
+      $tipopag2 = $financeirocli->tipopag;
+
+      if ($financeirocli->tipo == 1) {// a vista
+        if ($financeirocli->tipopag == 1) {// dinheiro
+          $textopagamentotipo = "Pagamento á Vista no Dinheiro";
+        } else {//debito
+          $textopagamentotipo = "Pagamento á Vista no Débito";
+        }
+      } else {//parcelado
+        if ($financeirocli->tipopag == 1) {// credito
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
+        } else {//crediario
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
+        }
+      }
+
+      //$sqlNota = mysqli_query($conn, "SELECT * FROM notas WHERE cod = " . $codnota . " ORDER BY cod ASC LIMIT 1");
+      $sqlNotas = "SELECT * FROM notas WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramNotas = array(
+        ":cod" => $codnota
+      );
+
+      $dataTableNotas = $banco->ExecuteQuery($sqlNotas, $paramNotas);
+      foreach ($dataTableNotas as $resultadonotas) {
+
+        $usuarionota = $resultadonotas['usuario'];
+        $codcli = $resultadonotas['usuario'];
+        $nomecli = $resultadonotas['nomeCli'];
+        //$sqlNomecli = mysqli_query($conn, "SELECT * FROM clientes WHERE id = $usuarionota ORDER BY id ASC LIMIT 1");
+        $sqlClientes = "SELECT * FROM clientes WHERE id = :cod ORDER BY id ASC LIMIT 1";
+        $paramClientes = array(
+          ":cod" => $usuarionota
+        );
+
+        $dataTableClientes = $banco->ExecuteQuery($sqlClientes, $paramClientes);
+        foreach ($dataTableClientes as $resultadoclientes) {
+
+          $codcliente = $resultadoclientes['id'];
+          $nomecli = $resultadoclientes['nome'];
+          $celular = $resultadoclientes['celular'];
+        }
+      }
+
+      $sqlPedido = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+      $total = 0;
+      $codpedido = 0;
+      $qtdpedidos = 0;
+      $totalfinal = 0;
+      $valor = 0;
+      while ($pedidos = mysqli_fetch_object($sqlPedido)) {
+        $qtdpedidos = $qtdpedidos + (float) $pedidos->qtd;
+        $valor = (float) $pedidos->valor;
+        $totalfinal = $totalfinal + $valor;
+      }
+
+
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar)) {
+        $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
+        $diapag = $finpar->dia;
+        $mespag = $finpar->mes;
+        $anopag = $finpar->ano;
+        $codparcela = $finpar->cod;
+        $contadorparcelas++;
+      }
+
+      $sqlPar22 = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin2 ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      while ($finpar = mysqli_fetch_object($sqlPar22)) {
+        $diapag2 = $finpar->dia;
+        $mespag2 = $finpar->mes;
+        $anopag2 = $finpar->ano;
+      }
+
+
+      $areceber = 0;
+      $areceber = number_format($valortotalfinanceiro2 - $valortotalparcelas, 2, ',', '.');
+      $valortotalparcelas = number_format($valortotalparcelas, 2, ',', '.');
+
+      $textostatus = "";
+      if ($diapag == 0) {
+        $textostatus = " Nenhuma Parcela Paga";
+      }
+
+      if ($numparcelas != $contadorparcelas) {
+        echo "
+                     <tr style='text-align:center;'>
+                       <td>$codnota</td>
+                       <td>$nomecli</td>
+                       <td>" . number_format($valorentrada, 2, ',', '.') . "</td>
+                       <td>$pagamentototal</td>
+                       <td>" . number_format($pagamentototal2 + $valorentrada, 2, ',', '.') . "</td>
+                       <td>$valortotalparcelas</td>
+                       <td>$areceber</td>
+                       <td>$textopagamentotipo</td>
+                       <td><span style='color:red'>";
+        if ($diapag != 0) {
+          echo " 
+                                                                                       Ultimo Pagamento:$diapag2/$mespag2/$anopag2</span> ";
+        } else {
+          echo $textostatus;
+        }
+
+        $codcaixa = 0;
+        $cod_funcionario = $_SESSION['codF'];
+        $sqlNotaCaixa = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+        $paramNotaCaixa = array(
+          ":status" => 1
+        );
+
+        $dataTableNotaCaixa = $banco->ExecuteQuery($sqlNotaCaixa, $paramNotaCaixa);
+        if ($dataTableNotaCaixa == null) {
+
+          //
+          //         header("Location: index.php?msgget=15");
+        } else {
+          foreach ($dataTableNotaCaixa as $resultadonotaCaixa) {
+            $codcaixa = $resultadonotaCaixa['cod'];
+
+          }
+        }
+
+        echo "      
+
+                     </tr>
+               ";
+      }
+    }
+
+    echo " ";
+    echo "</table>";
+
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid; width: 100%; '>Total em Entradas: R$ " . number_format($valortotalentrada, 2, ',', '.') . "</b> </h3>
+           ";
+    $contadorparcelaspagas = 0;
+    $contador = 0;
+
+    $Textopagamento = "";
+
+    echo "<h3 style='padding:5px; color:000; border-bottom: 2px solid; width: 100%; '>Lista de Parcelas Pagas</h3>
+           ";
+
+    echo "  <table class='table' style='font-size:12pt; width:100%;'>
+                  
+                <tr>
+                  <td style='width:20%;'><b>Descrição</b></td>
+                  <td style='width:20%;'><b>Tipo pagamento</b></td>
+                  <td><b>Valor da Parcela</b></td>
+             
+                 
+                  <td style=''><b>Data de Pagamento</b></td>
+                  <td style=''><b>Data de Vencimento Parcela</b></td>
+                
+                  <td style=''><b></b></td>
+                </tr>
+                ";
+    $valortotalpago = 0;
+    //$sql = mysqli_query($conn, "SELECT * FROM pedidos WHERE usuario = " . $codnota . " ORDER BY cod ASC");
+    $sqlPedidos22 = "SELECT * FROM pag_par_pro WHERE cod_caixa = :cod  ORDER BY cod ASC";
+    $paramPedidos22 = array(
+      ":cod" => $cod_caixa
+    );
+
+    $dataTablePedidos22 = $banco->ExecuteQuery($sqlPedidos22, $paramPedidos22);
+
+
+
+    foreach ($dataTablePedidos22 as $resultadopedidos22) {
+
+      $contadorparcelaspagas++;
+
+      $codpedido = $resultadopedidos22['cod'];
+      $descricao = $resultadopedidos22['descricao'];
+      $financeiro_pac = $resultadopedidos22['financeiro_pac'];
+      $tipopag = $resultadopedidos22['tipopag'];
+
+      if ($tipopag == 1) {
+        $Textopagamento = "Dinheiro";
+
+      } else if ($tipopag == 2) {
+        $Textopagamento = "Pix";
+      } else if ($tipopag == 3) {
+        $Textopagamento = "Débito";
+      } else if ($tipopag == 4) {
+        $Textopagamento = "Crédito";
+      }
+
+      $dia = $resultadopedidos22['dia'];
+      $mes = $resultadopedidos22['mes'];
+      $ano = $resultadopedidos22['ano'];
+      $data_vencimento = $resultadopedidos22['data_vencimento'];
+      $status = $resultadopedidos22['status'];
+      if ($status == 1) {
+        $textostatus = "A PAGAR";
+      } else {
+        $textostatus = "PAGO";
+      }
+
+      $valor = (float) $resultadopedidos22['valor'];
+
+      $valortotalpago = $valortotalpago + $valor;
+
+
+      $valor = number_format($valor, 2, ',', '.');
+
+      echo "
+                  
+                     <tr id='ResultadoValidacao75$codpedido'>
+                  <td style='width:30%;'>$descricao</td>
+                  <td >$Textopagamento</td>
+                  <td>R$ $valor</td>
+                
+                      <td>$dia/$mes/$ano</td>
+                  <td style=''>$data_vencimento</td>
+                 
+                  <td style=''>        
+                  ";
+      if ($status == 1) {
+
+
+      } else {
+        echo "  <a style='width:100%;' target='_blank' class='btn btn-outline-primary' href='Imprimir.php?pagina=23&codrecibo=$codpedido&codnota=$codnota'>
+                                Recibo</a>";
+      }
+      echo "</td>
+                </tr>
+                 ";
+      $contador++;
+    }
+    echo "</table>";
+    break;
+  //FUNCAO PHP PARA GERAR COD. DE BARRA
+  case 96:
+    $tipobusca = $_GET['param1'];
+    $qtdetiqueta = $_GET['param2'];
+    $codservico = $_GET['param3'];
+
+    $codbarra = $_GET['param4'];
+    $codbusca = $_GET['param5'];
+
+
+
+    //$sqlServicos = mysqli_query($conn, "SELECT * FROM servicos WHERE cod = $codservico ORDER BY cod ASC LIMIT 1");
+    $sqlServicos = "SELECT * FROM servicos WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => $codservico
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $tiposervico = $resultadoservicos['tipo'];
+      $catservico = $resultadoservicos['categoria'];
+      $est_maxservico = $resultadoservicos['est_max'];
+      $est_mimservico = $resultadoservicos['est_mim'];
+      $cod_barraservico = $resultadoservicos['codbarra'];
+      $cod_buscaservico = (int) $resultadoservicos['codbusca'];
+      $categoriaservico = (float) $resultadoservicos['categoria'];
+      //$sqlCategorias = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod = $categoriaservico ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":cod" => $categoriaservico
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+      $nomeservico = $resultadoservicos['nome'];
+      $descricaoservico = $resultadoservicos['descricao'];
+      $valorunt = number_format($resultadoservicos['valor'], 2, ',', '.');
+      $img = $resultadoservicos['img'];
+      if ($img == null) {
+        $img = "imagem mostrar pedido sem foto";
+      } else {
+        $img = "Interface/img/Servicos/$img";
+      }
+
+      $contadorindex = 4;
+
+
+
+
+      $tiposervico = $resultadoservicos['tipo'];
+      $qtdservico = $resultadoservicos['qtd'];
+      $est_maxservico = $resultadoservicos['est_max'];
+      $est_mimservico = $resultadoservicos['est_mim'];
+      $cod_barraservico = $resultadoservicos['codbarra'];
+      $cod_buscaservico = $resultadoservicos['codbusca'];
+      $valorservico = $resultadoservicos['valor'];
+      $nome = $resultadoservicos['nome'];
+
+    }
+    $codigoImagem = 0;
+
+
+
+      if($cod_barraservico==null){
+        $cod_barraservico=0;
+      }
+
+
+
+    if ($tipobusca == 1) {
+      $codigoImagem = '<img src="data:image/png;base64,' .
+        base64_encode(
+          $generator->getBarcode(
+            $cod_buscaservico,
+              $generator::TYPE_CODE_128
+          )
+        ) . '">';
+    } else {
+      $codigoImagem = '<img src="data:image/png;base64,' .
+        base64_encode(
+          $generator->getBarcode(
+            $cod_barraservico,
+              $generator::TYPE_CODE_128
+          )
+        ) . '">';
+    }
+
+
+
+
+
+    echo "<a href='Imprimir.php?pagina=24&codservico=$codservico&tipoetiqueta=$tipobusca&codbusca=$cod_buscaservico&codbarra=$cod_barraservico&qtdetiqueta=$qtdetiqueta' target='_BLANK' type='button' id='generate-pdf3' class='btn btn-primary' title='Imprimir'>
+    
+        <text x='6' y='18' fill='red' font-size='10' font-family='Arial, sans-serif' font-weight='bold'>PDF</text>
+      </svg>
+    </a>";
+
+
+    break;
+    //funcao para gerar etiqueta
+    case 97:
+      $codservico = (float) $_GET['valor'];
+    //$sqlServicos = mysqli_query($conn, "SELECT * FROM servicos WHERE cod = $codservico ORDER BY cod ASC LIMIT 1");
+    $sqlServicos = "SELECT * FROM servicos WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+    $paramServicos = array(
+      ":cod" => $codservico
+    );
+    $dataTableServicos = $banco->ExecuteQuery($sqlServicos, $paramServicos);
+    foreach ($dataTableServicos as $resultadoservicos) {
+      $codservico = $resultadoservicos['cod'];
+      $tiposervico = $resultadoservicos['tipo'];
+      $catservico = $resultadoservicos['categoria'];
+      $est_maxservico = $resultadoservicos['est_max'];
+      $est_mimservico = $resultadoservicos['est_mim'];
+      $cod_barraservico = $resultadoservicos['codbarra'];
+      $cod_buscaservico = (int) $resultadoservicos['codbusca'];
+      $categoriaservico = (float) $resultadoservicos['categoria'];
+      //$sqlCategorias = mysqli_query($conn, "SELECT * FROM categoriaserfin WHERE cod = $categoriaservico ORDER BY cod ASC LIMIT 1");
+      // Exibe todos os valores encontrados
+      $sqlCat = "SELECT * FROM categoriaserfin WHERE cod = :cod ORDER BY cod ASC LIMIT 1";
+      $paramCat = array(
+        ":cod" => $categoriaservico
+      );
+
+      $dataTableCat = $banco->ExecuteQuery($sqlCat, $paramCat);
+      foreach ($dataTableCat as $resultadocat) {
+        $nomecategoria = $resultadocat['nome'];
+      }
+      $nomeservico = $resultadoservicos['nome'];
+      $descricaoservico = $resultadoservicos['descricao'];
+      $valorunt = number_format($resultadoservicos['valor'], 2, ',', '.');
+      $img = $resultadoservicos['img'];
+      if ($img == null) {
+        $img = "imagem mostrar pedido sem foto";
+      } else {
+        $img = "Interface/img/Servicos/$img";
+      }
+    }
+    $contadorindex = 4;
+   
+    $tiposervico = $resultadoservicos['tipo'];
+    $qtdservico = $resultadoservicos['qtd'];
+    $est_maxservico = $resultadoservicos['est_max'];
+    $est_mimservico = $resultadoservicos['est_mim'];
+    $cod_barraservico = $resultadoservicos['codbarra'];
+    $cod_buscaservico = $resultadoservicos['codbusca'];
+    $valorservico = $resultadoservicos['valor'];
+    $nome = $resultadoservicos['nome'];
+    $codigoImagem = 0;
+
+
+
+      if($cod_barraservico==null){
+        $cod_barraservico=0;
+      }
+
+
+    $codigoImagem = '<img src="data:image/png;base64,' .
+      base64_encode(
+        $generator->getBarcode(
+          $cod_buscaservico,
+            $generator::TYPE_CODE_128
+        )
+      ) . '">';
+
+    echo " 
+     <h2 style='padding:5px; color:#000; border-bottom: 2px solid #337AB7; width: 100%; '><span class='glyphicon glyphicon-retweet'></span> Gerar Etiquetas:</h2>
+     <div class='row' style='margin-bottom:10px;'> 
+     <div class='col-md-6'>
+        <label>Tipo de Código da Etiqueta</label>
+        <select onchange='validacaorelatorios(96, this.value, quantidadeEtiquetas.value, $codservico, $cod_barraservico, $cod_buscaservico, 0, 96)'  class='form-control' id='tipoEtiqueta' name='tipoEtiqueta'>
+            <option value='1'>Código de Busca Interno</option>
+            <option value='2'>Código de Barras do Fabricante</option>
+        </select>
+    </div>
+
+    <div class='col-md-6'>
+        <label>Quantidade de Etiquetas</label>
+        <input onkeyup='validacaorelatorios(96, tipoEtiqueta.value, this.value, $codservico, $cod_barraservico, $cod_buscaservico, 0, 96)'
+            type='number'
+            class='form-control'
+            id='quantidadeEtiquetas'
+            name='quantidadeEtiquetas'
+            min='1'
+            value='$qtdservico'>
+    </div>
+    </div>
+    <div id='contentpdf'>
+     <div class='row' style='margin-bottom:10px;' id='ResultadoValidacao96'> ";
+    $tipobusca = 1;
+
+
+
+
+    echo " 
+      </div></br><hr></br><hr> </div>
+";
+
+
+      break;
 }

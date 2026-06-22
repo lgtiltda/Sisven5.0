@@ -119,72 +119,110 @@
           </svg>
         </a>
       </li>
+      <?php
+      if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
+        ?>
 
-      <li>
-        <a id="BotaoProdutos" href="javascript: func" onclick="alternarDivs(2)" class="nav-link py-3 border-bottom"
-          title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Produtos/Serviços">
-          <svg class="bi" width="24" height="24" role="img" aria-label="Produtos">
-            <use xlink:href="#grid"></use>
-          </svg>
-        </a>
-      </li>
+        <li>
+          <a id="BotaoProdutos" href="javascript: func" onclick="alternarDivs(2)" class="nav-link py-3 border-bottom"
+            title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Produtos/Serviços">
+            <svg class="bi" width="24" height="24" role="img" aria-label="Produtos">
+              <use xlink:href="#grid"></use>
+            </svg>
+          </a>
+        </li>
+        <?php
+        if ($_SESSION['permissaoF'] == 1) {
+          ?>
+          <li>
+            <a id="BotaoRelatorios" href="javascript: func" onclick="alternarDivs(3)" class="nav-link py-3 border-bottom"
+              title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Relatórios">
+              <svg class="bi" width="24" height="24" role="img" aria-label="Painel">
+                <use xlink:href="#speedometer2"></use>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a id="BotaoUsuarios" href="javascript: func" onclick="alternarDivs(4)" class="nav-link py-3 border-bottom"
+              title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Usuários">
+              <svg class="bi" width="24" height="24" role="img" aria-label="Clientes">
+                <use xlink:href="#people-circle"></use>
+              </svg>
+            </a>
+          </li>
+        <?php } ?>
+        <li>
+          <a id="BotaoDespesas" href="javascript: func" onclick="alternarDivs(6)" class="nav-link py-3 border-bottom"
+            title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Despesas">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-wallet2"
+              viewBox="0 0 16 16">
+              <path
+                d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z" />
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a id="BotaoLojas" href="javascript: func" onclick="alternarDivs(21)" class="nav-link py-3 border-bottom"
+            title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Lojas">
+            <svg xmlns="http://www.w3.org/2000/svg" class="bi" width="24" height="24" fill="currentColor"
+              viewBox="0 0 16 16">
+              <path d="M8 0a5 5 0 0 0-5 5c0 3.5 5 11 5 11s5-7.5 5-11a5 5 0 0 0-5-5zm0 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4z" />
+            </svg>
+          </a>
+        </li>
+        <?PHP
+        if ($_SESSION['tipo'] != 1) {
+          ?>
+          <li>
+            <a id="BotaoContas" href="javascript: func" onclick="alternarDivs(5)" class="nav-link py-3 border-bottom"
+              title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Contas a Receber">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cash-coin"
+                viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8m5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0" />
+                <path
+                  d="M9.438 11.944c.047.596.518 1.06 1.363 1.116v.44h.375v-.443c.875-.061 1.386-.529 1.386-1.207 0-.618-.39-.936-1.09-1.1l-.296-.07v-1.2c.376.043.614.248.671.532h.658c-.047-.575-.54-1.024-1.329-1.073V8.5h-.375v.45c-.747.073-1.255.522-1.255 1.158 0 .562.378.92 1.007 1.066l.248.061v1.272c-.384-.058-.639-.27-.696-.563h-.668zm1.36-1.354c-.369-.085-.569-.26-.569-.522 0-.294.216-.514.572-.578v1.1zm.432.746c.449.104.655.272.655.569 0 .339-.257.571-.709.614v-1.195z" />
+                <path
+                  d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083q.088-.517.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1z" />
+                <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 6 6 0 0 1 3.13-1.567" />
+              </svg>
+            </a>
+          </li>
+        <?php } ?>
 
-      <li>
-        <a id="BotaoRelatorios" href="javascript: func" onclick="alternarDivs(3)" class="nav-link py-3 border-bottom"
-          title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Relatórios">
-          <svg class="bi" width="24" height="24" role="img" aria-label="Painel">
-            <use xlink:href="#speedometer2"></use>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a id="BotaoUsuarios" href="javascript: func" onclick="alternarDivs(4)" class="nav-link py-3 border-bottom"
-          title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Usuários">
-          <svg class="bi" width="24" height="24" role="img" aria-label="Clientes">
-            <use xlink:href="#people-circle"></use>
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a id="BotaoDespesas" href="javascript: func" onclick="alternarDivs(6)" class="nav-link py-3 border-bottom"
-          title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Despesas">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-wallet2"
-            viewBox="0 0 16 16">
-            <path
-              d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z" />
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a id="BotaoContas" href="javascript: func" onclick="alternarDivs(5)" class="nav-link py-3 border-bottom"
-          title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Contas a Receber">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-cash-coin"
-            viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8m5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0" />
-            <path
-              d="M9.438 11.944c.047.596.518 1.06 1.363 1.116v.44h.375v-.443c.875-.061 1.386-.529 1.386-1.207 0-.618-.39-.936-1.09-1.1l-.296-.07v-1.2c.376.043.614.248.671.532h.658c-.047-.575-.54-1.024-1.329-1.073V8.5h-.375v.45c-.747.073-1.255.522-1.255 1.158 0 .562.378.92 1.007 1.066l.248.061v1.272c-.384-.058-.639-.27-.696-.563h-.668zm1.36-1.354c-.369-.085-.569-.26-.569-.522 0-.294.216-.514.572-.578v1.1zm.432.746c.449.104.655.272.655.569 0 .339-.257.571-.709.614v-1.195z" />
-            <path
-              d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083q.088-.517.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1z" />
-            <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 6 6 0 0 1 3.13-1.567" />
-          </svg>
-        </a>
-      </li>
+      <?php } ?>
+
 
     </ul>
     <div class="dropdown border-top">
       <a href="https://getbootstrap.com/docs/5.0/examples/sidebars/#"
         class="d-flex align-items-center justify-content-center p-3 link-dark text-decoration-none dropdown-toggle"
         id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
-        <img src="./Barras laterais · Bootstrap v5.0_files/mdo.png" alt="mdo" width="24" height="24"
-          class="rounded-circle">
+
+        <?php
+
+        $listaUsuariosBusca = [];
+        $codfunc = $_SESSION['codF'];
+        $listaUsuariosBusca = $usuarioController->RetornarUsuarios("", 2, $codfunc);
+        if ($listaUsuariosBusca != null) {
+          foreach ($listaUsuariosBusca as $user) {
+            $img = $user->getFoto();
+          }
+        }
+
+        ?>
+        <img src="Interface/img/Usuarios/<?= $img; ?>" alt="mdo" width="24" height="24" class="rounded-circle">
       </a>
       <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
+        <?php
+        if ($_SESSION['permissaoF'] == 1 && $_SESSION['tipo'] != 1) {
+          ?>
 
-        <li><a id="BotaoConfiguracoes" href="javascript: func" onclick="alternarDivs(7)" class="dropdown-item">
-            <font style="vertical-align: inherit;">
-              <font style="vertical-align: inherit;">Configurações</font>
-            </font>
-          </a></li>
+          <li><a id="BotaoConfiguracoes" href="javascript: func" onclick="alternarDivs(7)" class="dropdown-item">
+              <font style="vertical-align: inherit;">
+                <font style="vertical-align: inherit;">Configurações</font>
+              </font>
+            </a></li>
+        <?php } ?>
         <li><a id="BotaoMinhaConta" href="javascript: func" onclick="alternarDivs(8)" class="dropdown-item">
             <font style="vertical-align: inherit;">
               <font style="vertical-align: inherit;">Perfil</font>
@@ -215,7 +253,7 @@
           <path
             d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0" />
         </svg>
-        <span style="font-size:18pt;">Área de Vendas</span></button>
+        <span style="font-size:18pt;">Área de Vendas</span> </button>
 
       <button onclick="FuncaoChamarBotao2()" style="width:24%;" class="btn btn-outline-danger" type="button"
         data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
@@ -227,25 +265,79 @@
             d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10q.39 0 .74.025c.226-.341.496-.65.804-.918Q8.844 9.002 8 9c-5 0-6 3-6 4s1 1 1 1z" />
         </svg>
         <span style="font-size:18pt;">Área do Cliente</span></button>
+      <?php
+      if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
+        ?>
+        <button onclick="FuncaoChamarBotao6()" style="width:24%;" class="btn btn-outline-warning" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
 
-      <button onclick="FuncaoChamarBotao6()" style="width:24%;" class="btn btn-outline-warning" type="button"
-        data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
+            viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
+          </svg>
+          <span style="font-size:18pt;">Controle de Caixa</span></button>
+        <?php
+      } else {
 
-        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
-          viewBox="0 0 16 16">
-          <path fill-rule="evenodd"
-            d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
-        </svg>
-        <span style="font-size:18pt;">Controle de Caixa</span></button>
-      <button onclick="validacao(15, 0, 0, 15)" style="width:24%;" class="btn btn-outline-info" type="button"
-        data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop2" aria-controls="offcanvasRight">
+        $cod_funcionario = $_SESSION['codF'];
+        $sqlNota = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+        $paramNota = array(
+          ":status" => 1
+        );
 
-        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-body-text"
-          viewBox="0 0 16 16">
-          <path fill-rule="evenodd"
-            d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
-        </svg>
-        <span style="font-size:18pt;">Resumo do Dia</span></button>
+        $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+        if ($dataTableNota == null) {
+          // echo "<div class='alert alert-danger'>ABRA O CAIXA PARA INICIAR AS VENDAS!</div>";
+          ?>
+
+          <button onclick="FuncaoChamarBotao8()" class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
+              viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
+              X
+            </svg>
+            <span style="font-size:18pt;">Iniciar Novo Caixa</span></button>
+          <?php
+
+        } else {
+          foreach ($dataTableNota as $resultadonota) {
+            $codcaixa = $resultadonota['cod'];
+            $diacaixa = $resultadonota['dia'];
+            $mescaixa = $resultadonota['mes'];
+            $anocaixa = $resultadonota['ano'];
+
+            $datacaixa = $diacaixa . '/' . $mescaixa . '/' . $anocaixa;
+          }
+          ?>
+          <a href='?&codcaixa=<?= $codcaixa ?>&msgget=3' style="width:24%;" class="btn btn-outline-warning" type="button">
+
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
+              viewBox="0 0 16 16">
+              <path fill-rule="evenodd"
+                d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
+            </svg>
+            <span style="font-size:18pt;">Ir para Caixa Aberto</span></a>
+          <?php
+        }
+      }
+      if ($_SESSION['permissaoF'] == 1 && $_SESSION['tipo'] != 1) {
+        ?>
+
+        <!-----  <button onclick="validacao(15, 0, 0, 15)" style="width:24%;" class="btn btn-outline-info" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop2" aria-controls="offcanvasRight">
+
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-body-text"
+            viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
+          </svg>
+          <span style="font-size:18pt;">Resumo do Dia</span></button> ---->
+
+      <?PHP } ?>
       <hr>
     </div>
     <h3 style="color:red;">Painel de Vendas!</h3>
@@ -263,16 +355,16 @@
 
       <input onclick="validacao(20, 0, 1, 16)" type="radio" class="btn-check" name="btnradioPedidos" id="btnradio4"
         autocomplete="off">
-      <label class="btn btn-outline-primary" for="btnradio4">Pedidos no Balcão</label>
+      <label class="btn btn-outline-primary" for="btnradio4">Pedidos Venda Expressa</label>
 
 
       <input onclick="validacao(22, 0, 1, 16)" type="radio" class="btn-check" name="btnradioPedidos" id="btnradio5"
         autocomplete="off">
       <label class="btn btn-outline-primary" for="btnradio5">Pedidos para Retirada</label>
 
-      <input onclick="validacao(24, 0, 1, 16)" type="radio" class="btn-check" name="btnradioPedidos" id="btnradio6"
+      <!---<input onclick="validacao(24, 0, 1, 16)" type="radio" class="btn-check" name="btnradioPedidos" id="btnradio6"
         autocomplete="off">
-      <label class="btn btn-outline-primary" for="btnradio6">Pesquisa com Filtro</label>
+      <label class="btn btn-outline-primary" for="btnradio6">Pesquisa com Filtro</label>  --->
 
 
       <input onclick="validacao(25, 0, 1, 16)" type="radio" class="btn-check" name="btnradioPedidos" id="btnradio1"
@@ -291,26 +383,35 @@
     $ListaCategoriasLista = $categoriaserfinController->RetornarCategorias();
     ?>
     <div class="input-group" style="margin-top:10px;">
-      <input onkeyup="PagPesquisarProdutos(26, txtCategoriaPesquisa.value, this.value)" id="txtPequisarProduto2"
+      <input onkeyup="PagPesquisarProdutos(26, txtCategoriaPesquisaProd.value, this.value)" id="txtPequisarProduto2"
         style="padding:20px;" type="text" class="form-control" placeholder="Digite a descrição do produto/serviço..."
         aria-label="Recipient's username with two button addons">
       <button href="javascript: func" onclick="alternarDivs(9)" class="btn btn-outline-secondary" type="button">Novo
         Produto</button>
       <button href="javascript: func" onclick="alternarDivs(10)" class="btn btn-outline-secondary"
         type="button">Categorias</button>
+      <?php
+      if ($_SESSION['tipo'] != 1) {
+        ?>
       <button href="javascript: func" onclick="alternarDivs(11)" class="btn btn-outline-secondary"
         type="button">Entradas</button>
+      <?php
+      }
+      ?>
+
     </div>
-    <select onchange="PagPesquisarProdutos(26, this.value, txtPequisarProduto2.value)" name="txtCategoriaPesquisa"
-      id="txtCategoriaPesquisa" style="padding:20px; margin-top:5px;" class="form-select"
+    <select onchange="PagPesquisarProdutos(26, this.value, txtPequisarProduto2.value)" name="txtCategoriaPesquisaProd"
+      id="txtCategoriaPesquisaProd" style="padding:20px; margin-top:5px;" class="form-select"
       aria-label="Selecione uma Categoria">
       <option value="0" selected>TODAS CATEGORIAS</option>
       <?php
       if ($ListaCategoriasLista != null) {
         foreach ($ListaCategoriasLista as $cat) {
           ?>
-          <option value='<?= $cat->getId(); ?>'><?= $cat->getNome(); ?></option>
-          <?php
+      <option value='<?= $cat->getId(); ?>'>
+        <?= $cat->getNome(); ?>
+      </option>
+      <?php
         }
       }
       ?>
@@ -357,8 +458,10 @@
                   if ($ListaCategoriasLista != null) {
                     foreach ($ListaCategoriasLista as $cat) {
                       ?>
-                      <option value='<?= $cat->getId(); ?>'><?= $cat->getNome(); ?></option>
-                      <?php
+                  <option value='<?= $cat->getId(); ?>'>
+                    <?= $cat->getNome(); ?>
+                  </option>
+                  <?php
                     }
                   }
                   ?>
@@ -366,7 +469,7 @@
               </div>
             </div>
 
-            <input tabindex='12' style="margin-left: 5%; padding:20px; font-size: 15pt; width: 90%; margin-top:10px;"
+            <input tabindex="12" style="margin-left: 5%; padding:20px; font-size: 15pt; width: 90%; margin-top:10px;"
               type="submit" name="btnCadastrarNovoProduto" id="btnCadastrarNovoProduto" value="Cadastrar Novo Produto"
               class="btn btn-outline-success" />
 
@@ -407,28 +510,32 @@
         if ($ListaCategoriasLista != null) {
           foreach ($ListaCategoriasLista as $user) {
             ?>
-            <tr>
-              <td><?= $user->getId(); ?></td>
-              <td><?= $user->getNome(); ?></td>
-              <td>
+        <tr>
+          <td>
+            <?= $user->getId(); ?>
+          </td>
+          <td>
+            <?= $user->getNome(); ?>
+          </td>
+          <td>
 
-                <?php
-                $CatProdutosList = $servicoController->RetornarServicosPorCat($user->getId());
-                //var_dump($CatProdutosList);
-                if ($CatProdutosList == null) {
-                  ?>
-                  <form onsubmit='return ConfirmarIsso();' name="form_cadastrarmovimento" method="post" action=""
-                    style="text-align:left; width:100%;">
-                    <input style="" type='hidden' id='codcategoria' name='codcategoria' value='<?= $user->getId(); ?>'>
-                    <input style='font-size:12pt;' type="submit" value="Apagar" class="btn btn-danger"
-                      name="btnApagarCategoria" id='btnApagarCategoria' />
-                  </form>
-                  <?php
-                }
-                ?>
-              </td>
-            </tr>
             <?php
+            $CatProdutosList = $servicoController->RetornarServicosPorCat($user->getId());
+            //var_dump($CatProdutosList);
+            if ($CatProdutosList == null) {
+              ?>
+            <form onsubmit='return ConfirmarIsso();' name="form_cadastrarmovimento" method="post" action=""
+              style="text-align:left; width:100%;">
+              <input style="" type='hidden' id='codcategoria' name='codcategoria' value='<?= $user->getId(); ?>'>
+              <input style='font-size:12pt;' type="submit" value="Apagar" class="btn btn-danger"
+                name="btnApagarCategoria" id='btnApagarCategoria' />
+            </form>
+            <?php
+            }
+            ?>
+          </td>
+        </tr>
+        <?php
           }
         } else {
           echo "Não há nenhum Serviço Cadastrado";
@@ -531,7 +638,7 @@
 
               <div class="col-12 col-md-12" style="text-align: left; "></br>
                 <input style="margin-bottom:20px; margin-left: 5%; padding:20px; font-size: 15pt; width: 90%;"
-                  type="submit" name="btnSubmitNota" id="btnSubmitNota" value="Iniciar Nota"
+                  type="submit" name="btnSubmitNota" id="btnSubmitNota" value="Cadastrar Entrada"
                   class="btn btn-success btn-lg btn-block" />
               </div>
 
@@ -542,19 +649,26 @@
         <div class="div2">
           <div class="row">
 
-            <div class='col-12 col-md-12' id='resultadoqtdvalor'>
+            <div class='col-12 col-md-8' id='resultadoqtdvalor'>
               <label style="border-bottom: 2px solid; width: 100%; ">Pesquisar Entrada</label>
               <div class="input-group">
                 <input style="padding:40px; font-size: 15pt; width: 100%;" type='text' class='form-control'
-                  name='txtNotaFiscal' id='txtNotaFiscal' placeholder='Digite descrição da Nota ou nº de Nota...'
-                  value='' onkeyup='Validacao(37, this.value, 0, 121212)' />
+                  name='txtNotaFiscalPesc' id='txtNotaFiscalPesc'
+                  placeholder='Digite descrição da Nota ou nº de Nota...' value=''
+                  onkeyup='validacao(82, this.value, txtDataParaPesquisaNota.value, 82)' />
               </div>
-            </div>
 
-            <div class="col-12 col-md-12" id='ResultadoValidacao121212'>
 
             </div>
-            <input id="txtAtasControle02" name="txtAtasControle02" type="hidden" value='0' />
+            <div class='col-sm-12 col-xl-3'>
+              <label>Mês/Ano</label>
+              <input onchange='validacao(82, txtNotaFiscalPesc.value, this.value, 82)' class='form-control'
+                style='font-size:12pt; padding:42px;' type='month' id='txtDataParaPesquisaNota'
+                name='txtDataParaPesquisaNota' value='<?= date('Y-m') ?>' />
+            </div>
+
+            <div id='ResultadoValidacao82'>
+            </DIV>
           </div>
 
         </div>
@@ -566,6 +680,9 @@
     <div class="btn-group" role="group" aria-label="Button group with nested dropdown" style="width:100%;">
       <button href='javascript: func' onclick="validacao(45, 1, 1, 45)" style="width:20%;padding:20px;" type="button"
         class="btn btn-outline-primary">Faturamento</button>
+      <?PHP
+      if ($_SESSION['tipo'] != 1) {
+        ?>
       <button href='javascript: func' onclick="validacao(50, 1, 1, 45)" style="width:20%;padding:20px;" type="button"
         class="btn btn-outline-primary">Balanço Mensal</button>
       <button href='javascript: func' onclick="validacao(52, 1, 1, 45)" style="width:20%;padding:20px;" type="button"
@@ -573,6 +690,11 @@
       <button href='javascript: func' onclick="validacao(54, 1, 1, 45)" style="width:20%;padding:20px;" type="button"
         class="btn btn-outline-primary">Relatório de Entrada de
         Produtos</button>
+      <?php }
+      ?>
+      <?PHP
+      if ($_SESSION['tipo'] != 1) {
+        ?>
 
       <div class="btn-group" role="group">
         <button style="width:20%;padding:20px;" id="btnGroupDrop1" type="button"
@@ -586,17 +708,27 @@
           </li>
           <li><a class="dropdown-item" href='javascript: func' onclick="validacao(61, 1, 1, 45)">Gerar Pedido
               Automático</a></li>
-          <li><a class="dropdown-item" href='javascript: func' onclick="validacao(64, 1, 1, 45)">Histórico de Saídas de
+          <li><a class="dropdown-item" href='javascript: func' onclick="validacao(64, 1, 1, 45)">Histórico de Saídas
+              de
               Produtos</a></li>
         </ul>
       </div>
+      <?php } ?>
     </div>
 
+    <a type="button" id="generate-pdf" class="btn-flutuante-imprimir" title="Imprimir">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 2H14L20 8V22C20 22.55 19.55 23 19 23H5C4.45 23 4 22.55 4 22V4C4 2.9 4.9 2 6 2Z" fill="none"
+          stroke="red" stroke-width="2" />
+        <text x="6" y="18" fill="red" font-size="10" font-family="Arial, sans-serif" font-weight="bold">PDF</text>
+      </svg>
+    </a>
     <div id='ResultadoValidacao45'>
 
     </div>
 
   </div>
+
   <div class="" id="DivUsuarios" style="overflow: auto; width:90%; margin-left:2%;">
     <div class="input-group" style="margin-top:10px;">
       <input onkeyup="PagPesquisarUsuario(36, txtTipoPermissao.value, this.value)" id="txtPequisarUsuario2"
@@ -608,9 +740,14 @@
     </div>
     <select onchange="PagPesquisarUsuario(36, this.value, txtPequisarUsuario2.value)" id="txtTipoPermissao"
       style="padding:20px; margin-top:5px;" class="form-select" aria-label="Selecione uma Categoria">
+      <?PHP
+      if ($_SESSION['tipo'] != 1) {
+        ?>
+
       <option disabled value="0" selected>Todos Usuários</option>
       <option value="1">Administrador</option>
       <option value="2">Gerente</option>
+      <?php } ?>
       <option value="3">PDV</option>
     </select>
 
@@ -619,24 +756,23 @@
     <div id='DivCadastroUsuario' class="card">
       <div class="card-body">
         <h2>Cadastro de Novo Usuário</h2>
-        <form onsubmit='return ConfirmarIsso();' method="post" name="passwordForm" id="passwordForm" novalidate
-          enctype="multipart/form-data">
+        <form method="post" name="frmCadastroLoja" id="frmCadastroLoja" novalidate>
           <div class='row'>
             <div class="col-12 col-md-12" style="text-align: left;">
               <div class="form-group label-floating">
                 <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
                   style='padding:5px; border-bottom: 2px solid; width: 100%; ' for="txtNome" class="control-label">Nome
-                  Completo</label>
+                  da Loja</label>
                 <input style="padding:30px; font-size: 15pt; width: 100%; " type="text" class="form-control"
-                  id="txtNome" name="txtNome" value="">
+                  id="txtNomeLoja" name="txtNomeLoja" value="" required>
               </div>
             </div>
             <div class="col-12 col-md-6" style="text-align: left;">
               <div class="form-group label-floating">
                 <label style='padding:5px;  border-bottom: 2px solid; width: 100%; ' for="txtNome"
-                  class="control-label">Login</label>
+                  class="control-label">CNPJ</label>
                 <input style="padding:30px; font-size: 15pt; width: 100%; " type="text" class="form-control"
-                  id="txtLogin" name="txtLogin" value="">
+                  id="txtCnpjLoja" name="txtCnpjLoja" value="">
               </div>
             </div>
             <div class="col-12 col-md-6" style="text-align: left;">
@@ -644,24 +780,24 @@
                 <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class="control-label">Celular<span
                     id="">&nbsp;</span></label>
                 <input style="padding:30px; font-size: 15pt; width: 100%; " type="text" id="txtCelular"
-                  name="txtCelular" class="form-control" value="">
+                  name="txtTelefoneLoja" class="form-control" value="">
               </div>
             </div>
             <div class="col-12 col-md-6" style="text-align: left;">
               <div class="form-group label-floating">
-                <label style='padding:5px; border-bottom: 2px solid;  width: 100%; ' class="control-label">Senha
+                <label style='padding:5px; border-bottom: 2px solid;  width: 100%; ' class="control-label">Responsavel
                   <span class="message">&nbsp;</span></label>
-                <input style="padding:30px; font-size: 15pt; width: 100%; " type="password" id="txtSenha"
-                  name="txtSenha" class="form-control" value="">
+                <input style="padding:30px; font-size: 15pt; width: 100%; " type="text" id="txtResponsavelLoja"
+                  name="txtResponsavelLoja" class="form-control" value="">
               </div>
             </div>
 
             <div class="col-12 col-md-6" style="text-align: left;">
               <div class="form-group label-floating">
                 <label style='padding:5px; border-bottom: 2px solid;  width: 100%; ' class="control-label">Confirmar
-                  Senha <span class="message">&nbsp;</span></label>
-                <input style="padding:30px; font-size: 15pt; width: 100%; " type="password" id="txtSenha2"
-                  name="txtSenha2" class="form-control" value="">
+                  E-mail <span class="message">&nbsp;</span></label>
+                <input style="padding:30px; font-size: 15pt; width: 100%; " type="email" id="txtEmailLoja"
+                  name="txtEmailLoja" class="form-control" value="">
               </div>
             </div>
             <div id="message" class="text-danger mb-3"></div>
@@ -671,11 +807,11 @@
               <div class="form-group label-floating">
                 <label style='padding:5px; border-bottom: 2px solid;  width: 100%; '
                   class="control-label">Permissão</label>
-                <select style="padding:30px; font-size: 15pt; width: 100%; " id="txtPermissaoCad" name="txtPermissaoCad"
+                <select style="padding:30px; font-size: 15pt; width: 100%; " id="txtTipoLoja" name="txtTipoLoja"
                   class="form-control">
-                  <option value="1">Administrador</option>
-                  <option value="2">Gerente</option>
-                  <option value="3">PDV</option>
+                  <option value="1">Loja</option>
+                  <option value="2">Deposito</option>
+                  <option value="3">Matriz</option>
                 </select>
               </div>
             </div>
@@ -693,8 +829,10 @@
               <?php
               foreach ($erros as $e) {
                 ?>
-                <li><?= $e; ?></li>
-                <?php
+              <li>
+                <?= $e; ?>
+              </li>
+              <?php
               }
               ?>
             </ul>
@@ -704,21 +842,41 @@
     </div>
   </div>
   <div class="" id="DivContas" style="overflow: auto; width:100%;">
+
     <?php
     $qtdfinatrasados = 0;
     echo "
                <div class='row' style='width:100%;'> 
                <div class='col-12 col-md-8' id='resultadoqtdvalor' style='margin-bottom:5px;'>
-                   <label style='color:#337AB7; border-bottom: 2px solid #337AB7; width: 100%; '>Pesquisar Data</label>
+                   <label style='color:#337AB7; border-bottom: 2px solid #000; width: 100%; '>Pesquisar Data</label>
                    <div class='input-group'>
-                       <input style='padding:40px; font-size: 15pt; width: 40%;' type='month' class='form-control' id='txtDataFechaCaixa' onfocus='' name='txtDataFechaCaixa' value='" . date('Y-m') . "' onkeyup='PagVerTudo(43, this.value, 44)'>
+                       <input style='padding:40px; font-size: 15pt; width: 40%;' type='month' class='form-control' id='txtDataFechaCaixa' onfocus='' name='txtDataFechaCaixa' value='" . date('Y-m') . "' onkeyup='PagVerTudoTipoCrediario(43, this.value, tipopesquisacred.value, 44)'>
                    </div>
-               </div>";
-    echo "<div class='col-12 col-md-4' id='resultadoqtdvalor' style='margin-bottom:5px;'></br>
-                   <a href='javascript: func' onclick='PagVerTudo(44, 0, 44)' style='padding:30px; font-size:16pt; width:100%; margin-top:10px;' class='btn btn-danger'>
-                       Clientes Atrasados <span class='badge'>$qtdfinatrasados</span>
-                   </a>
-               </div>";
+               </div>
+               
+               <div class='col-12 col-md-4' id='resultadoqtdvalor' >
+                   <div class='input-group'>
+                     <label style='color:#337AB7; border-bottom: 2px solid #000; width: 100%; '>Tipo de Crediário</label>
+                 
+                      <select style='padding:40px; font-size: 15pt; width: 100%;' id='tipopesquisacred' name='tipopesquisacred' onchange='PagVerTudoTipoCrediario(43, txtDataFechaCaixa.value, this.value, 44)'>
+                        <option value='0'>TODOS OS CREDIÁRIOS</option>
+                        <option value='1'>CREDIÁRIOS DA LOJA</option>
+                        <option value='2'>CREDIÁRIOS AVANCARD</option>
+                        <option value='3'>PARCELAS VENCIMENTO CREDIÁRIO DA LOJA</option>
+                        <option value='4'>PARCELAS VENCIMENTO CREDIÁRIO AVANCARD</option>
+                      </select>
+                      
+                   </div> 
+               </div>
+               <h1></h1>";
+    // echo "<div class='col-12 col-md-4' id='resultadoqtdvalor' style='margin-bottom:5px;'></br>
+    //              <a href='javascript: func' onclick='validacao(81, 0, 0, 81)' style='padding:30px; font-size:16pt; width:100%; margin-top:10px;' class='btn btn-danger'>
+    //                Clientes Atrasados <span class='badge'>$qtdfinatrasados</span>
+    //          </a>
+    
+    //    </div>";
+    
+    echo "<div id='ResultadoValidacao81'>  </div>";
     echo "</div>";
 
 
@@ -738,6 +896,8 @@
            <td><b>Total Recebido</b></td>
            <td><b>Total a Receber</b></td>
                                    </tr>
+
+                                   
                                    ";
 
     for ($i = 1; $i <= 12; $i++) {
@@ -745,6 +905,9 @@
       $contadorcontas = 0;
       $totalemcrediario = 0;
       $valortotalparcelas = 0;
+      $tipo_crediario = 0;
+      $textotipocrediario = "";
+
 
       $sql = mysqli_query($conn, "SELECT * FROM financeiro_clientes WHERE tipo = 2 AND tipopag = 2 AND mes = $i AND ano = $ano ORDER BY cod ASC");
       // Exibe todos os valores encontrados
@@ -754,6 +917,16 @@
         $codfin = $financeirocli->cod;
         $codnota = $financeirocli->cod_orcamento;
         $valortotalfinanceiro = (float) $financeirocli->total;
+        $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+        if ($tipo_crediario == 1) {
+          $textotipocrediario = "DA LOJA";
+        } else {
+
+          $textotipocrediario = "AVANCARD";
+        }
+
         $diaatual = date('d');
         $anoatual = date('Y');
         $mesatual = date('m');
@@ -767,24 +940,27 @@
         $pagamentototal = (float) $financeirocli->total;
         $pagamentototal2 = $pagamentototal;
         $numparcelas = (float) $financeirocli->numparcelas;
-        $valorparcela = $pagamentototal / $numparcelas;
+        if ($numparcelas == 0) {
+          $valorparcela = $pagamentototal;
+        } else {
+          $valorparcela = $pagamentototal / $numparcelas;
+        }
+
         $valorparcela = number_format($valorparcela, 2, ',', '.');
         $valorparcela2 = $valorparcela;
         $pagamentototal = number_format($pagamentototal, 2, ',', '.');
         $tipopag1 = $financeirocli->tipo;
         $tipopag2 = $financeirocli->tipopag;
 
-        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+        $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
         // Exibe todos os valores encontrados
         while ($finpar = mysqli_fetch_object($sqlPar)) {
           $contadorparcelas++;
         }
-
         if ($numparcelas != $contadorparcelas) {
           $contadorcontas++;
           $totalemcrediario = $totalemcrediario + $valortotalfinanceiro;
-
-          $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+          $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
           // Exibe todos os valores encontrados
           while ($finpar = mysqli_fetch_object($sqlPar)) {
             $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
@@ -792,7 +968,6 @@
             $mespag = $finpar->mes;
             $anopag = $finpar->ano;
           }
-
 
           $textostatus = "";
           if ($diapag == 0) {
@@ -837,6 +1012,19 @@
       $codfin2 = $financeirocli->cod;
       $codnota = $financeirocli->cod_orcamento;
       $codnota2 = $financeirocli->cod_orcamento;
+
+
+      $tipo_crediario = (float) $financeirocli->tipo_crediario;
+
+
+      if ($tipo_crediario == 1) {
+        $textotipocrediario = "DA LOJA";
+      } else {
+
+        $textotipocrediario = "AVANCARD";
+      }
+
+
       $valortotalfinanceiro = (float) $financeirocli->total;
       $valortotalfinanceiro2 = (float) $financeirocli->total;
       $diaatual = date('d');
@@ -852,7 +1040,12 @@
       $pagamentototal = (float) $financeirocli->total;
       $pagamentototal2 = $pagamentototal;
       $numparcelas = (float) $financeirocli->numparcelas;
-      $valorparcela = $pagamentototal / $numparcelas;
+      if ($numparcelas == 0) {
+        $valorparcela = $pagamentototal;
+      } else {
+        $valorparcela = $pagamentototal / $numparcelas;
+      }
+
       $valorparcela = number_format($valorparcela, 2, ',', '.');
       $valorparcela2 = $valorparcela;
       $pagamentototal = number_format($pagamentototal, 2, ',', '.');
@@ -869,7 +1062,7 @@
         if ($financeirocli->tipopag == 1) {// credito
           $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Cartão de Crédito";
         } else {//crediario
-          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário";
+          $textopagamentotipo = "Pagamento Parcelado em " . $numparcelas . "x no Crediário $textotipocrediario";
         }
       }
 
@@ -913,7 +1106,7 @@
 
 
 
-      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin ORDER BY cod ASC");
+      $sqlPar = mysqli_query($conn, "SELECT * FROM pag_par_pro WHERE financeiro_pac = $codfin AND status = 2 ORDER BY cod ASC");
       // Exibe todos os valores encontrados
       while ($finpar = mysqli_fetch_object($sqlPar)) {
         $valortotalparcelas = $valortotalparcelas + (float) $finpar->valor;
@@ -981,8 +1174,12 @@
 
   </div>
   <div class="" id="DivDespesas" style="overflow: auto; width: 100%;">
-    <?php
+    <?PHP
     $ListaCategoriasListaDespesa = $categoriaFinanceiroController->RetornarCategorias(1);
+
+    if ($_SESSION['permissaoF'] == 1 || $_SESSION['permissaoF'] == 2) {
+      ?>
+    <?php
     ?>
     <div class="input-group" style="margin-top:10px;">
       <button style="width:33%; padding:10px;" href="javascript: func" onclick="alternarDivs(20)"
@@ -999,10 +1196,10 @@
     <div id="DivParaGerarRelatorioDespesa">
       <H1>Painel para Gerar Relatório de Despesas</H1>
       <div class='row' style='background-color:#fff; margin-bottom:10px;'>
-        <div class='col-sm-12 col-xl-4'>
-          <label>Deseja consultar qual período</label>
+        <div class='col-sm-12 col-xl-2'>
+          <label>Qual período</label>
           <select
-            onchange='validacaorelatorios(67, this.value, txtTipopagamentoAvista.value, txtTipopagamento.value, txtDataParaPesquisa.value, 0, 0, 67)'
+            onchange='validacaorelatorios(67, this.value, txtTipopagamentoAvista.value, txtTipopagamento.value, txtDataParaPesquisa.value, txtTipoRelatorio.value, 0, 67)'
             name='txtConsultaPeriodo' id='txtConsultaPeriodo' class='form-control'
             style='font-size:12pt; padding:20px;'>
             <option value='1'>Dia</option>
@@ -1010,10 +1207,10 @@
             <option value='3'>Ano</option>
           </select>
         </div>
-        <div class='col-sm-12 col-xl-4'>
+        <div class='col-sm-12 col-xl-3'>
           <label>Categoria</label>
           <select
-            onchange='validacaorelatorios(68, txtConsultaPeriodo.value, this.value, txtTipopagamento.value, txtDataParaPesquisa.value, 0, 0, 68)'
+            onchange='validacaorelatorios(68, txtConsultaPeriodo.value, this.value, txtTipopagamento.value, txtDataParaPesquisa.value, txtTipoRelatorio.value, 0, 68)'
             name='txtTipopagamentoAvista' id='txtTipopagamentoAvista' class='form-control'
             style='font-size:12pt; padding:20px;'>
             <option value="0" selected>TODAS CATEGORIAS</option>
@@ -1021,35 +1218,55 @@
             if ($ListaCategoriasListaDespesa != null) {
               foreach ($ListaCategoriasListaDespesa as $cat) {
                 ?>
-                <option value='<?= $cat->getId(); ?>'><?= $cat->getNome(); ?></option>
-                <?php
+            <option value='<?= $cat->getId(); ?>'>
+              <?= $cat->getNome(); ?>
+            </option>
+            <?php
               }
             }
             ?>
           </select>
         </div>
 
-        <div class='col-sm-12 col-xl-4'>
-          <label>Tipo de Pagamento</label>
+        <div class='col-sm-12 col-xl-2'>
+          <label>Tipo de Despesa</label>
           <select
-            onchange='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, this.value, txtDataParaPesquisa.value, 0, 0, 68)'
+            onchange='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, this.value, txtDataParaPesquisa.value, txtTipoRelatorio.value, 0, 68)'
             name='txtTipopagamento' id='txtTipopagamento' class='form-control' style='font-size:12pt; padding:20px;'>
             <option value='0'>TODOS</option>
             <option value='1'>A PAGAR</option>
             <option value='2'>PAGO</option>
           </select>
         </div>
-
+        <div class='col-sm-12 col-xl-2'>
+          <label>Tipo Relatório</label>
+          <select
+            onchange='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, txtDataParaPesquisa.value, this.value, 0, 68)'
+            name='txtTipoRelatorio' id='txtTipoRelatorio' class='form-control' style='font-size:12pt; padding:20px;'>
+            <option value='0'>RESUMIDO</option>
+            <option value='1'>COMPLETO</option>
+          </select>
+        </div>
+        <div class='col-sm-12 col-xl-3'>
+          <div id='ResultadoValidacao67'>
+            <label>Data</label>
+            <input
+              onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, txtTipoRelatorio.value, 0, 68)'
+              class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa'
+              name='txtDataParaPesquisa' value='<?= date('Y-m-d') ?>' />
+          </div>
+        </div>
       </div>
-      <div id='ResultadoValidacao67'>
-        <div class='col-sm-12 col-xl-12'>
-                        <label>Data</label>
-                        <input onkeyup='validacaorelatorios(68, txtConsultaPeriodo.value, txtTipopagamentoAvista.value, txtTipopagamento.value, this.value, 0, 0, 68)' class='form-control' style='font-size:12pt; padding:20px;' type='date' id='txtDataParaPesquisa' name'txtDataParaPesquisa' value='<?=  date('Y-m-d')?>' />
-                      </div>  
-                       <div id='ResultadoValidacao68'> 
-                       </div>
-      </div>
 
+      <div id='ResultadoValidacao68'>
+      </div>
+      <a type="button" id="generate-pdf2" class="btn-flutuante-imprimir" title="Imprimir">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="red" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 2H14L20 8V22C20 22.55 19.55 23 19 23H5C4.45 23 4 22.55 4 22V4C4 2.9 4.9 2 6 2Z" fill="none"
+            stroke="red" stroke-width="2" />
+          <text x="6" y="18" fill="red" font-size="10" font-family="Arial, sans-serif" font-weight="bold">PDF</text>
+        </svg>
+      </a>
     </div>
     <div id='ResultadoPesquisaDespesa'></div>
     <div id='DivCadastroDespesa' class="card">
@@ -1066,16 +1283,17 @@
           echo "<div class='alert alert-danger'>ABRA O CAIXA PARA INICIAR AS VENDAS!</div>";
           ?>
 
-          <button onclick="FuncaoChamarBotao8()" style="width:100%;" class="btn btn-outline-primary" type="button"
-            data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
+        <button onclick="FuncaoChamarBotao8()" style="width:100%;" class="btn btn-outline-primary" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
 
-            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
-              viewBox="0 0 16 16">
-              <path fill-rule="evenodd"
-                d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
-            </svg>
-            <span style="font-size:18pt;">Iniciar Novo Caixa</span></button>
-          <?php
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
+            viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
+            X
+          </svg>
+          <span style="font-size:18pt;">Iniciar Novo Caixa</span></button>
+        <?php
 
         } else {
           foreach ($dataTableNota as $resultadonota) {
@@ -1088,69 +1306,82 @@
           }
           ?>
 
-          <h2>Cadastro Nova Despesa</h2>
+        <h2>Cadastro Nova Despesa</h2>
 
-          <form onsubmit='return ConfirmarIsso();' method="post" name="frmCadastroProd" id="frmCadastroProd" novalidate
-            enctype="multipart/form-data">
-            <div class='row'>
-              <div class="col-12 col-md-4" style="text-align: left;">
-                <div class="form-group label-floating">
-                  <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
-                    style="padding:5px; color:337AB7; border-bottom: 2px solid; width: 100%;" for="txtDescricaoDespesa"
-                    class="control-label">Data Despesa</label>
-                  <input tabindex='4' style="padding:20px; font-size: 15pt; width: 100%; " type="text"
-                    class="form-control" disabled id="txtDataDespesa" name="txtDataDespesa" value="<?= $datacaixa; ?>" />
+        <form onsubmit='return ConfirmarIsso();' method="post" name="frmCadastroProd" id="frmCadastroProd" novalidate
+          enctype="multipart/form-data">
+          <div class='row'>
+            <div class="col-12 col-md-4" style="text-align: left;">
+              <div class="form-group label-floating">
+                <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
+                  style="padding:5px; color:337AB7; border-bottom: 2px solid; width: 100%;" for="txtDescricaoDespesa"
+                  class="control-label">Data Despesa</label>
+                <input tabindex='4' style="padding:20px; font-size: 15pt; width: 100%; " type="date"
+                  class="form-control" id="txtDataDespesa" name="txtDataDespesa" value="<?= date('Y-m-d'); ?>" />
 
-                  <input type="hidden" id="txtDiaDepesa" name="txtDiaDepesa" value="<?= $diacaixa; ?>" />
-                  <input type="hidden" id="txtMesDespesa" name="txtMesDespesa" value="<?= $mescaixa; ?>" />
-                  <input type="hidden" id="txtAnoDespesa" name="txtAnoDespesa" value="<?= $anocaixa; ?>" />
-                  <input type="hidden" id="txtCodcaixadespesa" name="txtCodcaixadespesa" value="<?= $codcaixa; ?>" />
+                <input type="hidden" id="txtDiaDepesa" name="txtDiaDepesa" value="<?= date('d'); ?>" />
+                <input type="hidden" id="txtMesDespesa" name="txtMesDespesa" value="<?= date('m'); ?>" />
+                <input type="hidden" id="txtAnoDespesa" name="txtAnoDespesa" value="<?= date('Y'); ?>" />
+                <input type="hidden" id="txtCodcaixadespesa" name="txtCodcaixadespesa" value="<?= $codcaixa; ?>" />
 
-                </div>
               </div>
-              <div class="col-12 col-md-8" style="text-align: left;">
-                <div class="form-group label-floating">
-                  <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
-                    style="padding:5px; color:337AB7; border-bottom: 2px solid; width: 100%;" for="txtDescricaoDespesa"
-                    class="control-label">Descrição Despesa</label>
-                  <input tabindex='4' style="padding:20px; font-size: 15pt; width: 100%; " type="text"
-                    class="form-control" id="txtDescricaoDespesa" name="txtDescricaoDespesa" value="">
-                </div>
-              </div>
-              <div class="col-12 col-md-6" style="text-align: left;">
-                <div class="form-group label-floating">
-                  <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' for="txtValorDespesa"
-                    class="control-label">Valor Total da Despesa</label>
-                  <input tabindex='6' style="padding:20px; font-size: 15pt; width: 100%; " type="text"
-                    class="form-control" id="txtValorDespesa" name="txtValorDespesa" value="">
-                  <input type="hidden" id="txtTipo" name="txtTipo" value="0">
-                </div>
-              </div>
-              <div class="col-12 col-md-6" style="text-align: left;">
-                <div class="form-group label-floating">
-                  <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class="control-label">Categoria
-                    Despesa</label>
-                  <select tabindex='7' style="height:70px; font-size: 15pt; width: 100%; " type="text"
-                    id="txtCategoriaDespesa" name="txtCategoriaDespesa" class="form-control" value="">
-                    <?php
-                    if ($ListaCategoriasListaDespesa != null) {
-                      foreach ($ListaCategoriasListaDespesa as $cat) {
-                        ?>
-                        <option value='<?= $cat->getId(); ?>'><?= $cat->getNome(); ?></option>
-                        <?php
-                      }
-                    }
-                    ?>
-                  </select>
-                </div>
-              </div>
-
-              <input tabindex='12' style="margin-left: 5%; padding:20px; font-size: 15pt; width: 90%; margin-top:10px;"
-                type="submit" name="btnCadastrarNovaDespesa" id="btnCadastrarNovaDespesa" value="Cadastrar Nova Despesa"
-                class="btn btn-outline-success" />
-
             </div>
-          </form>
+            <div class="col-12 col-md-8" style="text-align: left;">
+              <div class="form-group label-floating">
+                <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
+                  style="padding:5px; color:337AB7; border-bottom: 2px solid; width: 100%;" for="txtDescricaoDespesa"
+                  class="control-label">Descrição Despesa</label>
+                <input tabindex='4' style="padding:20px; font-size: 15pt; width: 100%; " type="text"
+                  class="form-control" id="txtDescricaoDespesa" name="txtDescricaoDespesa" value="">
+              </div>
+            </div>
+            <div class="col-12 col-md-6" style="text-align: left;">
+              <div class="form-group label-floating">
+                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' for="txtValorDespesa"
+                  class="control-label">Valor Total da Despesa</label>
+                <input tabindex='6' style="padding:20px; font-size: 15pt; width: 100%; " type="text"
+                  class="form-control" id="txtValorDespesa" name="txtValorDespesa" value="">
+                <input type="hidden" id="txtTipo" name="txtTipo" value="0">
+              </div>
+            </div>
+            <div class="col-12 col-md-6" style="text-align: left;">
+              <div class="form-group label-floating">
+                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class="control-label">Categoria
+                  Despesa</label>
+                <select tabindex='7' style="height:70px; font-size: 15pt; width: 100%; " type="text"
+                  id="txtCategoriaDespesa" name="txtCategoriaDespesa" class="form-control" value="">
+                  <?php
+                  if ($ListaCategoriasListaDespesa != null) {
+                    foreach ($ListaCategoriasListaDespesa as $cat) {
+                      ?>
+                  <option value='<?= $cat->getId(); ?>'>
+                    <?= $cat->getNome(); ?>
+                  </option>
+                  <?php
+                    }
+                  }
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="col-12 col-md-12" style="text-align: left;">
+              <div class="form-group label-floating">
+                <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class="control-label">Categoria
+                  Despesa</label>
+                <select tabindex='7' style="height:70px; font-size: 15pt; width: 100%; " type="text"
+                  id="txtStatusDespesa" name="txtStatusDespesa" class="form-control" value="">
+                  <option value='1'>A Pagar</option>
+                  <option value='2'>Pago</option>
+                </select>
+              </div>
+            </div>
+
+            <input tabindex='12' style="margin-left: 5%; padding:20px; font-size: 15pt; width: 90%; margin-top:10px;"
+              type="submit" name="btnCadastrarNovaDespesa" id="btnCadastrarNovaDespesa" value="Cadastrar Nova Despesa"
+              class="btn btn-outline-success" />
+
+          </div>
+        </form>
 
         <?php } ?>
       </div>
@@ -1188,29 +1419,33 @@
         if ($ListaCategoriasListaDespesa != null) {
           foreach ($ListaCategoriasListaDespesa as $user) {
             ?>
-            <tr>
-              <td><?= $user->getId(); ?></td>
-              <td><?= $user->getNome(); ?></td>
-              <td>
+        <tr>
+          <td>
+            <?= $user->getId(); ?>
+          </td>
+          <td>
+            <?= $user->getNome(); ?>
+          </td>
+          <td>
 
-                <?php
-                $CatProdutosList = $movimentoEmpresaController->TesteCategoria($user->getId());
-                //var_dump($CatProdutosList);
-                if ($CatProdutosList == null) {
-                  ?>
-                  <form onsubmit='return ConfirmarIsso();' name="form_cadastrarmovimento" method="post" action=""
-                    style="text-align:left; width:100%;">
-                    <input style="" type='hidden' id='codcategoriadesp' name='codcategoriadesp'
-                      value='<?= $user->getId(); ?>'>
-                    <input style='font-size:12pt;' type="submit" value="Apagar" class="btn btn-outline-danger"
-                      name="btnApagarCategoriaDespesa" id='btnApagarCategoriaDespesa' />
-                  </form>
-                  <?php
-                }
-                ?>
-              </td>
-            </tr>
             <?php
+            $CatProdutosList = $movimentoEmpresaController->TesteCategoria($user->getId());
+            //var_dump($CatProdutosList);
+            if ($CatProdutosList == null) {
+              ?>
+            <form onsubmit='return ConfirmarIsso();' name="form_cadastrarmovimento" method="post" action=""
+              style="text-align:left; width:100%;">
+              <input style="" type='hidden' id='codcategoriadesp' name='codcategoriadesp'
+                value='<?= $user->getId(); ?>'>
+              <input style='font-size:12pt;' type="submit" value="Apagar" class="btn btn-outline-danger"
+                name="btnApagarCategoriaDespesa" id='btnApagarCategoriaDespesa' />
+            </form>
+            <?php
+            }
+            ?>
+          </td>
+        </tr>
+        <?php
           }
         } else {
           echo "Não há nenhum Serviço Cadastrado";
@@ -1221,6 +1456,128 @@
 
     </div>
 
+    <?php
+    } else {
+      ?>
+    <div class="card-body">
+      <?php
+      $cod_funcionario = $_SESSION['codF'];
+      $sqlNota = "SELECT * FROM fechar_caixa WHERE cod_funcionario = $cod_funcionario AND status = :status ORDER BY cod DESC LIMIT 1";
+      $paramNota = array(
+        ":status" => 1
+      );
+
+      $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
+      if ($dataTableNota == null) {
+        echo "<div class='alert alert-danger'>ABRA O CAIXA PARA INICIAR AS VENDAS!</div>";
+        ?>
+
+      <button onclick="FuncaoChamarBotao8()" style="width:100%;" class="btn btn-outline-primary" type="button"
+        data-bs-toggle="offcanvas" data-bs-target="#offcanvasLeft" aria-controls="offcanvasRight">
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-box-fill"
+          viewBox="0 0 16 16">
+          <path fill-rule="evenodd"
+            d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.004-.001.274-.11a.75.75 0 0 1 .558 0l.274.11.004.001zm-1.374.527L8 5.962 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339Z" />
+          X
+        </svg>
+        <span style="font-size:18pt;">Iniciar Novo Caixa</span></button>
+      <?php
+
+      } else {
+        foreach ($dataTableNota as $resultadonota) {
+          $codcaixa = $resultadonota['cod'];
+          $diacaixa = $resultadonota['dia'];
+          $mescaixa = $resultadonota['mes'];
+          $anocaixa = $resultadonota['ano'];
+
+          $datacaixa = $diacaixa . '/' . $mescaixa . '/' . $anocaixa;
+        }
+        ?>
+
+      <h2>Cadastro Nova Despesa</h2>
+
+      <form onsubmit='return ConfirmarIsso();' method="post" name="frmCadastroProd" id="frmCadastroProd" novalidate
+        enctype="multipart/form-data">
+        <div class='row'>
+          <div class="col-12 col-md-4" style="text-align: left;">
+            <div class="form-group label-floating">
+              <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
+                style="padding:5px; color:337AB7; border-bottom: 2px solid; width: 100%;" for="txtDescricaoDespesa"
+                class="control-label">Data Despesa</label>
+              <input tabindex='4' style="padding:20px; font-size: 15pt; width: 100%; " type="date" class="form-control"
+                id="txtDataDespesa" name="txtDataDespesa" value='<?= date('Y-m-d') ?>' />
+
+              <input type="hidden" id="txtDiaDepesa" name="txtDiaDepesa" value="<?= date('d'); ?>" />
+              <input type="hidden" id="txtMesDespesa" name="txtMesDespesa" value="<?= date('m'); ?>" />
+              <input type="hidden" id="txtAnoDespesa" name="txtAnoDespesa" value="<?= date('Y'); ?>" />
+              <input type="hidden" id="txtCodcaixadespesa" name="txtCodcaixadespesa" value="<?= $codcaixa; ?>" />
+
+            </div>
+          </div>
+          <div class="col-12 col-md-8" style="text-align: left;">
+            <div class="form-group label-floating">
+              <label style='padding:5px; border-bottom: 2px solid; width: 100%; '
+                style="padding:5px; color:337AB7; border-bottom: 2px solid; width: 100%;" for="txtDescricaoDespesa"
+                class="control-label">Descrição Despesa</label>
+              <input tabindex='4' style="padding:20px; font-size: 15pt; width: 100%; " type="text" class="form-control"
+                id="txtDescricaoDespesa" name="txtDescricaoDespesa" value="">
+            </div>
+          </div>
+          <div class="col-12 col-md-6" style="text-align: left;">
+            <div class="form-group label-floating">
+              <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' for="txtValorDespesa"
+                class="control-label">Valor Total da Despesa</label>
+              <input tabindex='6' style="padding:20px; font-size: 15pt; width: 100%; " type="text" class="form-control"
+                id="txtValorDespesa" name="txtValorDespesa" value="">
+              <input type="hidden" id="txtTipo" name="txtTipo" value="0">
+            </div>
+          </div>
+          <div class="col-12 col-md-6" style="text-align: left;">
+            <div class="form-group label-floating">
+              <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class="control-label">Categoria
+                Despesa</label>
+              <select tabindex='7' style="height:70px; font-size: 15pt; width: 100%; " type="text"
+                id="txtCategoriaDespesa" name="txtCategoriaDespesa" class="form-control" value="">
+                <?php
+                if ($ListaCategoriasListaDespesa != null) {
+                  foreach ($ListaCategoriasListaDespesa as $cat) {
+                    ?>
+                <option value='<?= $cat->getId(); ?>'>
+                  <?= $cat->getNome(); ?>
+                </option>
+                <?php
+                  }
+                }
+                ?>
+              </select>
+            </div>
+          </div>
+          <div class="col-12 col-md-12" style="text-align: left;">
+            <div class="form-group label-floating">
+              <label style='padding:5px; border-bottom: 2px solid; width: 100%; ' class="control-label">Categoria
+                Despesa</label>
+              <select tabindex='7' style="height:70px; font-size: 15pt; width: 100%; " type="text" id="txtStatusDespesa"
+                name="txtStatusDespesa" class="form-control" value="">
+                <option value='1'>A Pagar</option>
+                <option value='2'>Pago</option>
+              </select>
+            </div>
+          </div>
+
+          <input tabindex='12' style="margin-left: 5%; padding:20px; font-size: 15pt; width: 90%; margin-top:10px;"
+            type="submit" name="btnCadastrarNovaDespesa" id="btnCadastrarNovaDespesa" value="Cadastrar Nova Despesa"
+            class="btn btn-outline-success" />
+
+        </div>
+      </form>
+
+      <?php } ?>
+    </div>
+    <?php
+    }
+
+    ?>
   </div>
   <div class="" id="DivConfiguracoes" style="overflow: auto; width:100%;">
     <h1>Personalização do Usuário</h1>
@@ -1241,7 +1598,7 @@
         }
         ?>
         <form onsubmit='return ConfirmarIsso();' name="form_cadastrarmovimento" method="post" action="">
-          <label>Qual é o seu tipo de Négócio?</label>
+          <label>Qual é o seu de Négócio?</label>
           <input name="codusu" id="codusu" type="hidden" value="<?= $_SESSION['codF']; ?>" />
 
           <select name='txtTipoEmpresa' id='txtTipoEmpresa' class="form-control"
@@ -1360,25 +1717,29 @@
 
                 if ($img == null) {
                   ?>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor"
-                    class="bi bi-file-earmark-image-fill" viewBox="0 0 16 16">
-                    <path
-                      d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707v5.586l-2.73-2.73a1 1 0 0 0-1.52.127l-1.889 2.644-1.769-1.062a1 1 0 0 0-1.222.15L2 12.292V2a2 2 0 0 1 2-2m5.5 1.5v2a1 1 0 0 0 1 1h2zm-1.498 4a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0" />
-                    <path
-                      d="M10.564 8.27 14 11.708V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-.293l3.578-3.577 2.56 1.536 2.426-3.395z" />
-                  </svg>
-                  <?php
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor"
+                  class="bi bi-file-earmark-image-fill" viewBox="0 0 16 16">
+                  <path
+                    d="M4 0h5.293A1 1 0 0 1 10 .293L13.707 4a1 1 0 0 1 .293.707v5.586l-2.73-2.73a1 1 0 0 0-1.52.127l-1.889 2.644-1.769-1.062a1 1 0 0 0-1.222.15L2 12.292V2a2 2 0 0 1 2-2m5.5 1.5v2a1 1 0 0 0 1 1h2zm-1.498 4a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0" />
+                  <path
+                    d="M10.564 8.27 14 11.708V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-.293l3.578-3.577 2.56 1.536 2.426-3.395z" />
+                </svg>
+                <?php
 
                 } else {
                   ?>
-                  <img src="Interface/img/Usuarios/<?= $img; ?>" alt="avatar" class="rounded-circle img-fluid"
-                    style="width: 150px;">
-                  <?php
+                <img src="Interface/img/Usuarios/<?= $img; ?>" alt="avatar" class="rounded-circle img-fluid"
+                  style="width: 150px;">
+                <?php
                 }
                 ?>
-                <h5 class="my-3"><?= $nomeusu; ?></h5>
+                <h5 class="my-3">
+                  <?= $nomeusu; ?>
+                </h5>
                 <p class="text-muted mb-1">CNPJ/CPF</p>
-                <p class="text-muted mb-4"><?= $cpfusu; ?></p>
+                <p class="text-muted mb-4">
+                  <?= $cpfusu; ?>
+                </p>
                 <div class="d-flex justify-content-center mb-2">
                   <button href='javascript: func' onclick="alternarDivs(18)" id='BtnMostrarFoto' type="button"
                     data-mdb-button-init data-mdb-ripple-init class="btn btn-outline-primary">Atualizar
@@ -1491,14 +1852,14 @@
                   <hr>
                   <div class="row">
                     <div class="col-sm-3">
-                      <p class="mb-0">Permissão</p>
+                      <p class="mb-0">Permissão </p>
                     </div>
                     <div class="col-sm-9">
                       <p class="text-muted mb-0">
                         <select disabled id="txtEditarPermissaoUsu" name="txtEditarPermissaoUsu" class="form-control">
-                          <option value="1">Administrador</option>
-                          <option value="2">Gerente</option>
-                          <option value="3">PDV</option>
+                          <option value="1" <?= ($permissaousu == 1) ? 'selected' : '' ?>>Administrador</option>
+                          <option value="2" <?= ($permissaousu == 2) ? 'selected' : '' ?>>Gerente</option>
+                          <option value="3" <?= ($permissaousu == 3) ? 'selected' : '' ?>>PDV</option>
                         </select>
                       </p>
                     </div>
@@ -1541,6 +1902,231 @@
         </div>
       </div>
     </section>
+  </div>
+  <div class="" id="DivLojas" style="overflow: auto; width:100%;">
+    <div class="input-group" style="margin-top:10px;">
+      <input onkeyup="PagPesquisarLojas(36, txtTipoPermissao.value, this.value)" id="txtPequisarUsuario2"
+        style="padding:20px;" type="text" class="form-control" placeholder="Digite a descrição da Loja..."
+        aria-label="Recipient's username with two button addons">
+      <button href="javascript: func" onclick="alternarDivs(25)" class="btn btn-outline-secondary" type="button">Nova
+        Loja</button>
+
+    </div>
+    <select onchange="PagPesquisarLojas(36, this.value, txtPequisarUsuario2.value)" id="txtTipoPermissao"
+      style="padding:20px; margin-top:5px;" class="form-select" aria-label="Selecione uma Categoria">
+      <?PHP
+      if ($_SESSION['tipo'] != 1) {
+        ?>
+
+      <option disabled value="0" selected>Todas Lojas</option>
+      <option value="1">Administrador</option>
+      <option value="2">Gerente</option>
+      <?php } ?>
+      <option value="3">PDV</option>
+    </select>
+
+    <div id='ResultadoPesquisaLoja'></div>
+
+    <div id='DivCadastroLojas' class="card">
+      <div class="card-body">
+       
+
+        <form onsubmit="return ConfirmarIsso();" method="post" name="frmLoja" id="frmLoja" novalidate
+          enctype="multipart/form-data">
+
+          <div class="row">
+
+            <!-- DADOS PRINCIPAIS -->
+            <div class="col-12">
+              <h4>Dados da Loja</h4>
+              <hr>
+            </div>
+
+            <div class="col-12 col-md-8">
+              <div class="form-group">
+                <label>Nome Fantasia</label>
+                <input type="text" class="form-control" id="txtNomeFantasia" name="txtNomeFantasia">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Código da Loja</label>
+                <input type="text" class="form-control" id="txtCodigoLoja" name="txtCodigoLoja">
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-group">
+                <label>Razão Social</label>
+                <input type="text" class="form-control" id="txtRazaoSocial" name="txtRazaoSocial">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>CNPJ</label>
+                <input type="text" class="form-control" id="txtCNPJ" name="txtCNPJ">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Inscrição Estadual</label>
+                <input type="text" class="form-control" id="txtIE" name="txtIE">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Tipo da Unidade</label>
+                <select class="form-control" id="txtTipoLoja" name="txtTipoLoja">
+                  <option value="MATRIZ">Matriz</option>
+                  <option value="FILIAL">Filial</option>
+                  <option value="DEPOSITO">Depósito</option>
+                  <option value="E-COMMERCE">E-Commerce</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- CONTATO -->
+            <div class="col-12 mt-3">
+              <h4>Contato</h4>
+              <hr>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Telefone</label>
+                <input type="text" class="form-control" id="txtTelefone" name="txtTelefone">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Celular / WhatsApp</label>
+                <input type="text" class="form-control" id="txtCelular" name="txtCelular">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" class="form-control" id="txtEmail" name="txtEmail">
+              </div>
+            </div>
+
+            <!-- ENDEREÇO -->
+            <div class="col-12 mt-3">
+              <h4>Endereço</h4>
+              <hr>
+            </div>
+
+            <div class="col-12 col-md-3">
+              <div class="form-group">
+                <label>CEP</label>
+                <input type="text" class="form-control" id="txtCEP" name="txtCEP">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-7">
+              <div class="form-group">
+                <label>Endereço</label>
+                <input type="text" class="form-control" id="txtEndereco" name="txtEndereco">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-2">
+              <div class="form-group">
+                <label>Número</label>
+                <input type="text" class="form-control" id="txtNumero" name="txtNumero">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Bairro</label>
+                <input type="text" class="form-control" id="txtBairro" name="txtBairro">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Cidade</label>
+                <input type="text" class="form-control" id="txtCidade" name="txtCidade">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-2">
+              <div class="form-group">
+                <label>UF</label>
+                <input type="text" class="form-control" id="txtUF" name="txtUF">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-2">
+              <div class="form-group">
+                <label>País</label>
+                <input type="text" class="form-control" id="txtPais" name="txtPais" value="Brasil">
+              </div>
+            </div>
+
+            <!-- CONFIGURAÇÕES -->
+            <div class="col-12 mt-3">
+              <h4>Configurações</h4>
+              <hr>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Loja Vinculada à Matriz</label>
+                <select class="form-control" id="txtMatriz" name="txtMatriz">
+                  <option value="0">Selecione</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Status</label>
+                <select class="form-control" id="txtStatus" name="txtStatus">
+                  <option value="1">Ativa</option>
+                  <option value="0">Inativa</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <div class="form-group">
+                <label>Permitir Vendas</label>
+                <select class="form-control" id="txtVenda" name="txtVenda">
+                  <option value="1">Sim</option>
+                  <option value="0">Não</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- IMAGEM -->
+            <div class="col-12 mt-3">
+              <h4>Logomarca</h4>
+              <hr>
+            </div>
+
+            <div class="col-12">
+              <input type="file" id="flLogo" name="flLogo" accept="image/*">
+            </div>
+
+            <!-- BOTÃO -->
+            <div class="col-12 mt-4">
+              <input type="submit" name="btnCadastrarLoja" id="btnCadastrarLoja" value="Cadastrar Loja"
+                class="btn btn-success btn-lg w-100">
+            </div>
+
+          </div>
+
+        </form>
+      </div>
+    </div>
   </div>
 
   <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
@@ -1680,12 +2266,12 @@
                       checked>
                     <label class="btn btn-outline-primary" for="btnradioNomePesc">Por Nome</label>
 
-                    <input type="radio" class="btn-check" name="btnradio" id="btnradioContatoPesc" autocomplete="off">
+                    <!---      <input type="radio" class="btn-check" name="btnradio" id="btnradioContatoPesc" autocomplete="off">
                     <label class="btn btn-outline-primary" for="btnradioContatoPesc">Por Contato</label>
 
 
                     <input type="radio" class="btn-check" name="btnradio" id="btnradioCPFPesc" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btnradioCPFPesc">Por CPF</label>
+                    <label class="btn btn-outline-primary" for="btnradioCPFPesc">Por CPF</label> --->
 
 
                   </div>
@@ -1736,6 +2322,13 @@
                   <label for="txtNomeCompletoCadRes" class="form-label">Nome Completo</label>
                   <input type="text" class="form-control" id="txtNomeCompletoCadRes" name='txtNomeCompletoCadRes'
                     value="" required>
+                  <div class="valid-feedback">
+                    Correto!
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <label for="txtContatoCadRes" class="form-label">Cpf</label>
+                  <input type="text" class="form-control" id="txtCpfRes1" name="txtCpfRes1" value="" required>
                   <div class="valid-feedback">
                     Correto!
                   </div>
@@ -1904,10 +2497,16 @@
             <label for="txtBairroCadCom" class="form-label">Funcionário</label>
             <select onchange="validacao(14, txtDataPequisaCaixa.value , this.value, 13)" class="form-select"
               id="txtFuncionarioLista" name='txtFuncionarioLista' required>
-              <option value="0">TODOS FUNCIONÁRIOS</option>
-              <?php
 
-              $sqlPedidos = "SELECT * FROM usuarios ORDER BY cod ASC";
+              <?php
+              if ($_SESSION['permissaoF'] == 1) {
+                echo "<option value='0'>TODOS FUNCIONÁRIOS</option>";
+                $sqlPedidos = "SELECT * FROM usuarios ORDER BY cod ASC";
+
+              } else {
+                $sqlPedidos = "SELECT * FROM usuarios WHERE cod !=1 ORDER BY cod ASC";
+
+              }
               $dataTablePedidos = $banco->ExecuteQuery($sqlPedidos);
               foreach ($dataTablePedidos as $resultadopedidos) {
 
@@ -1950,21 +2549,21 @@
 
         $dataTableNota = $banco->ExecuteQuery($sqlNota, $paramNota);
         if ($dataTableNota == null) { ?>
-          <H3>Iniciar movimento de caixa para realizar controle de faturamento e despesas.</H3>
-          <p>Por favor, digite o valor do caixa inicial e clique em 'Iniciar Caixa' </p>
-          <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate
-            enctype='multipart/form-data'>
-            <input name='txtCodFuncionario' id='txtCodFuncionario' value='<?= $cod_funcionario; ?>' type='hidden' />
-            <label for="txtCaixainicial">Valor do Caixa Inicial</label>
-            <div class="input-group mb-3">
-              <span class="input-group-text">R$</span>
-              <input name='txtCaixainicial' id='txtCaixainicial' type="text" class="form-control"
-                aria-label="Amount (to the nearest dollar)">
-            </div>
-            <input style='margin-top:10px; padding:15px; font-size: 9pt; width: 100%;  font-weight: bold'
-              class='btn btn-primary btn-lg btn-block ' type='submit' name='btnSubmitIniciarCaixa'
-              id='btnSubmitIniciarCaixa' style='' value='Inciar Caixa'>
-          </form>
+        <H3>Iniciar movimento de caixa para realizar controle de faturamento e despesas.</H3>
+        <p>Por favor, digite o valor do caixa inicial e clique em 'Iniciar Caixa' </p>
+        <form onsubmit='return ConfirmarIsso();' method='post' name='frmCadastro2' id='frmCadastro2' novalidate
+          enctype='multipart/form-data'>
+          <input name='txtCodFuncionario' id='txtCodFuncionario' value='<?= $cod_funcionario; ?>' type='hidden' />
+          <label for="txtCaixainicial">Valor do Caixa Inicial</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text">R$</span>
+            <input name='txtCaixainicial' id='txtCaixainicial' type="text" class="form-control"
+              aria-label="Amount (to the nearest dollar)">
+          </div>
+          <input style='margin-top:10px; padding:15px; font-size: 9pt; width: 100%;  font-weight: bold'
+            class='btn btn-primary btn-lg btn-block ' type='submit' name='btnSubmitIniciarCaixa'
+            id='btnSubmitIniciarCaixa' style='' value='Inciar Caixa'>
+        </form>
         <?php } else {
           foreach ($dataTableNota as $resultadonota) {
             $codcaixa = $resultadonota['cod'];
@@ -1995,14 +2594,37 @@
 
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
+
       </div>
     </div>
   </div>
 </main>
+
+<!-- Modal Lista de Itens -->
+<div class="modal fade" id="exampleModalPaginadeImpressao" tabindex="-1" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Página para Impressão</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body" id='ResultadoValidacao89'>
+
+
+
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+</div>
+</div>
+
 
 <script>
   const toastTrigger = document.getElementById('liveToastBtn')
@@ -2157,5 +2779,8 @@
 
     });
   });
-
+  function ConfirmarParcelamento(cod, param, valorpag, tipopag, valor, id) {
+    if (confirm("Clique em Ok para Continuar."))
+      validacaopagarparcela2(cod, param, valorpag, tipopag, valor, id);
+  }
 </script>

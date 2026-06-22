@@ -1,4 +1,4 @@
- ﻿<?php
+ <?php
 $pagina = filter_input(INPUT_GET, "pagina", FILTER_SANITIZE_STRING);
 
 $arrayPaginas = array(
@@ -24,7 +24,8 @@ $arrayPaginas = array(
     "20" => "Impressoes/View/RelatorioEntradasMensal.php",
     "21" => "Impressoes/View/RelatorioEntradasDiario.php",
     "22" => "Impressoes/View/FecharCaixa.php",
-    "23" => "Impressoes/View/OrdemServico5.php",
+    "23" => "Impressoes/View/ReciboParcela.php",
+    "24" => "Impressoes/View/ImprimirEtiqueta.php",
 );
 
 

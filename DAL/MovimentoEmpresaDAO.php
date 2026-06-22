@@ -14,7 +14,7 @@ class MovimentoEmpresaDAO {
 
     public function Cadastrar(MovimentoEmpresa $movimentoempresa) {
         try {
-            $sql = "INSERT financeiro_empresa ( tipo, dia, mes, ano, cat, descricao, valor, cod_usu, cod_caixa) VALUES ( :tipo, :dia, :mes, :ano, :cat, :descricao, :valor, :codusu, :cod_caixa)";
+            $sql = "INSERT financeiro_empresa ( tipo, dia, mes, ano, cat, descricao, valor, cod_usu, cod_caixa, status) VALUES ( :tipo, :dia, :mes, :ano, :cat, :descricao, :valor, :codusu, :cod_caixa, :status)";
 
             $param = array(
                 ":tipo" => $movimentoempresa->getTipo(),
@@ -25,7 +25,8 @@ class MovimentoEmpresaDAO {
                 ":descricao" => $movimentoempresa->getDescricao(),
                 ":valor" => $movimentoempresa->getValor(),
                 ":codusu" => $movimentoempresa->getCod_usu(),
-                ":cod_caixa" => $movimentoempresa->getCod_caixa()
+                ":cod_caixa" => $movimentoempresa->getCod_caixa(),
+                ":status" => $movimentoempresa->getStatus()
             );
 
 

@@ -24,7 +24,7 @@ class Banco {
          $this->server = "localhost";
         $this->user = "root";
         $this->password = "@PESCADOR2022";
-        $this->database = "sisven_5";
+        $this->database = "projeto_medeiros";
     }
 
     /**

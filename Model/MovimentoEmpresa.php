@@ -14,6 +14,17 @@ class MovimentoEmpresa {
 
     private $cod_caixa;
 
+    private $status;
+    
+    function setStatus($status) {
+        $this->status = $status;
+    }
+
+    
+    function getStatus() {
+        return $this->status;
+    }
+
     function getCod_caixa() {
         return $this->cod_caixa;
     }

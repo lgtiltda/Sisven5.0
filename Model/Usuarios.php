@@ -18,7 +18,50 @@ class Usuarios {
     private $celular;
     private $senha;
     private $comissao;
+
+    private $data_ativacao;
+
+    private $data_vencimento;
+
+    private $data_vencimentoanterior;
     
+    private $tipo_ativacao;
+
+     
+    function getTipo_ativacao() {
+        return $this->tipo_ativacao;
+    }
+
+    function setTipo_ativacao($tipo_ativacao) {
+        $this->tipo_ativacao = $tipo_ativacao;
+    }
+    
+    function getData_ativacao() {
+        return $this->data_ativacao;
+    }
+
+    function setData_ativacao($data_ativacao) {
+        $this->data_ativacao = $data_ativacao;
+    }
+
+    
+    function getData_vencimento() {
+        return $this->data_vencimento;
+    }
+
+    function setData_vencimento($data_vencimento) {
+        $this->data_vencimento = $data_vencimento;
+    }
+
+    
+    function getData_vencimentoanterior() {
+        return $this->data_vencimentoanterior;
+    }
+
+    function setData_vencimentoanterior($data_vencimentoanterior) {
+        $this->data_vencimentoanterior = $data_vencimentoanterior;
+    }
+
     function getFuncao() {
         return $this->funcao;
     }

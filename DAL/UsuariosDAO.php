@@ -15,7 +15,7 @@ class UsuarioDAO {
     public function Cadastrar(Usuarios $usuarios) {
         try {
 
-            $sql = "INSERT INTO `usuarios` (nome, usuario, rg, cpf, email, foto, permissao, rua, bairro, numero, celular, senha, comissao) VALUES (:nome, :usuario, :rg, :cpf, :email, :foto, :permissao, :rua, :bairro, :numero, :celular, :senha, :comissao)";
+            $sql = "INSERT INTO `usuarios` (nome, usuario, rg, cpf, email, foto, permissao, rua, bairro, numero, celular, senha, comissao, data_ativacao, data_vencimento, data_vencimentoanterior) VALUES (:nome, :usuario, :rg, :cpf, :email, :foto, :permissao, :rua, :bairro, :numero, :celular, :senha, :comissao, :data_ativacao, :data_vencimento, :data_vencimentoanterior)";
             $param = array(
                 ":nome" => $usuarios->getNome(),
                 ":usuario" => $usuarios->getUsuario(),
@@ -29,7 +29,10 @@ class UsuarioDAO {
                 ":numero" => $usuarios->getNumero(),
                 ":celular" => $usuarios->getCelular(),
                 ":senha" => $usuarios->getSenha(),
-                ":comissao" => $usuarios->getComissao()
+                ":comissao" => $usuarios->getComissao(),
+                ":data_ativacao" => $usuarios->getData_ativacao(),
+                ":data_vencimento" => $usuarios->getData_vencimento(),
+                ":data_vencimentoanterior" => $usuarios->getData_vencimentoanterior()
             );
 
             return $this->pdo->ExecuteNonQuery($sql, $param);
@@ -101,6 +104,9 @@ class UsuarioDAO {
                 $usuarios->setCelular(($resultado["celular"]));
                 $usuarios->setSenha(($resultado["senha"]));
                 $usuarios->setComissao(($resultado["comissao"]));
+                $usuarios->setData_ativacao(($resultado["data_ativacao"]));
+                $usuarios->setData_vencimento(($resultado["data_vencimento"]));
+                $usuarios->setData_vencimentoanterior(($resultado["data_vencimentoanterior"]));
 
                 $listaUsuarios[] = $usuarios;
             }
@@ -159,7 +165,7 @@ class UsuarioDAO {
 
      public function AutenticarUsuario(string $usu, string $senha, int $permissao) {
         try {
-               $sql = "SELECT cod, nome, permissao FROM usuarios WHERE usuario = :usuario AND senha = :senha";
+               $sql = "SELECT cod, nome, permissao, tipo_ativacao FROM usuarios WHERE usuario = :usuario AND senha = :senha";
                 $param = array(
                     ":usuario" => $usu,
                     ":senha" => $senha
@@ -172,6 +178,7 @@ class UsuarioDAO {
                 $usuarios->setCod($dt["cod"]);
                 $usuarios->setNome($dt["nome"]);
                 $usuarios->setPermissao($dt["permissao"]);
+                $usuarios->setTipo_ativacao($dt["tipo_ativacao"]);
 
                 return $usuarios;
             } else {
@@ -210,8 +217,7 @@ class UsuarioDAO {
             return null;
         }
     }
-
-        
+    
 	public function AlterarImagemUsu(string $thumb, int $cod) {
         echo "<h1>deu auqi</h1>";
         echo "<h1>$thumb</h1>";

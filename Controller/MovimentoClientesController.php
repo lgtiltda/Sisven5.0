@@ -115,7 +115,7 @@ class MovimentoClientesController {
 
     public function RetornarPagamentos3(int $id) {
         if (1 == 1) {
-            return $this->movimentoClientesDAO->RetornarPagamentos3($id);
+            return $this->movimentoClientesDAO->RetornarPagamentos($id);
         } else {
             return false;
         }

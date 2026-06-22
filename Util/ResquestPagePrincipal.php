@@ -6,10 +6,10 @@ $arrayPaginas = array(
     "carinhocompras" => "View/CarinhoDeComprasView.php", //Página De Montar Pedido 
     "produtos" => "View/ProdutosView.php", //Página De Montar Produtos 
     "usuarios" => "View/UsuariosView.php", //Página De Montar Produtos 
-    "entradas" => "View/EntradasView.php", //Página De Montar Produtos 
+    "entradas" => "View/Entradas.php", //Página De Montar Produtos 
     "relatorios" => "View/RelatoriosView.php", //Página De Montar Produtos 
     "fornecedores" => "View/FornecedoresView.php", //Página De Montar Produtos 
-     "hometelao" => "View/homeTELAO.php", //Página inicial
+    "hometelao" => "View/homeTELAO.php", //Página inicial
     "homefunc" => "View/homeFUNC.php", //Página inicial
     
 );
