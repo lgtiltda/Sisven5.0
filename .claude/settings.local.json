@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(C:/xampp/mysql/bin/mysql.exe -u root -p@PESCADOR2022 projeto_medeiros -N -e ' *)"
+    ]
+  }
+}
